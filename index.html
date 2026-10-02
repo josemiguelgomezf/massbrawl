@@ -166,6 +166,31 @@
   #settingsActions{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
   #settingsActions button{ min-width:100px; padding:10px 16px; }
   #cancelSettingsBtn{ background:transparent; color:#cfe3ff; border:1px solid rgba(255,255,255,0.18); }
+  #storeOverlay, #traitInventoryOverlay{
+    position:absolute; inset:0; z-index:15; display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,12,0.86); padding:20px;
+  }
+  #storeOverlay.hidden, #traitInventoryOverlay.hidden{ display:none; }
+  #storePanel, #traitInventoryPanel{
+    width:min(410px, 100%); max-height:100%; overflow-y:auto; padding:22px 18px;
+    border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,0.65);
+  }
+  .economyTitle{ margin:0 0 8px; font-family:'Orbitron',sans-serif; font-size:22px; text-align:center; }
+  .economyBalance{ margin:0 0 16px; color:#ffd66b; text-align:center; font-weight:700; }
+  .shopItem, .traitItem{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; padding:12px 0; border-top:1px solid rgba(255,255,255,0.08); }
+  .shopItem strong, .traitItem strong{ display:block; }
+  .shopItem small, .traitItem small{ display:block; margin-top:4px; color:#9fb3d1; font-size:12px; }
+  .shopItem button, .traitItem button{ min-width:92px; padding:9px 12px; border-radius:9px; font-size:13px; }
+  .shopItem button:disabled, .traitItem button:disabled{ cursor:default; opacity:0.45; }
+  .economyActions{ display:flex; justify-content:flex-end; margin-top:16px; }
+  .economyActions button{ padding:10px 18px; }
+  #traitSelectionStatus{ margin:0 0 10px; color:#9fb3d1; text-align:center; font-size:13px; }
+  #coinDisplay{
+    position:absolute; top:14px; left:58px; min-height:36px; display:flex; align-items:center; gap:6px;
+    padding:0 11px; border:1px solid rgba(255,214,107,0.38); border-radius:18px;
+    background:rgba(11,18,32,0.9); color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:13px;
+  }
   .reduced-motion *, .reduced-motion *::before, .reduced-motion *::after{ animation:none !important; transition:none !important; }
   #exitConfirmOverlay{
     position:absolute; inset:0; z-index:14;
@@ -213,6 +238,19 @@
     border:1px solid rgba(255,255,255,0.16); font-size:20px; line-height:1;
     display:flex; align-items:center; justify-content:center;
   }
+  #storeBtn{
+    position:absolute; top:14px; left:14px; width:36px; height:36px; padding:0;
+    border-radius:50%; background:var(--panel); color:#ffd66b; border:1px solid rgba(255,214,107,0.38);
+    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  #traitInventoryBtn{
+    position:absolute; z-index:9; display:none; width:44px; height:44px; padding:0;
+    border-radius:50%; border:1px solid rgba(255,255,255,0.3); background:rgba(11,18,32,0.92);
+    color:#ffd66b; font-size:18px;
+  }
+  #traitInventoryBtn.player-turn{ display:flex; align-items:center; justify-content:center; right:12px; bottom:12px; }
+  #traitInventoryBtn.ai-turn{ display:flex; align-items:center; justify-content:center; left:12px; top:12px; }
+  #traitCount{ position:absolute; right:-5px; top:-5px; min-width:18px; padding:2px 4px; border-radius:10px; background:var(--orange); color:#04101c; font-size:10px; }
   #backToMenuBtn{
     margin-top:4px; background:transparent; color:#9fb3d1; text-decoration:underline;
     font-weight:500; padding:6px;
@@ -239,6 +277,7 @@
         </div>
       </div>
     </div>
+    <button id="traitInventoryBtn" title="Special inventory" aria-label="Special inventory">✦<span id="traitCount">0</span></button>
     <div id="turnIndicator">Your turn: drag a blue orb back, then release</div>
     <canvas id="game"></canvas>
     <div id="menuOverlay">
@@ -253,6 +292,8 @@
         <small data-i18n="pvpModeDesc">Same device, alternate turns</small>
       </button>
       <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
+      <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
+      <button id="storeBtn" title="Orb shop" aria-label="Orb shop">🛒</button>
     </div>
     <div id="difficultyOverlay" class="hidden">
       <div id="difficultyPanel">
@@ -292,6 +333,22 @@
           <button id="cancelSettingsBtn" data-i18n="cancel">Cancel</button>
           <button id="applySettingsBtn" data-i18n="apply">Apply</button>
         </div>
+      </div>
+    </div>
+    <div id="storeOverlay" class="hidden">
+      <div id="storePanel" role="dialog" aria-modal="true" aria-labelledby="storeTitle">
+        <h1 id="storeTitle" class="economyTitle" data-i18n="shop">Orb shop</h1>
+        <p class="economyBalance"><span data-i18n="coins">Coins</span>: <span id="storeCoinBalance">1000</span></p>
+        <div id="shopItems"></div>
+        <div class="economyActions"><button id="closeStoreBtn" data-i18n="close">Close</button></div>
+      </div>
+    </div>
+    <div id="traitInventoryOverlay" class="hidden">
+      <div id="traitInventoryPanel" role="dialog" aria-modal="true" aria-labelledby="traitInventoryTitle">
+        <h1 id="traitInventoryTitle" class="economyTitle" data-i18n="specialInventory">Special inventory</h1>
+        <p id="traitSelectionStatus" data-i18n="selectOrbFirst">Select an orb from your inventory first.</p>
+        <div id="traitItems"></div>
+        <div class="economyActions"><button id="closeTraitInventoryBtn" data-i18n="close">Close</button></div>
       </div>
     </div>
     <div id="helpPanel">
@@ -353,6 +410,18 @@
   const modeAiBtn = document.getElementById('modeAiBtn');
   const modePvpBtn = document.getElementById('modePvpBtn');
   const settingsBtn = document.getElementById('settingsBtn');
+  const storeBtn = document.getElementById('storeBtn');
+  const coinBalanceEl = document.getElementById('coinBalance');
+  const storeCoinBalanceEl = document.getElementById('storeCoinBalance');
+  const storeOverlay = document.getElementById('storeOverlay');
+  const shopItemsEl = document.getElementById('shopItems');
+  const closeStoreBtn = document.getElementById('closeStoreBtn');
+  const traitInventoryBtn = document.getElementById('traitInventoryBtn');
+  const traitCountEl = document.getElementById('traitCount');
+  const traitInventoryOverlay = document.getElementById('traitInventoryOverlay');
+  const traitItemsEl = document.getElementById('traitItems');
+  const traitSelectionStatus = document.getElementById('traitSelectionStatus');
+  const closeTraitInventoryBtn = document.getElementById('closeTraitInventoryBtn');
   const settingsOverlay = document.getElementById('settingsOverlay');
   const languageSelect = document.getElementById('languageSelect');
   const soundToggle = document.getElementById('soundToggle');
@@ -377,7 +446,12 @@
       selectedBlue: 'Blue orb selected: ', selectedOrange: 'Orange orb selected: ',
       playing: 'Orb launched...', pvpPlaying1: 'Player 1 orb launched...', pvpPlaying2: 'Player 2 orb launched...',
       aiPlaying: 'AI is playing...', victory: 'Victory!', defeat: 'Defeat', draw: 'Draw',
-      pvpWinner1: 'Player 1 (blue) wins', pvpWinner2: 'Player 2 (orange) wins'
+      pvpWinner1: 'Player 1 (blue) wins', pvpWinner2: 'Player 2 (orange) wins',
+      shop: 'Orb shop', coins: 'Coins', close: 'Close', buy: 'Buy', owned: 'Owned',
+      bombOrb: 'Bomb orb', spikedOrb: 'Spiked orb', ghostOrb: 'Ghost orb',
+      specialInventory: 'Special inventory', selectOrbFirst: 'Select an orb from your inventory first.',
+      applyTrait: 'Apply',
+      rewardCoins: 'coins earned'
     },
     de: {
       menuSub: 'Wähle deinen Gegner', aiMode: 'Gegen die KI spielen',
@@ -394,7 +468,11 @@
       selectedBlue: 'Blaue Kugel gewählt: ', selectedOrange: 'Orange Kugel gewählt: ',
       playing: 'Kugel gestartet...', pvpPlaying1: 'Kugel von Spieler 1 gestartet...', pvpPlaying2: 'Kugel von Spieler 2 gestartet...',
       aiPlaying: 'Die KI spielt...', victory: 'Sieg!', defeat: 'Niederlage', draw: 'Unentschieden',
-      pvpWinner1: 'Spieler 1 (blau) gewinnt', pvpWinner2: 'Spieler 2 (orange) gewinnt'
+      pvpWinner1: 'Spieler 1 (blau) gewinnt', pvpWinner2: 'Spieler 2 (orange) gewinnt',
+      shop: 'Kugel-Shop', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
+      bombOrb: 'Bombenkugel', spikedOrb: 'Stachelkugel', ghostOrb: 'Geisterkugel',
+      specialInventory: 'Spezialinventar', selectOrbFirst: 'Wähle zuerst eine Kugel aus deinem Vorrat.',
+      applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten'
     },
     fr: {
       menuSub: 'Choisissez votre adversaire', aiMode: "Jouer contre l'IA",
@@ -411,7 +489,11 @@
       selectedBlue: 'Bille bleue sélectionnée : ', selectedOrange: 'Bille orange sélectionnée : ',
       playing: 'Bille lancée...', pvpPlaying1: 'Bille du joueur 1 lancée...', pvpPlaying2: 'Bille du joueur 2 lancée...',
       aiPlaying: 'L’IA joue...', victory: 'Victoire !', defeat: 'Défaite', draw: 'Égalité',
-      pvpWinner1: 'Le joueur 1 (bleu) gagne', pvpWinner2: 'Le joueur 2 (orange) gagne'
+      pvpWinner1: 'Le joueur 1 (bleu) gagne', pvpWinner2: 'Le joueur 2 (orange) gagne',
+      shop: 'Boutique de billes', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
+      bombOrb: 'Bille bombe', spikedOrb: 'Bille à pointes', ghostOrb: 'Bille fantôme',
+      specialInventory: 'Inventaire spécial', selectOrbFirst: 'Sélectionnez d’abord une bille dans votre inventaire.',
+      applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées'
     },
     es: {
       menuSub: 'Elige a tu rival', aiMode: 'Jugar contra la IA',
@@ -428,12 +510,72 @@
       selectedBlue: 'Orbe azul seleccionado: ', selectedOrange: 'Orbe naranja seleccionado: ',
       playing: 'Orbe lanzado...', pvpPlaying1: 'Orbe del Jugador 1 lanzado...', pvpPlaying2: 'Orbe del Jugador 2 lanzado...',
       aiPlaying: 'La IA está jugando...', victory: '¡Victoria!', defeat: 'Derrota', draw: 'Empate',
-      pvpWinner1: 'Gana el Jugador 1 (azul)', pvpWinner2: 'Gana el Jugador 2 (naranja)'
+      pvpWinner1: 'Gana el Jugador 1 (azul)', pvpWinner2: 'Gana el Jugador 2 (naranja)',
+      shop: 'Tienda de orbes', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
+      bombOrb: 'Orbe bomba', spikedOrb: 'Orbe con pinchos', ghostOrb: 'Orbe fantasma',
+      specialInventory: 'Inventario especial', selectOrbFirst: 'Primero selecciona un orbe de tu inventario.',
+      applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas'
     }
   };
 
   const defaultSettings = { language: 'en', sound: false, vibration: false, reducedMotion: false };
   let settings = loadSettings();
+  const shopCatalog = [
+    { key: 'bomb', label: 'bombOrb', price: 30 },
+    { key: 'spiked', label: 'spikedOrb', price: 25 },
+    { key: 'ghost', label: 'ghostOrb', price: 35 }
+  ];
+  const STARTING_COINS = 1000;
+  const MATCH_REWARD = 100;
+
+  function loadEconomy(){
+    try {
+      const stored = JSON.parse(localStorage.getItem('massBrawlEconomy') || 'null');
+      if (!stored || !Number.isSafeInteger(stored.coins) || stored.coins < 0) {
+        return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 } };
+      }
+      return {
+        coins: stored.coins,
+        stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0]))
+      };
+    } catch (error) {
+      return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 } };
+    }
+  }
+
+  let economy = loadEconomy();
+
+  function saveEconomy(){
+    try {
+      localStorage.setItem('massBrawlEconomy', JSON.stringify(economy));
+    } catch (error) {
+      // Purchases remain available for the current session if storage is unavailable.
+    }
+  }
+
+  function renderEconomy(){
+    coinBalanceEl.textContent = economy.coins;
+    storeCoinBalanceEl.textContent = economy.coins;
+    traitCountEl.textContent = Object.values(economy.stock).reduce((total, amount) => total + amount, 0);
+  }
+
+  function renderShop(){
+    shopItemsEl.innerHTML = shopCatalog.map(({ key, label, price }) =>
+      `<div class="shopItem"><div><strong>${t(label)}</strong><small>${t('owned')}: ${economy.stock[key]}</small></div><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}>${t('buy')} · ${price} ◈</button></div>`
+    ).join('');
+  }
+
+  function renderTraitInventory(){
+    const team = turn;
+    const selectedIndex = selectedInventory[team];
+    const selectedOrb = selectedIndex === null ? null : inventory[team][selectedIndex];
+    traitSelectionStatus.textContent = selectedOrb ? `${t('owned')}: ${inventoryText(selectedOrb)}` : t('selectOrbFirst');
+    traitItemsEl.innerHTML = shopCatalog.map(({ key, label }) => {
+      const amount = economy.stock[key];
+      const disabled = !selectedOrb || amount < 1 || selectedOrb[key] ? 'disabled' : '';
+      return `<div class="traitItem"><div><strong>${t(label)}</strong><small>${t('owned')}: ${amount}</small></div><button type="button" data-apply-trait="${key}" ${disabled}>${t('applyTrait')}</button></div>`;
+    }).join('');
+  }
 
   function loadSettings(){
     try {
@@ -460,9 +602,15 @@
     exitGame.setAttribute('aria-label', t('exit'));
     settingsBtn.title = t('settings');
     settingsBtn.setAttribute('aria-label', t('settings'));
+    storeBtn.title = t('shop');
+    storeBtn.setAttribute('aria-label', t('shop'));
+    traitInventoryBtn.title = t('specialInventory');
+    traitInventoryBtn.setAttribute('aria-label', t('specialInventory'));
     languageSelect.value = settings.language;
     turnEl.textContent = turnLabel();
     helpText.textContent = buildHelpText();
+    renderShop();
+    if (!traitInventoryOverlay.classList.contains('hidden')) renderTraitInventory();
   }
 
   function syncSettingsControls(){
@@ -503,9 +651,9 @@
   const MAX_MASS = 5;
   const INVENTORY_SIZE = 5;
   const TURN_SECONDS = 60;
-  const BOMB_PROBABILITY = 0.10;
-  const SPIKE_PROBABILITY = 0.12;
-  const GHOST_PROBABILITY = 0.10;
+  const BOMB_PROBABILITY = 0.01;
+  const SPIKE_PROBABILITY = 0.01;
+  const GHOST_PROBABILITY = 0.01;
   const BOMB_RADIUS_BASE = 34;
   const BOMB_RADIUS_PER_MASS = 6;
   const ORB_BASE_RADIUS = 10;
@@ -694,6 +842,7 @@
     clearTimeout(finalDelayTimer); finalDelayTimer = null;
     overlay.classList.add('hidden');
     settingsOverlay.classList.add('hidden');
+    traitInventoryOverlay.classList.add('hidden');
     difficultyOverlay.classList.add('hidden');
     menuOverlay.classList.add('hidden');
     turnEl.textContent = turnLabel();
@@ -713,6 +862,8 @@
     howto.style.display = 'flex';
     exitConfirmOverlay.classList.add('hidden');
     settingsOverlay.classList.add('hidden');
+    storeOverlay.classList.add('hidden');
+    traitInventoryOverlay.classList.add('hidden');
     overlay.classList.add('hidden');
     difficultyOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
@@ -933,7 +1084,7 @@
       const o = orbs[i];
       const collector = pickupTeam(o.y);
       if (collector && isStationary(o)) {
-        inventory[collector].push({ value: o.value, bomb: o.bomb, spiked: o.spiked });
+        inventory[collector].push({ value: o.value, bomb: o.bomb, spiked: o.spiked, ghost: o.ghost });
         orbs.splice(i, 1);
         renderInventory();
       }
@@ -1033,6 +1184,8 @@
   function updateTurnUI(){
     leftBoardSide.classList.toggle('active', turn === 'player');
     rightBoardSide.classList.toggle('active', turn === 'ai');
+    traitInventoryBtn.classList.toggle('player-turn', turn === 'player');
+    traitInventoryBtn.classList.toggle('ai-turn', turn === 'ai' && mode === 'pvp');
   }
 
   function updateTimerDisplay(){
@@ -1117,8 +1270,14 @@
   }
 
   function endGame(){
+    if (gameOver) return;
     gameOver = true;
+    traitInventoryBtn.classList.remove('player-turn', 'ai-turn');
     clearTimeout(aiTimer); aiTimer = null;
+    economy.coins += MATCH_REWARD;
+    saveEconomy();
+    renderEconomy();
+    renderShop();
     const s = computeScores();
     let title;
 
@@ -1133,7 +1292,7 @@
     }
 
     overlayTitle.textContent = title;
-    overlaySub.textContent = `${s.player} — ${s.ai}`;
+    overlaySub.textContent = `${s.player} — ${s.ai} · +${MATCH_REWARD} ${t('rewardCoins')}`;
     overlay.classList.remove('hidden');
   }
 
@@ -1364,6 +1523,34 @@
   inventoryBlueEl.addEventListener('click', (e) => onInventoryClick('player', e));
   inventoryOrangeEl.addEventListener('click', (e) => onInventoryClick('ai', e));
 
+  shopItemsEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-buy-trait]');
+    if (!button) return;
+    const item = shopCatalog.find(({ key }) => key === button.dataset.buyTrait);
+    if (!item || economy.coins < item.price) return;
+    economy.coins -= item.price;
+    economy.stock[item.key] += 1;
+    saveEconomy();
+    renderEconomy();
+    renderShop();
+  });
+
+  traitItemsEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-apply-trait]');
+    if (!button) return;
+    const key = button.dataset.applyTrait;
+    const team = turn;
+    const selectedIndex = selectedInventory[team];
+    const selectedOrb = selectedIndex === null ? null : inventory[team][selectedIndex];
+    if (!shopCatalog.some((item) => item.key === key) || !selectedOrb || !economy.stock[key] || selectedOrb[key]) return;
+    selectedOrb[key] = true;
+    economy.stock[key] -= 1;
+    saveEconomy();
+    renderInventory();
+    renderEconomy();
+    renderTraitInventory();
+  });
+
   function selectDifficultyButton(selected){
     const key = selected && difficultyProfiles[selected] ? selected : null;
     difficultyEasyBtn.classList.toggle('active', key === 'easy');
@@ -1414,6 +1601,23 @@
     settingsOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
   });
+  storeBtn.addEventListener('click', ()=>{
+    renderShop();
+    menuOverlay.classList.add('hidden');
+    storeOverlay.classList.remove('hidden');
+  });
+  closeStoreBtn.addEventListener('click', ()=>{
+    storeOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
+  traitInventoryBtn.addEventListener('click', ()=>{
+    if (!started || gameOver || (mode === 'ai' && turn === 'ai')) return;
+    renderTraitInventory();
+    traitInventoryOverlay.classList.remove('hidden');
+  });
+  closeTraitInventoryBtn.addEventListener('click', ()=>{
+    traitInventoryOverlay.classList.add('hidden');
+  });
   modeAiBtn.addEventListener('click', ()=>{ showDifficultyOverlay(); });
   modePvpBtn.addEventListener('click', ()=>{ mode='pvp'; menuOverlay.classList.add('hidden'); newGame(); });
   difficultyEasyBtn.addEventListener('click', ()=>{ startAiGame('easy'); });
@@ -1433,6 +1637,8 @@
   applyLanguage();
   syncSettingsControls();
   selectDifficultyButton(difficulty);
+  renderEconomy();
+  renderShop();
 
   // Muestra el tablero vacío detrás del menú antes de elegir modo
   resize();
