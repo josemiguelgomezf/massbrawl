@@ -171,6 +171,37 @@
     background:rgba(3,6,12,0.86); padding:20px;
   }
   #storeOverlay.hidden, #traitInventoryOverlay.hidden{ display:none; }
+  #achievementsOverlay{
+    position:absolute; inset:0; z-index:16; display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,12,0.88); padding:20px;
+  }
+  #achievementsOverlay.hidden{ display:none; }
+  #achievementsPanel{
+    width:min(470px, 100%); max-height:100%; display:flex; flex-direction:column; overflow:hidden; padding:22px 18px;
+    border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,0.65);
+  }
+  #achievementList{ flex:1; min-height:0; overflow-y:auto; }
+  #achievementsPanel .economyActions{ flex-shrink:0; }
+  .achievementItem{ display:grid; grid-template-columns:32px minmax(0,1fr) auto; align-items:center; gap:10px; padding:11px 0; border-top:1px solid rgba(255,255,255,0.08); }
+  .achievementItem.locked{ opacity:0.62; }
+  .achievementIcon{ color:#ffd66b; font-size:21px; text-align:center; }
+  .achievementItem strong{ display:block; font-size:14px; }
+  .achievementItem small{ display:block; margin-top:3px; color:#9fb3d1; font-size:12px; line-height:1.3; }
+  .achievementReward{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; color:#ffd66b; font-size:11px; white-space:nowrap; }
+  .achievementReward strong{ font-size:11px; }
+  .achievementClaimBtn{ min-width:0; padding:5px 8px; border-radius:7px; font-size:10px; }
+  .achievementProgressTrack{ height:6px; margin-top:8px; overflow:hidden; border-radius:4px; background:rgba(255,255,255,0.1); }
+  .achievementProgressFill{ height:100%; border-radius:inherit; background:linear-gradient(90deg, var(--blue), #ffd66b); transition:width 220ms ease; }
+  #achievementToast{
+    position:absolute; z-index:20; top:14px; left:50%; width:min(390px, calc(100% - 24px));
+    padding:12px 16px; border:1px solid rgba(255,214,107,0.65); border-radius:12px;
+    background:rgba(11,18,32,0.97); box-shadow:0 8px 24px rgba(0,0,0,0.55); text-align:center;
+    opacity:0; pointer-events:none; transform:translate(-50%, -12px); transition:opacity 180ms ease, transform 180ms ease;
+  }
+  #achievementToast.visible{ opacity:1; transform:translate(-50%, 0); }
+  #achievementToastTitle{ display:block; color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:14px; }
+  #achievementToastReward{ display:block; margin-top:4px; color:#eaf2ff; font-size:12px; }
   #storePanel, #traitInventoryPanel{
     width:min(410px, 100%); max-height:100%; overflow-y:auto; padding:22px 18px;
     border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
@@ -238,6 +269,13 @@
     border:1px solid rgba(255,255,255,0.16); font-size:20px; line-height:1;
     display:flex; align-items:center; justify-content:center;
   }
+  #achievementsBtn{
+    position:absolute; top:14px; right:58px; width:36px; height:36px; padding:0;
+    border-radius:50%; background:var(--panel); color:#ffd66b;
+    border:1px solid rgba(255,214,107,0.38); font-size:18px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #achievementCount{ position:absolute; right:-5px; top:-5px; min-width:17px; padding:2px 4px; border-radius:10px; background:var(--orange); color:#04101c; font-size:9px; }
   #storeBtn{
     position:absolute; top:14px; left:14px; width:36px; height:36px; padding:0;
     border-radius:50%; background:var(--panel); color:#ffd66b; border:1px solid rgba(255,214,107,0.38);
@@ -292,6 +330,7 @@
         <small data-i18n="pvpModeDesc">Same device, alternate turns</small>
       </button>
       <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
+      <button id="achievementsBtn" title="Achievements" aria-label="Achievements">🏆<span id="achievementCount">0</span></button>
       <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
       <button id="storeBtn" title="Orb shop" aria-label="Orb shop">🛒</button>
     </div>
@@ -343,6 +382,13 @@
         <div class="economyActions"><button id="closeStoreBtn" data-i18n="close">Close</button></div>
       </div>
     </div>
+    <div id="achievementsOverlay" class="hidden">
+      <div id="achievementsPanel" role="dialog" aria-modal="true" aria-labelledby="achievementsTitle">
+        <h1 id="achievementsTitle" class="economyTitle" data-i18n="achievementsTitle">Achievements</h1>
+        <div id="achievementList"></div>
+        <div class="economyActions"><button id="closeAchievementsBtn" data-i18n="close">Close</button></div>
+      </div>
+    </div>
     <div id="traitInventoryOverlay" class="hidden">
       <div id="traitInventoryPanel" role="dialog" aria-modal="true" aria-labelledby="traitInventoryTitle">
         <h1 id="traitInventoryTitle" class="economyTitle" data-i18n="specialInventory">Special inventory</h1>
@@ -371,6 +417,10 @@
       <p id="overlaySub"></p>
       <button id="restartBtn" data-i18n="playAgain">Play again</button>
       <button id="backToMenuBtn" data-i18n="backToMenu">Back to menu</button>
+    </div>
+    <div id="achievementToast" role="status" aria-live="polite">
+      <span id="achievementToastTitle"></span>
+      <span id="achievementToastReward"></span>
     </div>
   </div>
 </div>
@@ -410,6 +460,14 @@
   const modeAiBtn = document.getElementById('modeAiBtn');
   const modePvpBtn = document.getElementById('modePvpBtn');
   const settingsBtn = document.getElementById('settingsBtn');
+  const achievementsBtn = document.getElementById('achievementsBtn');
+  const achievementCountEl = document.getElementById('achievementCount');
+  const achievementsOverlay = document.getElementById('achievementsOverlay');
+  const achievementListEl = document.getElementById('achievementList');
+  const closeAchievementsBtn = document.getElementById('closeAchievementsBtn');
+  const achievementToastEl = document.getElementById('achievementToast');
+  const achievementToastTitleEl = document.getElementById('achievementToastTitle');
+  const achievementToastRewardEl = document.getElementById('achievementToastReward');
   const storeBtn = document.getElementById('storeBtn');
   const coinBalanceEl = document.getElementById('coinBalance');
   const storeCoinBalanceEl = document.getElementById('storeCoinBalance');
@@ -451,7 +509,20 @@
       bombOrb: 'Bomb orb', spikedOrb: 'Spiked orb', ghostOrb: 'Ghost orb',
       specialInventory: 'Special inventory', selectOrbFirst: 'Select an orb from your inventory first.',
       applyTrait: 'Apply',
-      rewardCoins: 'coins earned'
+      rewardCoins: 'coins earned', achievementsTitle: 'Achievements', achievementUnlocked: 'Achievement unlocked',
+      achievementLocked: 'Locked', achievementEarned: 'Unlocked', achievementPending: 'Ready to claim', achievementClaimed: 'Claimed', achievementInProgress: 'In progress', achievementLevel: 'Level', achievementComplete: 'Complete', claimReward: 'Claim', pendingRewards: 'pending rewards',
+      firstLaunchTitle: 'Orb Marksman', firstLaunchDesc: 'Launch {target} orbs in total.',
+      bombLaunchTitle: 'Bombardier', bombLaunchDesc: 'Launch {target} bomb orbs.',
+      spikedLaunchTitle: 'Spiked Tactician', spikedLaunchDesc: 'Launch {target} spiked orbs.',
+      ghostLaunchTitle: 'Spectral Pilot', ghostLaunchDesc: 'Launch {target} ghost orbs.',
+      allSpecialsTitle: 'Arsenal Master', allSpecialsDesc: 'Complete {target} sets using every special-orb type.',
+      firstWinTitle: 'Match Victor', firstWinDesc: 'Win {target} matches in total.',
+      hardWinTitle: 'Hard Mode Hunter', hardWinDesc: 'Defeat the Hard AI {target} times.',
+      pvpWinTitle: 'Local Champion', pvpWinDesc: 'Win {target} matches in local multiplayer.',
+      scoreTenTitle: 'Score Chaser', scoreTenDesc: 'Score {target} points in one match.',
+      doubleBombTitle: 'Chain Reaction', doubleBombDesc: 'Eliminate at least two orbs with a bomb {target} times.',
+      streakTitle: 'Victory Streak', streakDesc: 'Win {target} matches in a row.',
+      tenMatchesTitle: 'Arena Veteran', tenMatchesDesc: 'Complete {target} matches in total.'
     },
     de: {
       menuSub: 'Wähle deinen Gegner', aiMode: 'Gegen die KI spielen',
@@ -472,7 +543,20 @@
       shop: 'Kugel-Shop', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
       bombOrb: 'Bombenkugel', spikedOrb: 'Stachelkugel', ghostOrb: 'Geisterkugel',
       specialInventory: 'Spezialinventar', selectOrbFirst: 'Wähle zuerst eine Kugel aus deinem Vorrat.',
-      applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten'
+      applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten', achievementsTitle: 'Erfolge', achievementUnlocked: 'Erfolg freigeschaltet',
+      achievementLocked: 'Gesperrt', achievementEarned: 'Freigeschaltet', achievementPending: 'Abholbereit', achievementClaimed: 'Abgeholt', achievementInProgress: 'In Arbeit', achievementLevel: 'Stufe', achievementComplete: 'Abgeschlossen', claimReward: 'Abholen', pendingRewards: 'offene Belohnungen',
+      firstLaunchTitle: 'Kugelschütze', firstLaunchDesc: 'Schieße insgesamt {target} Kugeln ab.',
+      bombLaunchTitle: 'Sprengmeister', bombLaunchDesc: 'Schieße {target} Bombenkugeln ab.',
+      spikedLaunchTitle: 'Stacheltaktiker', spikedLaunchDesc: 'Schieße {target} Stachelkugeln ab.',
+      ghostLaunchTitle: 'Phantom-Pilot', ghostLaunchDesc: 'Schieße {target} Geisterkugeln ab.',
+      allSpecialsTitle: 'Arsenalmeister', allSpecialsDesc: 'Vervollständige {target} Sätze mit allen Spezialkugel-Arten.',
+      firstWinTitle: 'Match-Sieger', firstWinDesc: 'Gewinne insgesamt {target} Spiele.',
+      hardWinTitle: 'Albtraumjäger', hardWinDesc: 'Besiege die KI auf Schwer {target}-mal.',
+      pvpWinTitle: 'Lokaler Champion', pvpWinDesc: 'Gewinne {target} Spiele im lokalen Mehrspielermodus.',
+      scoreTenTitle: 'Punktejäger', scoreTenDesc: 'Erziele {target} Punkte in einem Spiel.',
+      doubleBombTitle: 'Kettenreaktion', doubleBombDesc: 'Eliminiere mit einer Bombe mindestens zwei Kugeln, {target}-mal.',
+      streakTitle: 'Siegesserie', streakDesc: 'Gewinne {target} Spiele in Folge.',
+      tenMatchesTitle: 'Arena-Veteran', tenMatchesDesc: 'Schließe insgesamt {target} Spiele ab.'
     },
     fr: {
       menuSub: 'Choisissez votre adversaire', aiMode: "Jouer contre l'IA",
@@ -493,7 +577,20 @@
       shop: 'Boutique de billes', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
       bombOrb: 'Bille bombe', spikedOrb: 'Bille à pointes', ghostOrb: 'Bille fantôme',
       specialInventory: 'Inventaire spécial', selectOrbFirst: 'Sélectionnez d’abord une bille dans votre inventaire.',
-      applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées'
+      applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées', achievementsTitle: 'Succès', achievementUnlocked: 'Succès débloqué',
+      achievementLocked: 'Verrouillé', achievementEarned: 'Débloqué', achievementPending: 'À récupérer', achievementClaimed: 'Récupéré', achievementInProgress: 'En cours', achievementLevel: 'Niveau', achievementComplete: 'Terminé', claimReward: 'Récupérer', pendingRewards: 'récompenses à récupérer',
+      firstLaunchTitle: 'Tireur de billes', firstLaunchDesc: 'Lancez {target} billes au total.',
+      bombLaunchTitle: 'Démolisseur', bombLaunchDesc: 'Lancez {target} billes bombes.',
+      spikedLaunchTitle: 'Expert en pointes', spikedLaunchDesc: 'Lancez {target} billes à pointes.',
+      ghostLaunchTitle: 'Pilote fantôme', ghostLaunchDesc: 'Lancez {target} billes fantômes.',
+      allSpecialsTitle: 'Maître de l’arsenal', allSpecialsDesc: 'Complétez {target} séries en utilisant chaque type de bille spéciale.',
+      firstWinTitle: 'Vainqueur', firstWinDesc: 'Gagnez {target} parties au total.',
+      hardWinTitle: 'Chasseur de défis', hardWinDesc: 'Battez l’IA en difficile {target} fois.',
+      pvpWinTitle: 'Champion local', pvpWinDesc: 'Gagnez {target} parties en multijoueur local.',
+      scoreTenTitle: 'Chasseur de points', scoreTenDesc: 'Marquez {target} points en une partie.',
+      doubleBombTitle: 'Réaction en chaîne', doubleBombDesc: 'Éliminez au moins deux billes avec une bombe {target} fois.',
+      streakTitle: 'Série de victoires', streakDesc: 'Gagnez {target} parties d’affilée.',
+      tenMatchesTitle: 'Vétéran de l’arène', tenMatchesDesc: 'Terminez {target} parties au total.'
     },
     es: {
       menuSub: 'Elige a tu rival', aiMode: 'Jugar contra la IA',
@@ -514,7 +611,20 @@
       shop: 'Tienda de orbes', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
       bombOrb: 'Orbe bomba', spikedOrb: 'Orbe con pinchos', ghostOrb: 'Orbe fantasma',
       specialInventory: 'Inventario especial', selectOrbFirst: 'Primero selecciona un orbe de tu inventario.',
-      applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas'
+      applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas', achievementsTitle: 'Logros', achievementUnlocked: 'Logro conseguido',
+      achievementLocked: 'Bloqueado', achievementEarned: 'Conseguido', achievementPending: 'Pendiente de cobro', achievementClaimed: 'Cobrado', achievementInProgress: 'En progreso', achievementLevel: 'Nivel', achievementComplete: 'Completado', claimReward: 'Cobrar', pendingRewards: 'recompensas pendientes',
+      firstLaunchTitle: 'Lanzador de orbes', firstLaunchDesc: 'Lanza {target} orbes en total.',
+      bombLaunchTitle: 'Bombardero', bombLaunchDesc: 'Lanza {target} orbes bomba.',
+      spikedLaunchTitle: 'Maestro de los pinchos', spikedLaunchDesc: 'Lanza {target} orbes con pinchos.',
+      ghostLaunchTitle: 'Piloto espectral', ghostLaunchDesc: 'Lanza {target} orbes fantasma.',
+      allSpecialsTitle: 'Arsenal imparable', allSpecialsDesc: 'Completa {target} series usando cada tipo de orbe especial.',
+      firstWinTitle: 'Vencedor', firstWinDesc: 'Gana {target} partidas en total.',
+      hardWinTitle: 'Retador en difícil', hardWinDesc: 'Derrota a la IA en difícil {target} veces.',
+      pvpWinTitle: 'Campeón local', pvpWinDesc: 'Gana {target} partidas en multijugador local.',
+      scoreTenTitle: 'Récord de puntuación', scoreTenDesc: 'Consigue {target} puntos en una partida.',
+      doubleBombTitle: 'Reacción en cadena', doubleBombDesc: 'Elimina al menos dos orbes con una bomba {target} veces.',
+      streakTitle: 'Racha imparable', streakDesc: 'Gana {target} partidas seguidas.',
+      tenMatchesTitle: 'Veterano de la arena', tenMatchesDesc: 'Completa {target} partidas en total.'
     }
   };
 
@@ -527,23 +637,58 @@
   ];
   const STARTING_COINS = 1000;
   const MATCH_REWARD = 100;
+  const achievementDefinitions = [
+    { id: 'first_launch', title: 'firstLaunchTitle', description: 'firstLaunchDesc', stat: 'launches', thresholds: [1, 5, 15, 30, 50], reward: 25 },
+    { id: 'bomb_launch', title: 'bombLaunchTitle', description: 'bombLaunchDesc', stat: 'bombUses', thresholds: [1, 3, 7, 15, 30], reward: 50 },
+    { id: 'spiked_launch', title: 'spikedLaunchTitle', description: 'spikedLaunchDesc', stat: 'spikedUses', thresholds: [1, 3, 7, 15, 30], reward: 50 },
+    { id: 'ghost_launch', title: 'ghostLaunchTitle', description: 'ghostLaunchDesc', stat: 'ghostUses', thresholds: [1, 3, 7, 15, 30], reward: 50 },
+    { id: 'all_specials', title: 'allSpecialsTitle', description: 'allSpecialsDesc', stat: 'specialSets', thresholds: [1, 2, 5, 10, 20], reward: 150 },
+    { id: 'first_win', title: 'firstWinTitle', description: 'firstWinDesc', stat: 'wins', thresholds: [1, 3, 5, 10, 20], reward: 100 },
+    { id: 'hard_win', title: 'hardWinTitle', description: 'hardWinDesc', stat: 'hardWins', thresholds: [1, 2, 5, 10, 20], reward: 250 },
+    { id: 'pvp_win', title: 'pvpWinTitle', description: 'pvpWinDesc', stat: 'pvpWins', thresholds: [1, 3, 5, 10, 20], reward: 100 },
+    { id: 'score_ten', title: 'scoreTenTitle', description: 'scoreTenDesc', stat: 'bestScore', thresholds: [10, 15, 20, 25, 30], reward: 100 },
+    { id: 'double_bomb', title: 'doubleBombTitle', description: 'doubleBombDesc', stat: 'doubleBombs', thresholds: [1, 2, 5, 10, 20], reward: 150 },
+    { id: 'streak_3', title: 'streakTitle', description: 'streakDesc', stat: 'winStreak', thresholds: [3, 4, 5, 7, 10], reward: 200 },
+    { id: 'matches_10', title: 'tenMatchesTitle', description: 'tenMatchesDesc', stat: 'matches', thresholds: [10, 25, 50, 100, 200], reward: 200 }
+  ];
+
+  function defaultAchievementStats(){
+    return { launches: 0, bombUses: 0, spikedUses: 0, ghostUses: 0, matches: 0, wins: 0, winStreak: 0, hardWins: 0, pvpWins: 0, bestScore: 0, doubleBombs: 0 };
+  }
 
   function loadEconomy(){
     try {
       const stored = JSON.parse(localStorage.getItem('massBrawlEconomy') || 'null');
       if (!stored || !Number.isSafeInteger(stored.coins) || stored.coins < 0) {
-        return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 } };
+        return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievements: [], claimedAchievements: [], stats: defaultAchievementStats() };
       }
+      const defaults = defaultAchievementStats();
+      const storedStats = stored.stats && typeof stored.stats === 'object' ? stored.stats : {};
+      const achievements = Array.isArray(stored.achievements) ? [...new Set(stored.achievements.filter((id) => achievementDefinitions.some((item) => item.id === id)))] : [];
+      const achievementLevels = Object.fromEntries(achievementDefinitions.map(({ id }) => {
+        const savedLevel = stored.achievementLevels?.[id];
+        const legacyLevel = achievements.includes(id) && stored.claimedAchievements?.includes(id) ? 1 : 0;
+        const level = Number.isSafeInteger(savedLevel) ? savedLevel : legacyLevel;
+        return [id, Math.max(0, Math.min(achievementDefinitions.find((item) => item.id === id).thresholds.length, level))];
+      }));
+      const notifiedAchievementLevels = stored.notifiedAchievementLevels && typeof stored.notifiedAchievementLevels === 'object'
+        ? stored.notifiedAchievementLevels
+        : {};
       return {
         coins: stored.coins,
-        stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0]))
+        stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0])),
+        achievementLevels,
+        notifiedAchievementLevels: Object.fromEntries(achievementDefinitions.map(({ id }) => [id, Number.isSafeInteger(notifiedAchievementLevels[id]) && notifiedAchievementLevels[id] > 0 ? notifiedAchievementLevels[id] : 0])),
+        stats: Object.fromEntries(Object.entries(defaults).map(([key, fallback]) => [key, Number.isSafeInteger(storedStats[key]) && storedStats[key] >= 0 ? storedStats[key] : fallback]))
       };
     } catch (error) {
-      return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 } };
+      return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievementLevels: {}, notifiedAchievementLevels: {}, stats: defaultAchievementStats() };
     }
   }
 
   let economy = loadEconomy();
+  let achievementToastQueue = [];
+  let achievementToastTimer = null;
 
   function saveEconomy(){
     try {
@@ -557,6 +702,115 @@
     coinBalanceEl.textContent = economy.coins;
     storeCoinBalanceEl.textContent = economy.coins;
     traitCountEl.textContent = Object.values(economy.stock).reduce((total, amount) => total + amount, 0);
+    const pendingCount = achievementDefinitions.filter((item) => isAchievementPending(item)).length;
+    achievementCountEl.textContent = pendingCount;
+    achievementCountEl.style.display = pendingCount ? 'block' : 'none';
+  }
+
+  function renderAchievements(){
+    achievementListEl.innerHTML = achievementDefinitions.map((item) => {
+      const claimedLevels = economy.achievementLevels[item.id] || 0;
+      const complete = claimedLevels >= item.thresholds.length;
+      const levelIndex = Math.min(claimedLevels, item.thresholds.length - 1);
+      const required = item.thresholds[levelIndex];
+      const progress = achievementMetric(item);
+      const ratio = complete ? 1 : Math.min(1, progress / required);
+      const isPending = !complete && progress >= required;
+      const reward = achievementReward(item, levelIndex + 1);
+      const status = complete ? t('achievementComplete') : isPending ? t('achievementPending') : t('achievementInProgress');
+      const claimButton = isPending ? `<button class="achievementClaimBtn" type="button" data-claim-achievement="${item.id}">${t('claimReward')}</button>` : '';
+      const progressLabel = complete ? `${item.thresholds.length} / ${item.thresholds.length}` : `${Math.min(progress, required)} / ${required}`;
+      const description = t(item.description).replace('{target}', required);
+      return `<div class="achievementItem ${complete ? 'unlocked' : isPending ? 'pending' : 'locked'}"><span class="achievementIcon">${complete ? '🏆' : isPending ? '★' : '◇'}</span><div><strong>${t(item.title)} · ${t('achievementLevel')} ${complete ? item.thresholds.length : levelIndex + 1}</strong><small>${description} · ${status}</small><div class="achievementProgressTrack"><div class="achievementProgressFill" style="width:${ratio * 100}%"></div></div><small>${progressLabel}</small></div><div class="achievementReward"><span>+${reward} ◈</span>${claimButton}</div></div>`;
+    }).join('');
+  }
+
+  function showNextAchievementToast(){
+    achievementToastTimer = null;
+    const item = achievementToastQueue.shift();
+    if (!item) {
+      achievementToastEl.classList.remove('visible');
+      return;
+    }
+    achievementToastTitleEl.textContent = t(item.title);
+    achievementToastRewardEl.textContent = `${t('achievementLevel')} ${item.level} · ${t('achievementPending')} · +${item.reward} ${t('coins')}`;
+    achievementToastEl.classList.add('visible');
+    achievementToastTimer = setTimeout(() => {
+      achievementToastEl.classList.remove('visible');
+      achievementToastTimer = setTimeout(showNextAchievementToast, 220);
+    }, 3400);
+  }
+
+  function achievementMetric(item){
+    if (item.stat === 'specialSets') {
+      return Math.min(economy.stats.bombUses, economy.stats.spikedUses, economy.stats.ghostUses);
+    }
+    return economy.stats[item.stat] || 0;
+  }
+
+  function achievementReward(item, level){
+    return item.reward + (level - 1) * Math.max(15, Math.round(item.reward * 0.5));
+  }
+
+  function isAchievementPending(item){
+    const claimedLevels = economy.achievementLevels[item.id] || 0;
+    if (claimedLevels >= item.thresholds.length) return false;
+    return achievementMetric(item) >= item.thresholds[claimedLevels];
+  }
+
+  function claimAchievement(id){
+    const item = achievementDefinitions.find((achievement) => achievement.id === id);
+    if (!item || !isAchievementPending(item)) return;
+    const level = economy.achievementLevels[id] || 0;
+    economy.achievementLevels[id] = level + 1;
+    economy.coins += achievementReward(item, level + 1);
+    saveEconomy();
+    renderEconomy();
+    renderShop();
+    renderAchievements();
+    checkAchievementProgress();
+  }
+
+  function checkAchievementProgress(){
+    const stats = economy.stats;
+    for (const item of achievementDefinitions) {
+      const level = (economy.achievementLevels[item.id] || 0) + 1;
+      if (level > item.thresholds.length || achievementMetric(item) < item.thresholds[level - 1]) continue;
+      if ((economy.notifiedAchievementLevels[item.id] || 0) >= level) continue;
+      economy.notifiedAchievementLevels[item.id] = level;
+      achievementToastQueue.push({ ...item, level, reward: achievementReward(item, level) });
+    }
+    saveEconomy();
+    renderEconomy();
+    renderAchievements();
+    if (achievementToastQueue.length && !achievementToastTimer) showNextAchievementToast();
+  }
+
+  function recordOrbLaunch(orb){
+    const stats = economy.stats;
+    stats.launches += 1;
+    if (orb.bomb) stats.bombUses += 1;
+    if (orb.spiked) stats.spikedUses += 1;
+    if (orb.ghost) stats.ghostUses += 1;
+    saveEconomy();
+    checkAchievementProgress();
+  }
+
+  function recordMatchResult(scores){
+    const stats = economy.stats;
+    const won = mode === 'pvp' ? scores.player !== scores.ai : scores.player > scores.ai;
+    stats.matches += 1;
+    stats.bestScore = Math.max(stats.bestScore, scores.player, scores.ai);
+    if (won) {
+      stats.wins += 1;
+      stats.winStreak += 1;
+      if (mode === 'ai' && difficulty === 'hard' && scores.player > scores.ai) stats.hardWins += 1;
+      if (mode === 'pvp') stats.pvpWins += 1;
+    } else {
+      stats.winStreak = 0;
+    }
+    saveEconomy();
+    checkAchievementProgress();
   }
 
   function renderShop(){
@@ -602,6 +856,8 @@
     exitGame.setAttribute('aria-label', t('exit'));
     settingsBtn.title = t('settings');
     settingsBtn.setAttribute('aria-label', t('settings'));
+    achievementsBtn.title = t('achievementsTitle');
+    achievementsBtn.setAttribute('aria-label', t('achievementsTitle'));
     storeBtn.title = t('shop');
     storeBtn.setAttribute('aria-label', t('shop'));
     traitInventoryBtn.title = t('specialInventory');
@@ -610,6 +866,7 @@
     turnEl.textContent = turnLabel();
     helpText.textContent = buildHelpText();
     renderShop();
+    renderAchievements();
     if (!traitInventoryOverlay.classList.contains('hidden')) renderTraitInventory();
   }
 
@@ -856,6 +1113,9 @@
   function backToMenu(){
     clearTimeout(aiTimer); aiTimer = null;
     clearTimeout(finalDelayTimer); finalDelayTimer = null;
+    clearTimeout(achievementToastTimer); achievementToastTimer = null;
+    achievementToastQueue = [];
+    achievementToastEl.classList.remove('visible');
     started = false;
     gameOver = false;
     helpPanel.classList.remove('visible');
@@ -905,6 +1165,7 @@
       turnEl.textContent = mode === 'pvp'
         ? (turn === 'player' ? t('pvpPlaying1') : t('pvpPlaying2'))
         : (turn === 'player' ? t('playing') : t('aiPlaying'));
+      if (turn === 'player' || mode === 'pvp') recordOrbLaunch(dragOrb);
       orbs.push(dragOrb);
     } else if (!orbs.includes(dragOrb)) {
       inventory[dragOrb.team].push({ value: dragOrb.value, bomb: dragOrb.bomb, spiked: dragOrb.spiked, ghost: dragOrb.ghost });
@@ -943,13 +1204,21 @@
 
     for (const bomb of bombSources.values()) {
       const victims = orbs.filter(o => o !== bomb && o.team !== bomb.team && Math.hypot(o.x-bomb.x, o.y-bomb.y) <= bomb.bombRadius + o.r);
+      let eliminated = 0;
 
       for (const victim of victims) {
         victim.value = Math.max(0, victim.value - bomb.value);
 
         if (victim.value <= 0) {
           victim.dead = true;
+          eliminated += 1;
         }
+      }
+
+      if (eliminated >= 2 && (mode === 'pvp' || bomb.team === 'player')) {
+        economy.stats.doubleBombs += 1;
+        saveEconomy();
+        checkAchievementProgress();
       }
 
       bomb.dead = true;
@@ -1279,6 +1548,7 @@
     renderEconomy();
     renderShop();
     const s = computeScores();
+    recordMatchResult(s);
     let title;
 
     if (mode === 'pvp') {
@@ -1549,6 +1819,22 @@
     renderInventory();
     renderEconomy();
     renderTraitInventory();
+  });
+
+  achievementListEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-claim-achievement]');
+    if (!button) return;
+    claimAchievement(button.dataset.claimAchievement);
+  });
+
+  achievementsBtn.addEventListener('click', ()=>{
+    renderAchievements();
+    menuOverlay.classList.add('hidden');
+    achievementsOverlay.classList.remove('hidden');
+  });
+  closeAchievementsBtn.addEventListener('click', ()=>{
+    achievementsOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
   });
 
   function selectDifficultyButton(selected){
