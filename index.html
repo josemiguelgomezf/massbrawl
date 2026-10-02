@@ -505,6 +505,7 @@
   const TURN_SECONDS = 60;
   const BOMB_PROBABILITY = 0.10;
   const SPIKE_PROBABILITY = 0.12;
+  const GHOST_PROBABILITY = 0.10;
   const BOMB_RADIUS_BASE = 34;
   const BOMB_RADIUS_PER_MASS = 6;
   const ORB_BASE_RADIUS = 10;
@@ -545,7 +546,7 @@
   let selectedInventory = { player: null, ai: null };
 
   function inventoryText(item){
-    const markers = `${item.bomb ? '✹' : ''}${item.spiked ? '✦' : ''}`;
+    const markers = `${item.bomb ? '✹' : ''}${item.spiked ? '✦' : ''}${item.ghost ? '◌' : ''}`;
     return `${markers}${item.value}`;
   }
 
@@ -565,10 +566,12 @@
     return Array.from({length: INVENTORY_SIZE}, () => {
       const value = 1 + Math.floor(Math.random() * MAX_MASS);
       const bomb = Math.random() < BOMB_PROBABILITY;
+      const spiked = !bomb && Math.random() < SPIKE_PROBABILITY;
       return {
         value,
         bomb,
-        spiked: !bomb && Math.random() < SPIKE_PROBABILITY
+        spiked,
+        ghost: !bomb && !spiked && Math.random() < GHOST_PROBABILITY
       };
     });
   }
@@ -644,9 +647,10 @@
     const value = item.value ?? item;
     const bomb = item.bomb ?? false;
     const spiked = item.spiked ?? false;
+    const ghost = item.ghost ?? false;
     const r = orbRadius(value);
     return {
-      id: `orb${nextOrbId++}`, team, value, bomb, spiked, r,
+      id: `orb${nextOrbId++}`, team, value, bomb, spiked, ghost, r,
       bombRadius: bomb ? BOMB_RADIUS_BASE + value * BOMB_RADIUS_PER_MASS : 0,
       x: point ? point.x : W/2, y: point ? point.y : launchY(team), vx: 0, vy: 0
     };
@@ -752,7 +756,7 @@
         : (turn === 'player' ? t('playing') : t('aiPlaying'));
       orbs.push(dragOrb);
     } else if (!orbs.includes(dragOrb)) {
-      inventory[dragOrb.team].push({ value: dragOrb.value, bomb: dragOrb.bomb, spiked: dragOrb.spiked });
+      inventory[dragOrb.team].push({ value: dragOrb.value, bomb: dragOrb.bomb, spiked: dragOrb.spiked, ghost: dragOrb.ghost });
       renderInventory();
     }
     dragOrb = null; dragStart = null; dragCurrent = null;
@@ -776,7 +780,7 @@
 
   function detonateBombs(){
     const stationaryBombs = orbs.filter(o => o.bomb && isStationary(o));
-      const contactBombs = orbs.filter(o => o.bomb && (o.contactDetonation || orbs.some(x => x !== o && x.team !== o.team && Math.hypot(x.x-o.x, x.y-o.y) <= o.r + x.r)));
+      const contactBombs = orbs.filter(o => o.bomb && !o.ghost && (o.contactDetonation || orbs.some(x => x !== o && !x.ghost && x.team !== o.team && Math.hypot(x.x-o.x, x.y-o.y) <= o.r + x.r)));
     const bombSources = new Map();
 
     for (const bomb of stationaryBombs) bombSources.set(bomb.id, bomb);
@@ -883,6 +887,7 @@
     for (let i=0;i<orbs.length;i++){
       for (let j=i+1;j<orbs.length;j++){
         const a = orbs[i], b = orbs[j];
+        if (a.ghost || b.ghost) continue;
         const dx = b.x-a.x, dy = b.y-a.y;
         const dist = Math.hypot(dx,dy) || 0.0001;
         const minDist = a.r+b.r;
@@ -1195,6 +1200,21 @@
 
     if (o.bomb) {
       ctx.beginPath(); ctx.arc(o.x,o.y,o.r+4,0,Math.PI*2); ctx.strokeStyle = 'rgba(255,255,180,0.95)'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    if (o.ghost) {
+      ctx.strokeStyle = 'rgba(205,255,255,0.95)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.arc(o.x, o.y, o.r + 5, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = 'rgba(225,255,255,0.95)';
+      for (const angle of [-Math.PI / 2, Math.PI / 6, (5 * Math.PI) / 6]) {
+        ctx.beginPath();
+        ctx.arc(o.x + Math.cos(angle) * (o.r + 5), o.y + Math.sin(angle) * (o.r + 5), 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     ctx.restore();
