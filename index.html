@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Mass Brawl — Prototipo</title>
+<title>Mass Brawl</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rubik:wght@400;500;700&display=swap');
 
@@ -23,34 +23,54 @@
     display:flex; align-items:center; justify-content:center;
   }
   #app{
-    position:relative; width:480px; max-width:100vw; height:100vh; max-height:900px;
+    position:relative; width:640px; max-width:100vw; height:100vh; max-height:900px;
     background:
       radial-gradient(circle at 20% 0%, rgba(51,193,255,0.08), transparent 45%),
       radial-gradient(circle at 80% 0%, rgba(255,138,43,0.08), transparent 45%),
       var(--bg);
     display:flex; flex-direction:column; overflow:hidden;
   }
-  #hud{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 16px 8px;
+  #hud{ display:none; }
+  .playerHud{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .inventory{ display:flex; gap:3px; min-height:18px; color:#9fb3d1; font-size:11px; pointer-events:auto; }
+  .inventory span{ pointer-events:auto; }
+  .miniTimer{
+    font-family:'Orbitron', sans-serif; font-weight:600; font-size:11px;
+    color:#cfe3ff; background:transparent; padding:4px 10px; border-radius:8px;
+    min-width:52px; text-align:center; border:1px solid rgba(255,255,255,0.08);
   }
+  .inventory span{ min-width:16px; text-align:center; border-radius:5px; padding:2px 3px; background:transparent; border:1px solid transparent; cursor:pointer; }
+  .boardSide.left .inventory span.selected{ color:#fff; border-color:var(--blue); box-shadow:0 0 0 1px var(--blue), 0 0 0 2px rgba(51,193,255,0.2), 0 0 10px rgba(51,193,255,0.8) inset; background:rgba(51,193,255,0.06); transform:none; }
+  .boardSide.right .inventory span.selected{ color:#fff; border-color:var(--orange); box-shadow:0 0 0 1px var(--orange), 0 0 0 2px rgba(255,138,43,0.2), 0 0 10px rgba(255,138,43,0.8) inset; background:rgba(255,138,43,0.06); transform:none; }
+  .inventory span:focus{ outline:1px solid var(--blue); }
   .score{
     font-family:'Orbitron', sans-serif; font-weight:800; font-size:28px;
-    min-width:64px; text-align:center; padding:6px 14px; border-radius:14px;
-    background:var(--panel);
+    min-width:72px; text-align:center; padding:6px 14px; border-radius:14px;
+    background:transparent;
   }
   .score.blue{ color:var(--blue); border:2px solid var(--blue); box-shadow:0 0 14px rgba(51,193,255,0.35) inset; }
   .score.orange{ color:var(--orange); border:2px solid var(--orange); box-shadow:0 0 14px rgba(255,138,43,0.35) inset; }
-  #timer{
-    font-family:'Orbitron', sans-serif; font-weight:600; font-size:18px; letter-spacing:1px;
-    color:#cfe3ff; background:var(--panel); padding:6px 12px; border-radius:10px;
-  }
   #turnIndicator{
-    text-align:center; font-size:13px; letter-spacing:0.3px; color:#9fb3d1; padding:2px 0 6px;
-    min-height:18px;
+    display:none;
   }
   #canvasWrap{ position:relative; flex:1; margin:0 10px 12px; border-radius:18px; overflow:hidden; }
   canvas{ display:block; width:100%; height:100%; touch-action:none; }
+  #gameHud{
+    position:absolute; inset:0; z-index:7;
+    display:block; pointer-events:none;
+    background:transparent; border:none; box-shadow:none;
+  }
+  .boardSide{ position:absolute; display:flex; align-items:center; justify-content:center; gap:8px; min-width:140px; border-radius:12px; border:1px solid transparent; pointer-events:auto; transition:box-shadow 260ms ease, border-color 260ms ease, opacity 260ms ease, transform 260ms ease; }
+  .boardSide.left{ left:12px; bottom:12px; }
+  .boardSide.right{ right:12px; top:12px; transform:rotate(180deg); }
+  .boardSide.left.active{ border-color:var(--blue); box-shadow:0 0 14px rgba(51,193,255,0.85), inset 0 0 12px rgba(51,193,255,0.4); }
+  .boardSide.right.active{ border-color:var(--orange); box-shadow:0 0 14px rgba(255,138,43,0.85), inset 0 0 12px rgba(255,138,43,0.4); }
+  .boardSide:not(.active){ opacity:0.78; }
+  .boardHudPlayer{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:4px 6px; border-radius:12px; background:transparent; }
+  .boardHudPlayer .inventory{ min-height:20px; }
+  .boardHudPlayer .inventory span{ background:transparent; border:1px solid rgba(255,255,255,0.08); }
+  .boardHudPlayer .miniTimer{ min-width:60px; }
+  .boardHudPlayer .score{ font-size:24px; min-width:70px; padding:6px 12px; background:transparent; }
   #overlay{
     position:absolute; inset:0; background:rgba(3,6,12,0.86);
     display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px;
@@ -59,15 +79,46 @@
   #overlay.hidden{ display:none; }
   #overlayTitle{ font-family:'Orbitron', sans-serif; font-size:30px; margin:0; }
   #overlaySub{ color:#9fb3d1; margin:0; font-size:14px; max-width:280px; }
+  #helpPanel{
+    position:absolute;
+    right:12px; top:46px; bottom:46px;
+    z-index:11;
+    width:34px;
+    min-width:34px;
+    max-width:34px;
+    background:rgba(11,17,32,0.84);
+    border:1px solid rgba(255,255,255,0.16);
+    border-radius:10px;
+    padding:12px 0;
+    color:#eaf2ff;
+    box-shadow:0 10px 26px rgba(0,0,0,0.7);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform:rotate(180deg);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  #helpPanel.visible{ display:flex; }
+  #helpPanel h2{ display:none; }
+  #helpPanel p{ margin:0; color:#eaf2ff; font-size:11px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transform:rotate(180deg); }
   button{
     font-family:'Rubik', sans-serif; font-weight:700; font-size:15px;
     padding:12px 26px; border-radius:24px; border:none; cursor:pointer;
     background:linear-gradient(135deg, var(--blue), var(--orange)); color:#04101c;
   }
   #howto{
-    position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:50%;
+    position:absolute; right:12px; top:50%; width:34px; height:34px; border-radius:50%;
     background:var(--panel); color:#cfe3ff; display:flex; align-items:center; justify-content:center;
-    font-size:14px; cursor:pointer; z-index:6; border:1px solid rgba(255,255,255,0.15);
+    font-size:16px; cursor:pointer; z-index:6; border:1px solid rgba(255,255,255,0.15);
+    transform:translateY(-50%) rotate(90deg);
+  }
+  #exitGame{
+    position:absolute; left:12px; top:50%; width:34px; height:34px; border-radius:50%;
+    background:var(--panel); color:#cfe3ff; display:flex; align-items:center; justify-content:center;
+    padding:0; font-size:22px; line-height:1; cursor:pointer; z-index:6; border:1px solid rgba(255,255,255,0.15);
+    transform:translateY(-50%);
   }
   #menuOverlay{
     position:absolute; inset:0; background:
@@ -78,6 +129,124 @@
     text-align:center; padding:30px; z-index:10;
   }
   #menuOverlay.hidden{ display:none; }
+  #difficultyOverlay{
+    position:absolute; inset:0; background:
+      radial-gradient(circle at 25% 20%, rgba(51,193,255,0.12), transparent 55%),
+      radial-gradient(circle at 75% 80%, rgba(255,138,43,0.12), transparent 55%),
+      var(--bg);
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    gap:18px; text-align:center; padding:30px; z-index:12;
+  }
+  #difficultyOverlay.hidden{ display:none; }
+  #settingsOverlay{
+    position:absolute; inset:0; z-index:13;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 25% 20%, rgba(51,193,255,0.12), transparent 55%),
+      radial-gradient(circle at 75% 80%, rgba(255,138,43,0.12), transparent 55%),
+      var(--bg);
+    padding:24px;
+  }
+  #settingsOverlay.hidden{ display:none; }
+  #settingsPanel{
+    width:min(390px, 100%); padding:24px 20px; border:1px solid rgba(255,255,255,0.16);
+    border-radius:18px; background:var(--panel); box-shadow:0 10px 30px rgba(0,0,0,0.65);
+  }
+  #settingsTitle{ margin:0 0 20px; font-family:'Orbitron', sans-serif; font-size:24px; text-align:center; }
+  .settingRow{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    min-height:48px; border-top:1px solid rgba(255,255,255,0.08); color:#eaf2ff;
+  }
+  .settingRow label{ font-size:14px; }
+  .settingRow select{
+    min-width:138px; padding:8px 10px; border:1px solid rgba(255,255,255,0.18);
+    border-radius:8px; background:#111d31; color:#eaf2ff; font:inherit;
+  }
+  .settingRow input{ width:18px; height:18px; accent-color:var(--blue); }
+  #settingsActions{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+  #settingsActions button{ min-width:100px; padding:10px 16px; }
+  #cancelSettingsBtn{ background:transparent; color:#cfe3ff; border:1px solid rgba(255,255,255,0.18); }
+  #storeOverlay, #traitInventoryOverlay{
+    position:absolute; inset:0; z-index:15; display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,12,0.86); padding:20px;
+  }
+  #storeOverlay.hidden, #traitInventoryOverlay.hidden{ display:none; }
+  #achievementsOverlay{
+    position:absolute; inset:0; z-index:16; display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,12,0.88); padding:20px;
+  }
+  #achievementsOverlay.hidden{ display:none; }
+  #achievementsPanel{
+    width:min(470px, 100%); max-height:100%; display:flex; flex-direction:column; overflow:hidden; padding:22px 18px;
+    border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,0.65);
+  }
+  #achievementList{ flex:1; min-height:0; overflow-y:auto; }
+  #achievementsPanel .economyActions{ flex-shrink:0; }
+  .achievementItem{ display:grid; grid-template-columns:32px minmax(0,1fr) auto; align-items:center; gap:10px; padding:11px 0; border-top:1px solid rgba(255,255,255,0.08); }
+  .achievementItem.locked{ opacity:0.62; }
+  .achievementIcon{ color:#ffd66b; font-size:21px; text-align:center; }
+  .achievementItem strong{ display:block; font-size:14px; }
+  .achievementItem small{ display:block; margin-top:3px; color:#9fb3d1; font-size:12px; line-height:1.3; }
+  .achievementReward{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; color:#ffd66b; font-size:11px; white-space:nowrap; }
+  .achievementReward strong{ font-size:11px; }
+  .achievementClaimBtn{ min-width:0; padding:5px 8px; border-radius:7px; font-size:10px; }
+  .achievementProgressTrack{ height:6px; margin-top:8px; overflow:hidden; border-radius:4px; background:rgba(255,255,255,0.1); }
+  .achievementProgressFill{ height:100%; border-radius:inherit; background:linear-gradient(90deg, var(--blue), #ffd66b); transition:width 220ms ease; }
+  #achievementToast{
+    position:absolute; z-index:20; top:14px; left:50%; width:min(390px, calc(100% - 24px));
+    padding:12px 16px; border:1px solid rgba(255,214,107,0.65); border-radius:12px;
+    background:rgba(11,18,32,0.97); box-shadow:0 8px 24px rgba(0,0,0,0.55); text-align:center;
+    opacity:0; pointer-events:none; transform:translate(-50%, -12px); transition:opacity 180ms ease, transform 180ms ease;
+  }
+  #achievementToast.visible{ opacity:1; transform:translate(-50%, 0); }
+  #achievementToastTitle{ display:block; color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:14px; }
+  #achievementToastReward{ display:block; margin-top:4px; color:#eaf2ff; font-size:12px; }
+  #storePanel, #traitInventoryPanel{
+    width:min(410px, 100%); max-height:100%; overflow-y:auto; padding:22px 18px;
+    border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,0.65);
+  }
+  .economyTitle{ margin:0 0 8px; font-family:'Orbitron',sans-serif; font-size:22px; text-align:center; }
+  .economyBalance{ margin:0 0 16px; color:#ffd66b; text-align:center; font-weight:700; }
+  .shopItem, .traitItem{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; padding:12px 0; border-top:1px solid rgba(255,255,255,0.08); }
+  .shopItem strong, .traitItem strong{ display:block; }
+  .shopItem small, .traitItem small{ display:block; margin-top:4px; color:#9fb3d1; font-size:12px; }
+  .shopItem button, .traitItem button{ min-width:92px; padding:9px 12px; border-radius:9px; font-size:13px; }
+  .shopItem button:disabled, .traitItem button:disabled{ cursor:default; opacity:0.45; }
+  .economyActions{ display:flex; justify-content:flex-end; margin-top:16px; }
+  .economyActions button{ padding:10px 18px; }
+  #traitSelectionStatus{ margin:0 0 10px; color:#9fb3d1; text-align:center; font-size:13px; }
+  #coinDisplay{
+    position:absolute; top:14px; left:58px; min-height:36px; display:flex; align-items:center; gap:6px;
+    padding:0 11px; border:1px solid rgba(255,214,107,0.38); border-radius:18px;
+    background:rgba(11,18,32,0.9); color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:13px;
+  }
+  .reduced-motion *, .reduced-motion *::before, .reduced-motion *::after{ animation:none !important; transition:none !important; }
+  #exitConfirmOverlay{
+    position:absolute; inset:0; z-index:14;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,12,0.78); padding:24px;
+  }
+  #exitConfirmOverlay.hidden{ display:none; }
+  #exitConfirmPanel{
+    width:min(340px, 100%); padding:24px 20px; border:1px solid rgba(255,255,255,0.16);
+    border-radius:18px; background:var(--panel); box-shadow:0 10px 30px rgba(0,0,0,0.65);
+    text-align:center;
+  }
+  #exitConfirmTitle{ margin:0 0 10px; font-family:'Orbitron', sans-serif; font-size:22px; }
+  #exitConfirmText{ margin:0 0 20px; color:#9fb3d1; font-size:14px; }
+  #exitConfirmActions{ display:flex; justify-content:center; gap:10px; }
+  #exitConfirmActions button{ min-width:110px; padding:10px 16px; }
+  #cancelExitBtn{ background:transparent; color:#cfe3ff; border:1px solid rgba(255,255,255,0.18); }
+  #difficultyTitle{
+    font-family:'Orbitron', sans-serif; font-weight:800; font-size:30px; margin:0;
+    letter-spacing:1px;
+  }
+  #difficultyPanel{ display:flex; flex-direction:column; gap:16px; align-items:center; }
+  .difficultyOptions{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
+  .difficultyBtn{ min-width:120px; padding:12px 16px; border-radius:16px; border:2px solid rgba(255,255,255,0.12); background:var(--panel); color:#eaf2ff; font-family:'Rubik',sans-serif; cursor:pointer; transition:none; animation:none; transform:none; }
+  .difficultyBtn.active, .difficultyBtn:active, .difficultyBtn:focus, .difficultyBtn:focus-visible{ border-color:rgba(255,255,255,0.12); color:#eaf2ff; background:var(--panel); outline:none; transition:none; animation:none; transform:none; }
   #menuTitle{
     font-family:'Orbitron', sans-serif; font-weight:800; font-size:38px; margin:0;
     letter-spacing:1px;
@@ -94,6 +263,32 @@
   .modeBtn.blueMode{ border-color:var(--blue); }
   .modeBtn.orangeMode{ border-color:var(--orange); }
   .modeBtn:active{ transform:scale(0.97); }
+  #settingsBtn{
+    position:absolute; top:14px; right:14px; width:36px; height:36px;
+    padding:0; border-radius:50%; background:var(--panel); color:#cfe3ff;
+    border:1px solid rgba(255,255,255,0.16); font-size:20px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #achievementsBtn{
+    position:absolute; top:14px; right:58px; width:36px; height:36px; padding:0;
+    border-radius:50%; background:var(--panel); color:#ffd66b;
+    border:1px solid rgba(255,214,107,0.38); font-size:18px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #achievementCount{ position:absolute; right:-5px; top:-5px; min-width:17px; padding:2px 4px; border-radius:10px; background:var(--orange); color:#04101c; font-size:9px; }
+  #storeBtn{
+    position:absolute; top:14px; left:14px; width:36px; height:36px; padding:0;
+    border-radius:50%; background:var(--panel); color:#ffd66b; border:1px solid rgba(255,214,107,0.38);
+    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  #traitInventoryBtn{
+    position:absolute; z-index:9; display:none; width:44px; height:44px; padding:0;
+    border-radius:50%; border:1px solid rgba(255,255,255,0.3); background:rgba(11,18,32,0.92);
+    color:#ffd66b; font-size:18px;
+  }
+  #traitInventoryBtn.player-turn{ display:flex; align-items:center; justify-content:center; right:12px; bottom:12px; }
+  #traitInventoryBtn.ai-turn{ display:flex; align-items:center; justify-content:center; left:12px; top:12px; }
+  #traitCount{ position:absolute; right:-5px; top:-5px; min-width:18px; padding:2px 4px; border-radius:10px; background:var(--orange); color:#04101c; font-size:10px; }
   #backToMenuBtn{
     margin-top:4px; background:transparent; color:#9fb3d1; text-decoration:underline;
     font-weight:500; padding:6px;
@@ -102,32 +297,130 @@
 </head>
 <body>
 <div id="app">
-  <div id="howto" title="Cómo jugar">?</div>
-  <div id="hud">
-    <div id="scoreLeft" class="score blue">0</div>
-    <div id="timer">01:30</div>
-    <div id="scoreRight" class="score orange">0</div>
-  </div>
-  <div id="turnIndicator">Tu turno — arrastra un orbe azul</div>
+  <div id="howto" title="How to play">?</div>
   <div id="canvasWrap">
+    <div id="gameHud">
+      <div id="leftBoardSide" class="boardSide left">
+        <div class="boardHudPlayer">
+          <div id="scoreLeft" class="score blue">0</div>
+          <div id="inventoryBlue" class="inventory"></div>
+          <div id="timerLeft" class="miniTimer">01:00</div>
+        </div>
+      </div>
+      <div id="rightBoardSide" class="boardSide right">
+        <div class="boardHudPlayer">
+          <div id="scoreRight" class="score orange">0</div>
+          <div id="inventoryOrange" class="inventory"></div>
+          <div id="timerRight" class="miniTimer">01:00</div>
+        </div>
+      </div>
+    </div>
+    <button id="traitInventoryBtn" title="Special inventory" aria-label="Special inventory">✦<span id="traitCount">0</span></button>
+    <div id="turnIndicator">Your turn: drag a blue orb back, then release</div>
     <canvas id="game"></canvas>
     <div id="menuOverlay">
       <h1 id="menuTitle">MASS <span>BRAWL</span></h1>
-      <p id="menuSub">Elige contra quién quieres jugar</p>
+      <p id="menuSub" data-i18n="menuSub">Choose who you want to play against</p>
       <button class="modeBtn blueMode" id="modeAiBtn">
-        <strong>Jugar contra la IA</strong>
-        <small>Tú (azul) vs. la máquina (naranja)</small>
+        <strong data-i18n="aiMode">Play against AI</strong>
+        <small data-i18n="aiModeDesc">You (blue) vs. the machine (orange)</small>
       </button>
       <button class="modeBtn orangeMode" id="modePvpBtn">
-        <strong>Jugar contra otra persona</strong>
-        <small>Mismo dispositivo, turnos alternos</small>
+        <strong data-i18n="pvpMode">Play against another person</strong>
+        <small data-i18n="pvpModeDesc">Same device, alternate turns</small>
       </button>
+      <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
+      <button id="achievementsBtn" title="Achievements" aria-label="Achievements">🏆<span id="achievementCount">0</span></button>
+      <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
+      <button id="storeBtn" title="Orb shop" aria-label="Orb shop">🛒</button>
+    </div>
+    <div id="difficultyOverlay" class="hidden">
+      <div id="difficultyPanel">
+        <h1 id="difficultyTitle" data-i18n="difficultyTitle">Select difficulty</h1>
+        <div class="difficultyOptions">
+          <button class="difficultyBtn" id="difficultyEasy" data-i18n="easy">Easy</button>
+          <button class="difficultyBtn" id="difficultyIntermediate" data-i18n="intermediate">Intermediate</button>
+          <button class="difficultyBtn" id="difficultyHard" data-i18n="hard">Hard</button>
+        </div>
+      </div>
+    </div>
+    <div id="settingsOverlay" class="hidden">
+      <div id="settingsPanel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <h1 id="settingsTitle" data-i18n="settings">Settings</h1>
+        <div class="settingRow">
+          <label for="languageSelect" data-i18n="language">Language</label>
+          <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </div>
+        <div class="settingRow">
+          <label for="soundToggle" data-i18n="sound">Sound</label>
+          <input id="soundToggle" type="checkbox">
+        </div>
+        <div class="settingRow">
+          <label for="vibrationToggle" data-i18n="vibration">Vibration</label>
+          <input id="vibrationToggle" type="checkbox">
+        </div>
+        <div class="settingRow">
+          <label for="motionToggle" data-i18n="reducedMotion">Reduce animations</label>
+          <input id="motionToggle" type="checkbox">
+        </div>
+        <div id="settingsActions">
+          <button id="cancelSettingsBtn" data-i18n="cancel">Cancel</button>
+          <button id="applySettingsBtn" data-i18n="apply">Apply</button>
+        </div>
+      </div>
+    </div>
+    <div id="storeOverlay" class="hidden">
+      <div id="storePanel" role="dialog" aria-modal="true" aria-labelledby="storeTitle">
+        <h1 id="storeTitle" class="economyTitle" data-i18n="shop">Orb shop</h1>
+        <p class="economyBalance"><span data-i18n="coins">Coins</span>: <span id="storeCoinBalance">1000</span></p>
+        <div id="shopItems"></div>
+        <div class="economyActions"><button id="closeStoreBtn" data-i18n="close">Close</button></div>
+      </div>
+    </div>
+    <div id="achievementsOverlay" class="hidden">
+      <div id="achievementsPanel" role="dialog" aria-modal="true" aria-labelledby="achievementsTitle">
+        <h1 id="achievementsTitle" class="economyTitle" data-i18n="achievementsTitle">Achievements</h1>
+        <div id="achievementList"></div>
+        <div class="economyActions"><button id="closeAchievementsBtn" data-i18n="close">Close</button></div>
+      </div>
+    </div>
+    <div id="traitInventoryOverlay" class="hidden">
+      <div id="traitInventoryPanel" role="dialog" aria-modal="true" aria-labelledby="traitInventoryTitle">
+        <h1 id="traitInventoryTitle" class="economyTitle" data-i18n="specialInventory">Special inventory</h1>
+        <p id="traitSelectionStatus" data-i18n="selectOrbFirst">Select an orb from your inventory first.</p>
+        <div id="traitItems"></div>
+        <div class="economyActions"><button id="closeTraitInventoryBtn" data-i18n="close">Close</button></div>
+      </div>
+    </div>
+    <div id="helpPanel">
+      <h2>MASS BRAWL</h2>
+      <p id="helpText">You control blue. Drag an orb backwards and release.</p>
+    </div>
+    <button id="exitGame" title="Exit to main menu" aria-label="Exit to main menu">×</button>
+    <div id="exitConfirmOverlay" class="hidden">
+      <div id="exitConfirmPanel" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle">
+        <h2 id="exitConfirmTitle" data-i18n="exitTitle">Exit the game?</h2>
+        <p id="exitConfirmText" data-i18n="exitText">Do you want to return to the main menu?</p>
+        <div id="exitConfirmActions">
+          <button id="cancelExitBtn" data-i18n="cancel">Cancel</button>
+          <button id="confirmExitBtn" data-i18n="exit">Exit</button>
+        </div>
+      </div>
     </div>
     <div id="overlay" class="hidden">
-      <h1 id="overlayTitle">¡Victoria!</h1>
+      <h1 id="overlayTitle"></h1>
       <p id="overlaySub"></p>
-      <button id="restartBtn">Jugar de nuevo</button>
-      <button id="backToMenuBtn">Volver al menú</button>
+      <button id="restartBtn" data-i18n="playAgain">Play again</button>
+      <button id="backToMenuBtn" data-i18n="backToMenu">Back to menu</button>
+    </div>
+    <div id="achievementToast" role="status" aria-live="polite">
+      <span id="achievementToastTitle"></span>
+      <span id="achievementToastReward"></span>
     </div>
   </div>
 </div>
@@ -139,7 +432,12 @@
   const wrap = document.getElementById('canvasWrap');
   const scoreLeftEl = document.getElementById('scoreLeft');
   const scoreRightEl = document.getElementById('scoreRight');
-  const timerEl = document.getElementById('timer');
+  const inventoryBlueEl = document.getElementById('inventoryBlue');
+  const inventoryOrangeEl = document.getElementById('inventoryOrange');
+  const timerLeftEl = document.getElementById('timerLeft');
+  const timerRightEl = document.getElementById('timerRight');
+  const leftBoardSide = document.getElementById('leftBoardSide');
+  const rightBoardSide = document.getElementById('rightBoardSide');
   const turnEl = document.getElementById('turnIndicator');
   const overlay = document.getElementById('overlay');
   const overlayTitle = document.getElementById('overlayTitle');
@@ -147,9 +445,451 @@
   const restartBtn = document.getElementById('restartBtn');
   const backToMenuBtn = document.getElementById('backToMenuBtn');
   const howto = document.getElementById('howto');
+  const exitGame = document.getElementById('exitGame');
+  const exitConfirmOverlay = document.getElementById('exitConfirmOverlay');
+  const cancelExitBtn = document.getElementById('cancelExitBtn');
+  const confirmExitBtn = document.getElementById('confirmExitBtn');
+  const helpPanel = document.getElementById('helpPanel');
+  const helpText = document.getElementById('helpText');
   const menuOverlay = document.getElementById('menuOverlay');
+  const difficultyOverlay = document.getElementById('difficultyOverlay');
+  const difficultyTitle = document.getElementById('difficultyTitle');
+  const difficultyEasyBtn = document.getElementById('difficultyEasy');
+  const difficultyIntermediateBtn = document.getElementById('difficultyIntermediate');
+  const difficultyHardBtn = document.getElementById('difficultyHard');
   const modeAiBtn = document.getElementById('modeAiBtn');
   const modePvpBtn = document.getElementById('modePvpBtn');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const achievementsBtn = document.getElementById('achievementsBtn');
+  const achievementCountEl = document.getElementById('achievementCount');
+  const achievementsOverlay = document.getElementById('achievementsOverlay');
+  const achievementListEl = document.getElementById('achievementList');
+  const closeAchievementsBtn = document.getElementById('closeAchievementsBtn');
+  const achievementToastEl = document.getElementById('achievementToast');
+  const achievementToastTitleEl = document.getElementById('achievementToastTitle');
+  const achievementToastRewardEl = document.getElementById('achievementToastReward');
+  const storeBtn = document.getElementById('storeBtn');
+  const coinBalanceEl = document.getElementById('coinBalance');
+  const storeCoinBalanceEl = document.getElementById('storeCoinBalance');
+  const storeOverlay = document.getElementById('storeOverlay');
+  const shopItemsEl = document.getElementById('shopItems');
+  const closeStoreBtn = document.getElementById('closeStoreBtn');
+  const traitInventoryBtn = document.getElementById('traitInventoryBtn');
+  const traitCountEl = document.getElementById('traitCount');
+  const traitInventoryOverlay = document.getElementById('traitInventoryOverlay');
+  const traitItemsEl = document.getElementById('traitItems');
+  const traitSelectionStatus = document.getElementById('traitSelectionStatus');
+  const closeTraitInventoryBtn = document.getElementById('closeTraitInventoryBtn');
+  const settingsOverlay = document.getElementById('settingsOverlay');
+  const languageSelect = document.getElementById('languageSelect');
+  const soundToggle = document.getElementById('soundToggle');
+  const vibrationToggle = document.getElementById('vibrationToggle');
+  const motionToggle = document.getElementById('motionToggle');
+  const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+  const applySettingsBtn = document.getElementById('applySettingsBtn');
+
+  const translations = {
+    en: {
+      menuSub: 'Choose your opponent', aiMode: 'Play against AI',
+      aiModeDesc: 'Test your skills against the machine', pvpMode: 'Local multiplayer',
+      pvpModeDesc: 'Take turns on the same device', settings: 'Settings', language: 'Language',
+      sound: 'Sound', vibration: 'Vibration', reducedMotion: 'Reduce animations', cancel: 'Cancel',
+      apply: 'Apply', difficultyTitle: 'Select difficulty', easy: 'Easy', intermediate: 'Intermediate',
+      hard: 'Hard', exitTitle: 'Exit the game?', exitText: 'Do you want to return to the main menu?',
+      exit: 'Exit', playAgain: 'Play again', backToMenu: 'Back to menu', howToPlay: 'How to play',
+      helpAi: 'You control the blue team. Drag an orb back, then release to launch.', helpPvp: 'Player 1 (blue): drag an orb back, then release to launch.',
+      helpAiTurn: 'The AI controls orange. Watch the board.', helpPvpTurn: 'Player 2 (orange): launch from the orange side.',
+      turnAi: 'Your turn: drag a blue orb back, then release', turnPvp1: 'Player 1 (blue): drag an orb back, then release',
+      turnPvp2: 'Player 2 (orange): drag an orb back, then release', aiTurn: "Opponent's turn...",
+      selectedBlue: 'Blue orb selected: ', selectedOrange: 'Orange orb selected: ',
+      playing: 'Orb launched...', pvpPlaying1: 'Player 1 orb launched...', pvpPlaying2: 'Player 2 orb launched...',
+      aiPlaying: 'AI is playing...', victory: 'Victory!', defeat: 'Defeat', draw: 'Draw',
+      pvpWinner1: 'Player 1 (blue) wins', pvpWinner2: 'Player 2 (orange) wins',
+      shop: 'Orb shop', coins: 'Coins', close: 'Close', buy: 'Buy', owned: 'Owned',
+      bombOrb: 'Bomb orb', spikedOrb: 'Spiked orb', ghostOrb: 'Ghost orb',
+      specialInventory: 'Special inventory', selectOrbFirst: 'Select an orb from your inventory first.',
+      applyTrait: 'Apply',
+      rewardCoins: 'coins earned', achievementsTitle: 'Achievements', achievementUnlocked: 'Achievement unlocked',
+      achievementLocked: 'Locked', achievementEarned: 'Unlocked', achievementPending: 'Ready to claim', achievementClaimed: 'Claimed', achievementInProgress: 'In progress', achievementLevel: 'Level', achievementComplete: 'Complete', claimReward: 'Claim', pendingRewards: 'pending rewards',
+      firstLaunchTitle: 'Orb Marksman', firstLaunchDesc: 'Launch {target} orbs in total.',
+      bombLaunchTitle: 'Bombardier', bombLaunchDesc: 'Launch {target} bomb orbs.',
+      spikedLaunchTitle: 'Spiked Tactician', spikedLaunchDesc: 'Launch {target} spiked orbs.',
+      ghostLaunchTitle: 'Spectral Pilot', ghostLaunchDesc: 'Launch {target} ghost orbs.',
+      allSpecialsTitle: 'Arsenal Master', allSpecialsDesc: 'Complete {target} sets using every special-orb type.',
+      firstWinTitle: 'Match Victor', firstWinDesc: 'Win {target} matches in total.',
+      hardWinTitle: 'Hard Mode Hunter', hardWinDesc: 'Defeat the Hard AI {target} times.',
+      pvpWinTitle: 'Local Champion', pvpWinDesc: 'Win {target} matches in local multiplayer.',
+      scoreTenTitle: 'Score Chaser', scoreTenDesc: 'Score {target} points in one match.',
+      doubleBombTitle: 'Chain Reaction', doubleBombDesc: 'Eliminate at least two orbs with a bomb {target} times.',
+      streakTitle: 'Victory Streak', streakDesc: 'Win {target} matches in a row.',
+      tenMatchesTitle: 'Arena Veteran', tenMatchesDesc: 'Complete {target} matches in total.'
+    },
+    de: {
+      menuSub: 'Wähle deinen Gegner', aiMode: 'Gegen die KI spielen',
+      aiModeDesc: 'Beweise dein Können gegen die Maschine', pvpMode: 'Lokaler Mehrspielermodus',
+      pvpModeDesc: 'Spielt abwechselnd am selben Gerät', settings: 'Einstellungen', language: 'Sprache',
+      sound: 'Ton', vibration: 'Vibration', reducedMotion: 'Animationen reduzieren', cancel: 'Abbrechen',
+      apply: 'Anwenden', difficultyTitle: 'Schwierigkeit wählen', easy: 'Leicht', intermediate: 'Mittel',
+      hard: 'Schwer', exitTitle: 'Spiel verlassen?', exitText: 'Möchtest du zum Hauptmenü zurückkehren?',
+      exit: 'Verlassen', playAgain: 'Noch einmal spielen', backToMenu: 'Zum Menü', howToPlay: 'Spielanleitung',
+      helpAi: 'Du steuerst das blaue Team. Ziehe eine Kugel zurück und lasse sie zum Starten los.', helpPvp: 'Spieler 1 (blau): Ziehe eine Kugel zurück und lasse sie zum Starten los.',
+      helpAiTurn: 'Die KI steuert Orange. Beobachte das Spielfeld.', helpPvpTurn: 'Spieler 2 (orange): Starte von der orangenen Seite.',
+      turnAi: 'Du bist dran: Ziehe eine blaue Kugel zurück und lasse sie los', turnPvp1: 'Spieler 1 (blau): Ziehe eine Kugel zurück und lasse sie los',
+      turnPvp2: 'Spieler 2 (orange): Ziehe eine Kugel zurück und lasse sie los', aiTurn: 'Der Gegner ist am Zug...',
+      selectedBlue: 'Blaue Kugel gewählt: ', selectedOrange: 'Orange Kugel gewählt: ',
+      playing: 'Kugel gestartet...', pvpPlaying1: 'Kugel von Spieler 1 gestartet...', pvpPlaying2: 'Kugel von Spieler 2 gestartet...',
+      aiPlaying: 'Die KI spielt...', victory: 'Sieg!', defeat: 'Niederlage', draw: 'Unentschieden',
+      pvpWinner1: 'Spieler 1 (blau) gewinnt', pvpWinner2: 'Spieler 2 (orange) gewinnt',
+      shop: 'Kugel-Shop', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
+      bombOrb: 'Bombenkugel', spikedOrb: 'Stachelkugel', ghostOrb: 'Geisterkugel',
+      specialInventory: 'Spezialinventar', selectOrbFirst: 'Wähle zuerst eine Kugel aus deinem Vorrat.',
+      applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten', achievementsTitle: 'Erfolge', achievementUnlocked: 'Erfolg freigeschaltet',
+      achievementLocked: 'Gesperrt', achievementEarned: 'Freigeschaltet', achievementPending: 'Abholbereit', achievementClaimed: 'Abgeholt', achievementInProgress: 'In Arbeit', achievementLevel: 'Stufe', achievementComplete: 'Abgeschlossen', claimReward: 'Abholen', pendingRewards: 'offene Belohnungen',
+      firstLaunchTitle: 'Kugelschütze', firstLaunchDesc: 'Schieße insgesamt {target} Kugeln ab.',
+      bombLaunchTitle: 'Sprengmeister', bombLaunchDesc: 'Schieße {target} Bombenkugeln ab.',
+      spikedLaunchTitle: 'Stacheltaktiker', spikedLaunchDesc: 'Schieße {target} Stachelkugeln ab.',
+      ghostLaunchTitle: 'Phantom-Pilot', ghostLaunchDesc: 'Schieße {target} Geisterkugeln ab.',
+      allSpecialsTitle: 'Arsenalmeister', allSpecialsDesc: 'Vervollständige {target} Sätze mit allen Spezialkugel-Arten.',
+      firstWinTitle: 'Match-Sieger', firstWinDesc: 'Gewinne insgesamt {target} Spiele.',
+      hardWinTitle: 'Albtraumjäger', hardWinDesc: 'Besiege die KI auf Schwer {target}-mal.',
+      pvpWinTitle: 'Lokaler Champion', pvpWinDesc: 'Gewinne {target} Spiele im lokalen Mehrspielermodus.',
+      scoreTenTitle: 'Punktejäger', scoreTenDesc: 'Erziele {target} Punkte in einem Spiel.',
+      doubleBombTitle: 'Kettenreaktion', doubleBombDesc: 'Eliminiere mit einer Bombe mindestens zwei Kugeln, {target}-mal.',
+      streakTitle: 'Siegesserie', streakDesc: 'Gewinne {target} Spiele in Folge.',
+      tenMatchesTitle: 'Arena-Veteran', tenMatchesDesc: 'Schließe insgesamt {target} Spiele ab.'
+    },
+    fr: {
+      menuSub: 'Choisissez votre adversaire', aiMode: "Jouer contre l'IA",
+      aiModeDesc: 'Mettez vos talents à l’épreuve', pvpMode: 'Multijoueur local',
+      pvpModeDesc: 'Jouez à tour de rôle sur le même appareil', settings: 'Paramètres', language: 'Langue',
+      sound: 'Son', vibration: 'Vibration', reducedMotion: 'Réduire les animations', cancel: 'Annuler',
+      apply: 'Appliquer', difficultyTitle: 'Choisir la difficulté', easy: 'Facile', intermediate: 'Intermédiaire',
+      hard: 'Difficile', exitTitle: 'Quitter la partie ?', exitText: 'Voulez-vous retourner au menu principal ?',
+      exit: 'Quitter', playAgain: 'Rejouer', backToMenu: 'Retour au menu', howToPlay: 'Comment jouer',
+      helpAi: "Vous contrôlez l’équipe bleue. Tirez une bille vers l’arrière, puis relâchez pour lancer.", helpPvp: 'Joueur 1 (bleu) : tirez une bille vers l’arrière, puis relâchez pour lancer.',
+      helpAiTurn: "L’IA contrôle l’orange. Observez le terrain.", helpPvpTurn: 'Joueur 2 (orange) : lancez depuis le côté orange.',
+      turnAi: 'À vous : tirez une bille bleue vers l’arrière, puis relâchez', turnPvp1: 'Joueur 1 (bleu) : tirez une bille vers l’arrière, puis relâchez',
+      turnPvp2: 'Joueur 2 (orange) : tirez une bille vers l’arrière, puis relâchez', aiTurn: 'Au tour de l’adversaire...',
+      selectedBlue: 'Bille bleue sélectionnée : ', selectedOrange: 'Bille orange sélectionnée : ',
+      playing: 'Bille lancée...', pvpPlaying1: 'Bille du joueur 1 lancée...', pvpPlaying2: 'Bille du joueur 2 lancée...',
+      aiPlaying: 'L’IA joue...', victory: 'Victoire !', defeat: 'Défaite', draw: 'Égalité',
+      pvpWinner1: 'Le joueur 1 (bleu) gagne', pvpWinner2: 'Le joueur 2 (orange) gagne',
+      shop: 'Boutique de billes', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
+      bombOrb: 'Bille bombe', spikedOrb: 'Bille à pointes', ghostOrb: 'Bille fantôme',
+      specialInventory: 'Inventaire spécial', selectOrbFirst: 'Sélectionnez d’abord une bille dans votre inventaire.',
+      applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées', achievementsTitle: 'Succès', achievementUnlocked: 'Succès débloqué',
+      achievementLocked: 'Verrouillé', achievementEarned: 'Débloqué', achievementPending: 'À récupérer', achievementClaimed: 'Récupéré', achievementInProgress: 'En cours', achievementLevel: 'Niveau', achievementComplete: 'Terminé', claimReward: 'Récupérer', pendingRewards: 'récompenses à récupérer',
+      firstLaunchTitle: 'Tireur de billes', firstLaunchDesc: 'Lancez {target} billes au total.',
+      bombLaunchTitle: 'Démolisseur', bombLaunchDesc: 'Lancez {target} billes bombes.',
+      spikedLaunchTitle: 'Expert en pointes', spikedLaunchDesc: 'Lancez {target} billes à pointes.',
+      ghostLaunchTitle: 'Pilote fantôme', ghostLaunchDesc: 'Lancez {target} billes fantômes.',
+      allSpecialsTitle: 'Maître de l’arsenal', allSpecialsDesc: 'Complétez {target} séries en utilisant chaque type de bille spéciale.',
+      firstWinTitle: 'Vainqueur', firstWinDesc: 'Gagnez {target} parties au total.',
+      hardWinTitle: 'Chasseur de défis', hardWinDesc: 'Battez l’IA en difficile {target} fois.',
+      pvpWinTitle: 'Champion local', pvpWinDesc: 'Gagnez {target} parties en multijoueur local.',
+      scoreTenTitle: 'Chasseur de points', scoreTenDesc: 'Marquez {target} points en une partie.',
+      doubleBombTitle: 'Réaction en chaîne', doubleBombDesc: 'Éliminez au moins deux billes avec une bombe {target} fois.',
+      streakTitle: 'Série de victoires', streakDesc: 'Gagnez {target} parties d’affilée.',
+      tenMatchesTitle: 'Vétéran de l’arène', tenMatchesDesc: 'Terminez {target} parties au total.'
+    },
+    es: {
+      menuSub: 'Elige a tu rival', aiMode: 'Jugar contra la IA',
+      aiModeDesc: 'Pon a prueba tus habilidades contra la máquina', pvpMode: 'Multijugador local',
+      pvpModeDesc: 'Turnos alternos en el mismo dispositivo', settings: 'Configuración', language: 'Idioma',
+      sound: 'Sonido', vibration: 'Vibración', reducedMotion: 'Reducir animaciones', cancel: 'Cancelar',
+      apply: 'Aplicar', difficultyTitle: 'Selecciona dificultad', easy: 'Fácil', intermediate: 'Intermedio',
+      hard: 'Difícil', exitTitle: '¿Salir de la partida?', exitText: '¿Quieres volver al menú principal?',
+      exit: 'Salir', playAgain: 'Jugar de nuevo', backToMenu: 'Volver al menú', howToPlay: 'Cómo jugar',
+      helpAi: 'Controlas el equipo azul. Arrastra un orbe hacia atrás y suéltalo para lanzarlo.', helpPvp: 'Jugador 1 (azul): arrastra un orbe hacia atrás y suéltalo para lanzarlo.',
+      helpAiTurn: 'La IA controla el naranja. Observa el tablero.', helpPvpTurn: 'Jugador 2 (naranja): lanza desde el lado naranja.',
+      turnAi: 'Tu turno: arrastra un orbe azul hacia atrás y suéltalo', turnPvp1: 'Jugador 1 (azul): arrastra un orbe hacia atrás y suéltalo',
+      turnPvp2: 'Jugador 2 (naranja): arrastra un orbe hacia atrás y suéltalo', aiTurn: 'Turno del rival...',
+      selectedBlue: 'Orbe azul seleccionado: ', selectedOrange: 'Orbe naranja seleccionado: ',
+      playing: 'Orbe lanzado...', pvpPlaying1: 'Orbe del Jugador 1 lanzado...', pvpPlaying2: 'Orbe del Jugador 2 lanzado...',
+      aiPlaying: 'La IA está jugando...', victory: '¡Victoria!', defeat: 'Derrota', draw: 'Empate',
+      pvpWinner1: 'Gana el Jugador 1 (azul)', pvpWinner2: 'Gana el Jugador 2 (naranja)',
+      shop: 'Tienda de orbes', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
+      bombOrb: 'Orbe bomba', spikedOrb: 'Orbe con pinchos', ghostOrb: 'Orbe fantasma',
+      specialInventory: 'Inventario especial', selectOrbFirst: 'Primero selecciona un orbe de tu inventario.',
+      applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas', achievementsTitle: 'Logros', achievementUnlocked: 'Logro conseguido',
+      achievementLocked: 'Bloqueado', achievementEarned: 'Conseguido', achievementPending: 'Pendiente de cobro', achievementClaimed: 'Cobrado', achievementInProgress: 'En progreso', achievementLevel: 'Nivel', achievementComplete: 'Completado', claimReward: 'Cobrar', pendingRewards: 'recompensas pendientes',
+      firstLaunchTitle: 'Lanzador de orbes', firstLaunchDesc: 'Lanza {target} orbes en total.',
+      bombLaunchTitle: 'Bombardero', bombLaunchDesc: 'Lanza {target} orbes bomba.',
+      spikedLaunchTitle: 'Maestro de los pinchos', spikedLaunchDesc: 'Lanza {target} orbes con pinchos.',
+      ghostLaunchTitle: 'Piloto espectral', ghostLaunchDesc: 'Lanza {target} orbes fantasma.',
+      allSpecialsTitle: 'Arsenal imparable', allSpecialsDesc: 'Completa {target} series usando cada tipo de orbe especial.',
+      firstWinTitle: 'Vencedor', firstWinDesc: 'Gana {target} partidas en total.',
+      hardWinTitle: 'Retador en difícil', hardWinDesc: 'Derrota a la IA en difícil {target} veces.',
+      pvpWinTitle: 'Campeón local', pvpWinDesc: 'Gana {target} partidas en multijugador local.',
+      scoreTenTitle: 'Récord de puntuación', scoreTenDesc: 'Consigue {target} puntos en una partida.',
+      doubleBombTitle: 'Reacción en cadena', doubleBombDesc: 'Elimina al menos dos orbes con una bomba {target} veces.',
+      streakTitle: 'Racha imparable', streakDesc: 'Gana {target} partidas seguidas.',
+      tenMatchesTitle: 'Veterano de la arena', tenMatchesDesc: 'Completa {target} partidas en total.'
+    }
+  };
+
+  const defaultSettings = { language: 'en', sound: false, vibration: false, reducedMotion: false };
+  let settings = loadSettings();
+  const shopCatalog = [
+    { key: 'bomb', label: 'bombOrb', price: 30 },
+    { key: 'spiked', label: 'spikedOrb', price: 25 },
+    { key: 'ghost', label: 'ghostOrb', price: 35 }
+  ];
+  const STARTING_COINS = 1000;
+  const MATCH_REWARD = 100;
+  const achievementDefinitions = [
+    { id: 'first_launch', title: 'firstLaunchTitle', description: 'firstLaunchDesc', stat: 'launches', thresholds: [1, 5, 15, 30, 50], reward: 25 },
+    { id: 'bomb_launch', title: 'bombLaunchTitle', description: 'bombLaunchDesc', stat: 'bombUses', thresholds: [1, 3, 7, 15, 30], reward: 50 },
+    { id: 'spiked_launch', title: 'spikedLaunchTitle', description: 'spikedLaunchDesc', stat: 'spikedUses', thresholds: [1, 3, 7, 15, 30], reward: 50 },
+    { id: 'ghost_launch', title: 'ghostLaunchTitle', description: 'ghostLaunchDesc', stat: 'ghostUses', thresholds: [1, 3, 7, 15, 30], reward: 50 },
+    { id: 'all_specials', title: 'allSpecialsTitle', description: 'allSpecialsDesc', stat: 'specialSets', thresholds: [1, 2, 5, 10, 20], reward: 150 },
+    { id: 'first_win', title: 'firstWinTitle', description: 'firstWinDesc', stat: 'wins', thresholds: [1, 3, 5, 10, 20], reward: 100 },
+    { id: 'hard_win', title: 'hardWinTitle', description: 'hardWinDesc', stat: 'hardWins', thresholds: [1, 2, 5, 10, 20], reward: 250 },
+    { id: 'pvp_win', title: 'pvpWinTitle', description: 'pvpWinDesc', stat: 'pvpWins', thresholds: [1, 3, 5, 10, 20], reward: 100 },
+    { id: 'score_ten', title: 'scoreTenTitle', description: 'scoreTenDesc', stat: 'bestScore', thresholds: [10, 15, 20, 25, 30], reward: 100 },
+    { id: 'double_bomb', title: 'doubleBombTitle', description: 'doubleBombDesc', stat: 'doubleBombs', thresholds: [1, 2, 5, 10, 20], reward: 150 },
+    { id: 'streak_3', title: 'streakTitle', description: 'streakDesc', stat: 'winStreak', thresholds: [3, 4, 5, 7, 10], reward: 200 },
+    { id: 'matches_10', title: 'tenMatchesTitle', description: 'tenMatchesDesc', stat: 'matches', thresholds: [10, 25, 50, 100, 200], reward: 200 }
+  ];
+
+  function defaultAchievementStats(){
+    return { launches: 0, bombUses: 0, spikedUses: 0, ghostUses: 0, matches: 0, wins: 0, winStreak: 0, hardWins: 0, pvpWins: 0, bestScore: 0, doubleBombs: 0 };
+  }
+
+  function loadEconomy(){
+    try {
+      const stored = JSON.parse(localStorage.getItem('massBrawlEconomy') || 'null');
+      if (!stored || !Number.isSafeInteger(stored.coins) || stored.coins < 0) {
+        return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievements: [], claimedAchievements: [], stats: defaultAchievementStats() };
+      }
+      const defaults = defaultAchievementStats();
+      const storedStats = stored.stats && typeof stored.stats === 'object' ? stored.stats : {};
+      const achievements = Array.isArray(stored.achievements) ? [...new Set(stored.achievements.filter((id) => achievementDefinitions.some((item) => item.id === id)))] : [];
+      const achievementLevels = Object.fromEntries(achievementDefinitions.map(({ id }) => {
+        const savedLevel = stored.achievementLevels?.[id];
+        const legacyLevel = achievements.includes(id) && stored.claimedAchievements?.includes(id) ? 1 : 0;
+        const level = Number.isSafeInteger(savedLevel) ? savedLevel : legacyLevel;
+        return [id, Math.max(0, Math.min(achievementDefinitions.find((item) => item.id === id).thresholds.length, level))];
+      }));
+      const notifiedAchievementLevels = stored.notifiedAchievementLevels && typeof stored.notifiedAchievementLevels === 'object'
+        ? stored.notifiedAchievementLevels
+        : {};
+      return {
+        coins: stored.coins,
+        stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0])),
+        achievementLevels,
+        notifiedAchievementLevels: Object.fromEntries(achievementDefinitions.map(({ id }) => [id, Number.isSafeInteger(notifiedAchievementLevels[id]) && notifiedAchievementLevels[id] > 0 ? notifiedAchievementLevels[id] : 0])),
+        stats: Object.fromEntries(Object.entries(defaults).map(([key, fallback]) => [key, Number.isSafeInteger(storedStats[key]) && storedStats[key] >= 0 ? storedStats[key] : fallback]))
+      };
+    } catch (error) {
+      return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievementLevels: {}, notifiedAchievementLevels: {}, stats: defaultAchievementStats() };
+    }
+  }
+
+  let economy = loadEconomy();
+  let achievementToastQueue = [];
+  let achievementToastTimer = null;
+
+  function saveEconomy(){
+    try {
+      localStorage.setItem('massBrawlEconomy', JSON.stringify(economy));
+    } catch (error) {
+      // Purchases remain available for the current session if storage is unavailable.
+    }
+  }
+
+  function renderEconomy(){
+    coinBalanceEl.textContent = economy.coins;
+    storeCoinBalanceEl.textContent = economy.coins;
+    traitCountEl.textContent = Object.values(economy.stock).reduce((total, amount) => total + amount, 0);
+    const pendingCount = achievementDefinitions.filter((item) => isAchievementPending(item)).length;
+    achievementCountEl.textContent = pendingCount;
+    achievementCountEl.style.display = pendingCount ? 'block' : 'none';
+  }
+
+  function renderAchievements(){
+    achievementListEl.innerHTML = achievementDefinitions.map((item) => {
+      const claimedLevels = economy.achievementLevels[item.id] || 0;
+      const complete = claimedLevels >= item.thresholds.length;
+      const levelIndex = Math.min(claimedLevels, item.thresholds.length - 1);
+      const required = item.thresholds[levelIndex];
+      const progress = achievementMetric(item);
+      const ratio = complete ? 1 : Math.min(1, progress / required);
+      const isPending = !complete && progress >= required;
+      const reward = achievementReward(item, levelIndex + 1);
+      const status = complete ? t('achievementComplete') : isPending ? t('achievementPending') : t('achievementInProgress');
+      const claimButton = isPending ? `<button class="achievementClaimBtn" type="button" data-claim-achievement="${item.id}">${t('claimReward')}</button>` : '';
+      const progressLabel = complete ? `${item.thresholds.length} / ${item.thresholds.length}` : `${Math.min(progress, required)} / ${required}`;
+      const description = t(item.description).replace('{target}', required);
+      return `<div class="achievementItem ${complete ? 'unlocked' : isPending ? 'pending' : 'locked'}"><span class="achievementIcon">${complete ? '🏆' : isPending ? '★' : '◇'}</span><div><strong>${t(item.title)} · ${t('achievementLevel')} ${complete ? item.thresholds.length : levelIndex + 1}</strong><small>${description} · ${status}</small><div class="achievementProgressTrack"><div class="achievementProgressFill" style="width:${ratio * 100}%"></div></div><small>${progressLabel}</small></div><div class="achievementReward"><span>+${reward} ◈</span>${claimButton}</div></div>`;
+    }).join('');
+  }
+
+  function showNextAchievementToast(){
+    achievementToastTimer = null;
+    const item = achievementToastQueue.shift();
+    if (!item) {
+      achievementToastEl.classList.remove('visible');
+      return;
+    }
+    achievementToastTitleEl.textContent = t(item.title);
+    achievementToastRewardEl.textContent = `${t('achievementLevel')} ${item.level} · ${t('achievementPending')} · +${item.reward} ${t('coins')}`;
+    achievementToastEl.classList.add('visible');
+    achievementToastTimer = setTimeout(() => {
+      achievementToastEl.classList.remove('visible');
+      achievementToastTimer = setTimeout(showNextAchievementToast, 220);
+    }, 3400);
+  }
+
+  function achievementMetric(item){
+    if (item.stat === 'specialSets') {
+      return Math.min(economy.stats.bombUses, economy.stats.spikedUses, economy.stats.ghostUses);
+    }
+    return economy.stats[item.stat] || 0;
+  }
+
+  function achievementReward(item, level){
+    return item.reward + (level - 1) * Math.max(15, Math.round(item.reward * 0.5));
+  }
+
+  function isAchievementPending(item){
+    const claimedLevels = economy.achievementLevels[item.id] || 0;
+    if (claimedLevels >= item.thresholds.length) return false;
+    return achievementMetric(item) >= item.thresholds[claimedLevels];
+  }
+
+  function claimAchievement(id){
+    const item = achievementDefinitions.find((achievement) => achievement.id === id);
+    if (!item || !isAchievementPending(item)) return;
+    const level = economy.achievementLevels[id] || 0;
+    economy.achievementLevels[id] = level + 1;
+    economy.coins += achievementReward(item, level + 1);
+    saveEconomy();
+    renderEconomy();
+    renderShop();
+    renderAchievements();
+    checkAchievementProgress();
+  }
+
+  function checkAchievementProgress(){
+    const stats = economy.stats;
+    for (const item of achievementDefinitions) {
+      const level = (economy.achievementLevels[item.id] || 0) + 1;
+      if (level > item.thresholds.length || achievementMetric(item) < item.thresholds[level - 1]) continue;
+      if ((economy.notifiedAchievementLevels[item.id] || 0) >= level) continue;
+      economy.notifiedAchievementLevels[item.id] = level;
+      achievementToastQueue.push({ ...item, level, reward: achievementReward(item, level) });
+    }
+    saveEconomy();
+    renderEconomy();
+    renderAchievements();
+    if (achievementToastQueue.length && !achievementToastTimer) showNextAchievementToast();
+  }
+
+  function recordOrbLaunch(orb){
+    const stats = economy.stats;
+    stats.launches += 1;
+    if (orb.bomb) stats.bombUses += 1;
+    if (orb.spiked) stats.spikedUses += 1;
+    if (orb.ghost) stats.ghostUses += 1;
+    saveEconomy();
+    checkAchievementProgress();
+  }
+
+  function recordMatchResult(scores){
+    const stats = economy.stats;
+    const won = mode === 'pvp' ? scores.player !== scores.ai : scores.player > scores.ai;
+    stats.matches += 1;
+    stats.bestScore = Math.max(stats.bestScore, scores.player, scores.ai);
+    if (won) {
+      stats.wins += 1;
+      stats.winStreak += 1;
+      if (mode === 'ai' && difficulty === 'hard' && scores.player > scores.ai) stats.hardWins += 1;
+      if (mode === 'pvp') stats.pvpWins += 1;
+    } else {
+      stats.winStreak = 0;
+    }
+    saveEconomy();
+    checkAchievementProgress();
+  }
+
+  function renderShop(){
+    shopItemsEl.innerHTML = shopCatalog.map(({ key, label, price }) =>
+      `<div class="shopItem"><div><strong>${t(label)}</strong><small>${t('owned')}: ${economy.stock[key]}</small></div><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}>${t('buy')} · ${price} ◈</button></div>`
+    ).join('');
+  }
+
+  function renderTraitInventory(){
+    const team = turn;
+    const selectedIndex = selectedInventory[team];
+    const selectedOrb = selectedIndex === null ? null : inventory[team][selectedIndex];
+    traitSelectionStatus.textContent = selectedOrb ? `${t('owned')}: ${inventoryText(selectedOrb)}` : t('selectOrbFirst');
+    traitItemsEl.innerHTML = shopCatalog.map(({ key, label }) => {
+      const amount = economy.stock[key];
+      const disabled = !selectedOrb || amount < 1 || selectedOrb[key] ? 'disabled' : '';
+      return `<div class="traitItem"><div><strong>${t(label)}</strong><small>${t('owned')}: ${amount}</small></div><button type="button" data-apply-trait="${key}" ${disabled}>${t('applyTrait')}</button></div>`;
+    }).join('');
+  }
+
+  function loadSettings(){
+    try {
+      const stored = JSON.parse(localStorage.getItem('massBrawlSettings') || '{}');
+      const language = ['en', 'de', 'fr', 'es'].includes(stored.language) ? stored.language : defaultSettings.language;
+      return { ...defaultSettings, ...stored, language };
+    } catch (error) {
+      return { ...defaultSettings };
+    }
+  }
+
+  function t(key){
+    return (translations[settings.language] || translations.en)[key] || translations.en[key] || key;
+  }
+
+  function applyLanguage(){
+    document.documentElement.lang = settings.language;
+    document.body.classList.toggle('reduced-motion', settings.reducedMotion);
+    document.querySelectorAll('[data-i18n]').forEach((element) => {
+      element.textContent = t(element.dataset.i18n);
+    });
+    howto.title = t('howToPlay');
+    exitGame.title = t('exit');
+    exitGame.setAttribute('aria-label', t('exit'));
+    settingsBtn.title = t('settings');
+    settingsBtn.setAttribute('aria-label', t('settings'));
+    achievementsBtn.title = t('achievementsTitle');
+    achievementsBtn.setAttribute('aria-label', t('achievementsTitle'));
+    storeBtn.title = t('shop');
+    storeBtn.setAttribute('aria-label', t('shop'));
+    traitInventoryBtn.title = t('specialInventory');
+    traitInventoryBtn.setAttribute('aria-label', t('specialInventory'));
+    languageSelect.value = settings.language;
+    turnEl.textContent = turnLabel();
+    helpText.textContent = buildHelpText();
+    renderShop();
+    renderAchievements();
+    if (!traitInventoryOverlay.classList.contains('hidden')) renderTraitInventory();
+  }
+
+  function syncSettingsControls(){
+    languageSelect.value = settings.language;
+    soundToggle.checked = settings.sound;
+    vibrationToggle.checked = settings.vibration;
+    motionToggle.checked = settings.reducedMotion;
+  }
+
+  function saveSettings(){
+    try {
+      localStorage.setItem('massBrawlSettings', JSON.stringify(settings));
+    } catch (error) {
+      // Preferences still work for the current session if storage is unavailable.
+    }
+  }
+
+  const difficultyProfiles = {
+    easy: { targetJitter: 0.24, aimOffset: 0.24, dragScale: 0.82, targetBias: 'easy' },
+    intermediate: { targetJitter: 0.018, aimOffset: 0.045, dragScale: 1.45, targetBias: 'smart' },
+    hard: { targetJitter: 0.010, aimOffset: 0.020, dragScale: 2.10, targetBias: 'smart' }
+  };
 
   let W, H, DPR;
   function resize(){
@@ -164,82 +904,229 @@
   const MIN_SPEED = 0.04;
   const WALL_BOUNCE = 0.65;
   const MAX_DRAG = 140;
-  const POWER = 0.11;
-  const MATCH_TIME = 90;
+  const POWER = 0.045;
+  const MAX_MASS = 5;
+  const INVENTORY_SIZE = 5;
+  const TURN_SECONDS = 60;
+  const BOMB_PROBABILITY = 0.01;
+  const SPIKE_PROBABILITY = 0.01;
+  const GHOST_PROBABILITY = 0.01;
+  const BOMB_RADIUS_BASE = 34;
+  const BOMB_RADIUS_PER_MASS = 6;
+  const ORB_BASE_RADIUS = 10;
+  const ORB_RADIUS_PER_MASS = 6;
+  const FINAL_VISUAL_DELAY_SECONDS = 2;
 
   let orbs = [];
   let dragOrb = null, dragStart = null, dragCurrent = null;
   let turn = 'player'; // 'player' | 'ai'  (in pvp mode, 'ai' just means "player 2 / orange")
   let busy = false; // orbs moving, no input allowed
-  let timeLeft = MATCH_TIME;
+  let playerTimeLeft = TURN_SECONDS;
+  let aiTimeLeft = TURN_SECONDS;
   let lastTs = null;
   let gameOver = false;
   let started = false;
   let mode = 'ai'; // 'ai' | 'pvp'
+  let difficulty = null; // 'easy' | 'intermediate' | 'hard'
   let aiTimer = null;
+  let finalDelayTimer = null;
+  let explosions = [];
 
   function centerX(){ return W/2; }
+  function bandHeight(){ return H/4; }
+  function launchY(team){ return team === 'player' ? H-bandHeight()/2 : bandHeight()/2; }
+  function scoringBand(team){ return team === 'player' ? 1 : 2; }
+  function pickupTeam(y){
+    if (y < bandHeight()) return 'ai';
+    if (y > H-bandHeight()) return 'player';
+    return null;
+  }
 
-  function makeTeam(team, values){
-    const n = values.length;
-    const xBase = team === 'player' ? W*0.28 : W*0.72;
-    return values.map((v, i) => {
-      const r = 14 + v*1.6;
+  function orbRadius(value){
+    return ORB_BASE_RADIUS + value * ORB_RADIUS_PER_MASS;
+  }
+
+  let inventory = { player: [], ai: [] };
+  let nextOrbId = 0;
+  let selectedInventory = { player: null, ai: null };
+
+  function inventoryText(item){
+    const markers = `${item.bomb ? '✹' : ''}${item.spiked ? '✦' : ''}${item.ghost ? '◌' : ''}`;
+    return `${markers}${item.value}`;
+  }
+
+  function renderInventory(){
+    const renderTeam = (team, targetEl, key) => {
+      targetEl.innerHTML = inventory[team].map((item, idx) => {
+        const selected = selectedInventory[key] === idx ? 'selected' : '';
+        return `<span class="${selected}" data-index="${idx}">${inventoryText(item)}</span>`;
+      }).join('');
+    };
+
+    renderTeam('player', inventoryBlueEl, 'player');
+    renderTeam('ai', inventoryOrangeEl, 'ai');
+  }
+
+  function randomInventory(){
+    return Array.from({length: INVENTORY_SIZE}, () => {
+      const value = 1 + Math.floor(Math.random() * MAX_MASS);
+      const bomb = Math.random() < BOMB_PROBABILITY;
+      const spiked = !bomb && Math.random() < SPIKE_PROBABILITY;
       return {
-        id: team + i,
-        team, value: v, r,
-        x: xBase + (Math.random()-0.5)*W*0.12,
-        y: H*0.18 + (H*0.62)*(i/(n-1)) + (Math.random()-0.5)*18,
-        vx: 0, vy: 0
+        value,
+        bomb,
+        spiked,
+        ghost: !bomb && !spiked && Math.random() < GHOST_PROBABILITY
       };
     });
+  }
+
+  function sortInventoryByValue(items){
+    return [...items].sort((a, b) => a.value - b.value || Number(a.bomb) - Number(b.bomb));
+  }
+
+  function sharedInventoryForBothPlayers(){
+    const base = randomInventory();
+    const sharedOrder = sortInventoryByValue(base.map(item => ({ ...item })));
+
+    return {
+      player: sharedOrder.map(item => ({ ...item })),
+      ai: sharedOrder.map(item => ({ ...item }))
+    };
+  }
+
+  function selectedKeyForTeam(team){
+    return team === 'player' ? 'player' : 'ai';
+  }
+
+  function selectInventoryOrb(team, index){
+    const teamInventory = inventory[team];
+    const selectedKey = selectedKeyForTeam(team);
+
+    if (index < 0 || index >= teamInventory.length) return;
+
+    selectedInventory[selectedKey] = index;
+
+    const chosen = teamInventory[index];
+    const selectedLabel = team === 'player' ? t('selectedBlue') : t('selectedOrange');
+    turnEl.textContent = `${selectedLabel}${chosen.bomb ? '✹' : ''}${chosen.value}`;
+
+    renderInventory();
+  }
+
+  function clearSelection(team){
+    const key = selectedKeyForTeam(team);
+    selectedInventory[key] = null;
+
+    if (turn === team) {
+      turnEl.textContent = turnLabel();
+    }
+
+    renderInventory();
+  }
+
+  function startInventoryDrag(team, point){
+    if (team !== turn || !inventory[team].length) return false;
+
+    const selectedKey = selectedKeyForTeam(team);
+    const selectedIndex = selectedInventory[selectedKey];
+
+    let item = null;
+    if (selectedIndex !== null && selectedIndex >= 0 && selectedIndex < inventory[team].length) {
+      item = inventory[team].splice(selectedIndex, 1)[0];
+      selectedInventory[selectedKey] = null;
+    } else {
+      item = inventory[team].pop();
+    }
+
+    if (!item) return false;
+
+    dragOrb = createInventoryOrb(team, item, point);
+    dragStart = point;
+    dragCurrent = point;
+    renderInventory();
+    return true;
+  }
+
+  function createInventoryOrb(team, item, point){
+    const value = item.value ?? item;
+    const bomb = item.bomb ?? false;
+    const spiked = item.spiked ?? false;
+    const ghost = item.ghost ?? false;
+    const r = orbRadius(value);
+    return {
+      id: `orb${nextOrbId++}`, team, value, bomb, spiked, ghost, r,
+      bombRadius: bomb ? BOMB_RADIUS_BASE + value * BOMB_RADIUS_PER_MASS : 0,
+      x: point ? point.x : W/2, y: point ? point.y : launchY(team), vx: 0, vy: 0
+    };
   }
 
   function turnLabel(){
     if (turn === 'player') {
       return mode === 'pvp'
-        ? 'Jugador 1 (azul) — arrastra un orbe y suelta'
-        : 'Tu turno — arrastra un orbe azul hacia atrás y suelta';
+        ? t('turnPvp1')
+        : t('turnAi');
     }
     return mode === 'pvp'
-      ? 'Jugador 2 (naranja) — arrastra un orbe y suelta'
-      : 'Turno rival…';
+      ? t('turnPvp2')
+      : t('aiTurn');
+  }
+
+  function buildHelpText(){
+    if (mode === 'pvp') {
+      return turn === 'player'
+        ? t('helpPvp')
+        : t('helpPvpTurn');
+    }
+    return turn === 'player'
+      ? t('helpAi')
+      : t('helpAiTurn');
   }
 
   function newGame(){
     resize();
-    orbs = [
-      ...makeTeam('player', [1,2,3,2,3]),
-      ...makeTeam('ai', [5,2,1,2,7])
-    ];
+    orbs = [];
+    inventory = sharedInventoryForBothPlayers();
+    selectedInventory = { player: null, ai: null };
+    renderInventory();
     turn = 'player';
     busy = false;
-    timeLeft = MATCH_TIME;
+    playerTimeLeft = TURN_SECONDS;
+    aiTimeLeft = TURN_SECONDS;
     gameOver = false;
     started = true;
     clearTimeout(aiTimer); aiTimer = null;
+    clearTimeout(finalDelayTimer); finalDelayTimer = null;
     overlay.classList.add('hidden');
+    settingsOverlay.classList.add('hidden');
+    traitInventoryOverlay.classList.add('hidden');
+    difficultyOverlay.classList.add('hidden');
     menuOverlay.classList.add('hidden');
     turnEl.textContent = turnLabel();
+    helpText.textContent = buildHelpText();
+    updateTurnUI();
+    updateTimerDisplay();
     lastTs = null;
     requestAnimationFrame(loop);
   }
 
   function backToMenu(){
     clearTimeout(aiTimer); aiTimer = null;
+    clearTimeout(finalDelayTimer); finalDelayTimer = null;
+    clearTimeout(achievementToastTimer); achievementToastTimer = null;
+    achievementToastQueue = [];
+    achievementToastEl.classList.remove('visible');
     started = false;
     gameOver = false;
+    helpPanel.classList.remove('visible');
+    howto.style.display = 'flex';
+    exitConfirmOverlay.classList.add('hidden');
+    settingsOverlay.classList.add('hidden');
+    storeOverlay.classList.add('hidden');
+    traitInventoryOverlay.classList.add('hidden');
     overlay.classList.add('hidden');
+    difficultyOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
-  }
-
-  function orbAt(px, py){
-    for(let i=orbs.length-1;i>=0;i--){
-      const o = orbs[i];
-      const dx = px-o.x, dy = py-o.y;
-      if (Math.hypot(dx,dy) <= o.r+6) return o;
-    }
-    return null;
   }
 
   function pointerPos(e){
@@ -249,12 +1136,13 @@
   }
 
   function onDown(e){
-    if (busy || gameOver || !started) return;
+    if (busy || gameOver || !started || !canPlay(turn) || (mode === 'ai' && turn === 'ai')) return;
     const p = pointerPos(e);
-    const o = orbAt(p.x, p.y);
-    if (o && o.team === turn && isStationary(o)) {
-      dragOrb = o; dragStart = p; dragCurrent = p;
-      e.preventDefault();
+
+    // Solo se lanzan orbes nuevos desde la zona de lanzamiento del equipo activo.
+    // Los orbes ya presentes en el tablero quedan inmóviles y no se pueden arrastrar.
+    if ((turn === 'player' && p.y > H-bandHeight()) || (turn === 'ai' && p.y < bandHeight())) {
+      if (startInventoryDrag(turn, p)) e.preventDefault();
     }
   }
   function onMove(e){
@@ -270,19 +1158,29 @@
     dist = Math.min(dist, MAX_DRAG);
     if (dist > 8) {
       const dirx = dx/Math.hypot(dx,dy || 1e-6), diry = dy/Math.hypot(dx,dy || 1e-6);
-      dragOrb.vx = dirx * dist * POWER * 6;
-      dragOrb.vy = diry * dist * POWER * 6;
+      const massFactor = 1 / Math.sqrt(dragOrb.value);
+      dragOrb.vx = dirx * dist * POWER * 6 * massFactor;
+      dragOrb.vy = diry * dist * POWER * 6 * massFactor;
       busy = true;
-      turnEl.textContent = turn === 'player' ? 'Orbe en juego…' : 'La IA está jugando…';
+      turnEl.textContent = mode === 'pvp'
+        ? (turn === 'player' ? t('pvpPlaying1') : t('pvpPlaying2'))
+        : (turn === 'player' ? t('playing') : t('aiPlaying'));
+      if (turn === 'player' || mode === 'pvp') recordOrbLaunch(dragOrb);
+      orbs.push(dragOrb);
+    } else if (!orbs.includes(dragOrb)) {
+      inventory[dragOrb.team].push({ value: dragOrb.value, bomb: dragOrb.bomb, spiked: dragOrb.spiked, ghost: dragOrb.ghost });
+      renderInventory();
     }
     dragOrb = null; dragStart = null; dragCurrent = null;
   }
 
   canvas.addEventListener('mousedown', onDown);
   canvas.addEventListener('mousemove', onMove);
+  window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
   canvas.addEventListener('touchstart', onDown, {passive:false});
   canvas.addEventListener('touchmove', onMove, {passive:false});
+  window.addEventListener('touchmove', onMove, {passive:false});
   window.addEventListener('touchend', onUp);
 
   function isStationary(o){
@@ -292,25 +1190,142 @@
     return orbs.every(isStationary);
   }
 
-  function physicsStep(){
-    for (const o of orbs){
-      o.x += o.vx; o.y += o.vy;
-      o.vx *= FRICTION; o.vy *= FRICTION;
-      if (Math.hypot(o.vx,o.vy) < MIN_SPEED) { o.vx = 0; o.vy = 0; }
+  function detonateBombs(){
+    const stationaryBombs = orbs.filter(o => o.bomb && isStationary(o));
+      const contactBombs = orbs.filter(o => o.bomb && !o.ghost && (o.contactDetonation || orbs.some(x => x !== o && !x.ghost && x.team !== o.team && Math.hypot(x.x-o.x, x.y-o.y) <= o.r + x.r)));
+    const bombSources = new Map();
 
-      if (o.x - o.r < 0) { o.x = o.r; o.vx = Math.abs(o.vx)*WALL_BOUNCE; }
-      if (o.x + o.r > W) { o.x = W-o.r; o.vx = -Math.abs(o.vx)*WALL_BOUNCE; }
-      if (o.y - o.r < 0) { o.y = o.r; o.vy = Math.abs(o.vy)*WALL_BOUNCE; }
-      if (o.y + o.r > H) { o.y = H-o.r; o.vy = -Math.abs(o.vy)*WALL_BOUNCE; }
+    for (const bomb of stationaryBombs) bombSources.set(bomb.id, bomb);
+    for (const bomb of contactBombs) bombSources.set(bomb.id, bomb);
+
+    if (!bombSources.size) return;
+
+    const blastMarks = [];
+
+    for (const bomb of bombSources.values()) {
+      const victims = orbs.filter(o => o !== bomb && o.team !== bomb.team && Math.hypot(o.x-bomb.x, o.y-bomb.y) <= bomb.bombRadius + o.r);
+      let eliminated = 0;
+
+      for (const victim of victims) {
+        victim.value = Math.max(0, victim.value - bomb.value);
+
+        if (victim.value <= 0) {
+          victim.dead = true;
+          eliminated += 1;
+        }
+      }
+
+      if (eliminated >= 2 && (mode === 'pvp' || bomb.team === 'player')) {
+        economy.stats.doubleBombs += 1;
+        saveEconomy();
+        checkAchievementProgress();
+      }
+
+      bomb.dead = true;
+      bomb.contactDetonation = false;
+      blastMarks.push({ x: bomb.x, y: bomb.y, radius: bomb.bombRadius, age: 0, maxAge: 0.45 });
     }
+
+    const remaining = [];
+    for (const o of orbs) {
+      if (o.dead) {
+        continue;
+      }
+      remaining.push(o);
+    }
+
+    orbs = remaining;
+
+    if (blastMarks.length) {
+      explosions.push(...blastMarks);
+      renderInventory();
+    }
+  }
+
+  function attachOrbs(first, second){
+    const firstGroup = first.linkGroup;
+    const secondGroup = second.linkGroup;
+    if (firstGroup && firstGroup === secondGroup) return;
+
+    const members = [...new Set([
+      ...(firstGroup ? firstGroup.members : [first]),
+      ...(secondGroup ? secondGroup.members : [second])
+    ])];
+    const anchor = firstGroup ? firstGroup.anchor : first;
+    const totalMass = members.reduce((sum, orb) => sum + orb.value, 0);
+    const group = {
+      members,
+      anchor,
+      vx: members.reduce((sum, orb) => sum + orb.vx * orb.value, 0) / totalMass,
+      vy: members.reduce((sum, orb) => sum + orb.vy * orb.value, 0) / totalMass,
+      offsets: new Map()
+    };
+
+    for (const orb of members) {
+      orb.linkGroup = group;
+      group.offsets.set(orb, { x: orb.x - anchor.x, y: orb.y - anchor.y });
+    }
+    syncAttachedGroups();
+  }
+
+  function syncAttachedGroups(){
+    const groups = new Set(orbs.map(orb => orb.linkGroup).filter(Boolean));
+    for (const group of groups) {
+      group.members = group.members.filter(orb => orbs.includes(orb));
+      if (group.members.length < 2) {
+        for (const orb of group.members) orb.linkGroup = null;
+        continue;
+      }
+      if (!group.members.includes(group.anchor)) group.anchor = group.members[0];
+      for (const orb of group.members) {
+        const offset = group.offsets.get(orb) || { x: 0, y: 0 };
+        orb.x = group.anchor.x + offset.x;
+        orb.y = group.anchor.y + offset.y;
+        orb.vx = group.vx;
+        orb.vy = group.vy;
+      }
+    }
+  }
+
+  function physicsStep(){
+    syncAttachedGroups();
+    for (const o of orbs){
+      if (o.linkGroup && o.linkGroup.anchor !== o) continue;
+
+      const velocity = o.linkGroup || o;
+      o.x += velocity.vx; o.y += velocity.vy;
+      velocity.vx *= FRICTION; velocity.vy *= FRICTION;
+      if (Math.hypot(velocity.vx,velocity.vy) < MIN_SPEED) { velocity.vx = 0; velocity.vy = 0; }
+
+      if (o.x - o.r < 0) { o.x = o.r; velocity.vx = Math.abs(velocity.vx)*WALL_BOUNCE; }
+      if (o.x + o.r > W) { o.x = W-o.r; velocity.vx = -Math.abs(velocity.vx)*WALL_BOUNCE; }
+      if (o.y - o.r < 0) { o.y = o.r; velocity.vy = Math.abs(velocity.vy)*WALL_BOUNCE; }
+      if (o.y + o.r > H) { o.y = H-o.r; velocity.vy = -Math.abs(velocity.vy)*WALL_BOUNCE; }
+    }
+    syncAttachedGroups();
     // collisions
     for (let i=0;i<orbs.length;i++){
       for (let j=i+1;j<orbs.length;j++){
         const a = orbs[i], b = orbs[j];
+        if (a.ghost || b.ghost) continue;
         const dx = b.x-a.x, dy = b.y-a.y;
         const dist = Math.hypot(dx,dy) || 0.0001;
         const minDist = a.r+b.r;
         if (dist < minDist){
+          if (a.team !== b.team) {
+            if (a.bomb) a.contactDetonation = true;
+            if (b.bomb) b.contactDetonation = true;
+          }
+
+          if (a.linkGroup && a.linkGroup === b.linkGroup) {
+            continue;
+          }
+
+          if (a.spiked || b.spiked) {
+            attachOrbs(a, b);
+            continue;
+          }
+
           const nx = dx/dist, ny = dy/dist;
           const overlap = (minDist-dist)/2;
           a.x -= nx*overlap; a.y -= ny*overlap;
@@ -323,7 +1338,24 @@
           const v2nAfter = (v2n*(m2-m1) + 2*m1*v1n)/(m1+m2);
           a.vx += (v1nAfter-v1n)*nx; a.vy += (v1nAfter-v1n)*ny;
           b.vx += (v2nAfter-v2n)*nx; b.vy += (v2nAfter-v2n)*ny;
+          if (a.linkGroup) {
+            a.linkGroup.vx = a.vx;
+            a.linkGroup.vy = a.vy;
+          }
+          if (b.linkGroup) {
+            b.linkGroup.vx = b.vx;
+            b.linkGroup.vy = b.vy;
+          }
         }
+      }
+    }
+    for (let i=orbs.length-1;i>=0;i--){
+      const o = orbs[i];
+      const collector = pickupTeam(o.y);
+      if (collector && isStationary(o)) {
+        inventory[collector].push({ value: o.value, bomb: o.bomb, spiked: o.spiked, ghost: o.ghost });
+        orbs.splice(i, 1);
+        renderInventory();
       }
     }
   }
@@ -331,62 +1363,216 @@
   function computeScores(){
     let s=0, a=0;
     for (const o of orbs){
-      if (o.team==='player' && o.x > centerX()) s += o.value;
-      if (o.team==='ai' && o.x < centerX()) a += o.value;
+      if (o.team === 'player' && Math.floor(o.y / bandHeight()) === scoringBand('player')) s += o.value;
+      if (o.team === 'ai' && Math.floor(o.y / bandHeight()) === scoringBand('ai')) a += o.value;
     }
     return {player:s, ai:a};
   }
 
+  function aiProfile(){
+    return difficultyProfiles[difficulty] || difficultyProfiles.intermediate;
+  }
+
+  function aiPickTarget(item){
+    const profile = aiProfile();
+    const playerOrbs = orbs.filter(o => o.team === 'player');
+
+    if (!playerOrbs.length) {
+      return {
+        x: W/2 + (Math.random()-0.5)*W*0.60,
+        y: H*0.72 + (Math.random()-0.5)*bandHeight()*0.80
+      };
+    }
+
+    const ordered = playerOrbs
+      .slice()
+      .sort((a, b) => b.value - a.value || Math.abs(a.x - W/2) - Math.abs(b.x - W/2));
+
+    const chosen = ordered[0];
+    const easyPick = ordered[Math.min(ordered.length - 1, Math.floor(Math.random() * Math.min(ordered.length, 2)))];
+    const targetOrb = profile.targetBias === 'easy' ? easyPick : chosen;
+
+    if (profile.targetBias === 'easy') {
+      const targetRadius = Math.max(16, W * profile.aimOffset);
+      const xJitter = (Math.random() * targetRadius * 2 - targetRadius);
+      const yJitter = (Math.random() * bandHeight() * 0.50 - bandHeight() * 0.25);
+      return {
+        x: clamp(targetOrb.x + xJitter, 0, W),
+        y: clamp(targetOrb.y + yJitter, bandHeight(), H-bandHeight())
+      };
+    }
+
+    const targetRadius = Math.max(10, W * profile.aimOffset);
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    const xJitter = (Math.random() * targetRadius * 2 - targetRadius) * direction;
+    const yJitter = (Math.random() - 0.5) * bandHeight() * profile.targetJitter * 4;
+
+    return {
+      x: clamp(targetOrb.x + xJitter, 0, W),
+      y: clamp(targetOrb.y + yJitter, bandHeight(), H-bandHeight())
+    };
+  }
+
   function aiPlay(){
-    const mine = orbs.filter(o=>o.team==='ai' && isStationary(o));
-    if (!mine.length) { endTurn(); return; }
-    const shooter = mine[Math.floor(Math.random()*mine.length)];
-    const target = { x: W*0.18 + Math.random()*W*0.18, y: shooter.y + (Math.random()-0.5)*140 };
+    aiTimer = null;
+    if (mode !== 'ai' || turn !== 'ai' || gameOver) return;
+    if (!inventory.ai.length) { endTurn(); return; }
+
+    const item = inventory.ai.pop();
+    const shooter = createInventoryOrb('ai', item);
+    const profile = aiProfile();
+    const target = aiPickTarget(item);
     const dirx = shooter.x-target.x, diry = shooter.y-target.y;
     const len = Math.hypot(dirx,diry) || 1;
-    const dist = 70 + Math.random()*MAX_DRAG*0.6;
-    shooter.vx = (dirx/len) * dist * POWER * 6;
-    shooter.vy = (diry/len) * dist * POWER * 6;
+    const dist = 60 + profile.dragScale * (MAX_DRAG * 0.50 + Math.random() * MAX_DRAG * 0.22);
+    const massFactor = 1 / Math.sqrt(shooter.value);
+
+    shooter.vx = (dirx/len) * dist * POWER * 6 * massFactor;
+    shooter.vy = (diry/len) * dist * POWER * 6 * massFactor;
+
+    orbs.push(shooter);
+    renderInventory();
     busy = true;
   }
 
+  function otherTeam(team){
+    return team === 'player' ? 'ai' : 'player';
+  }
+
+  function clamp(value, min, max){
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function formatTime(seconds){
+    const safe = Math.max(0, Math.ceil(seconds));
+    const mm = Math.floor(safe / 60);
+    const ss = safe % 60;
+    return `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  }
+
+  function updateTurnUI(){
+    leftBoardSide.classList.toggle('active', turn === 'player');
+    rightBoardSide.classList.toggle('active', turn === 'ai');
+    traitInventoryBtn.classList.toggle('player-turn', turn === 'player');
+    traitInventoryBtn.classList.toggle('ai-turn', turn === 'ai' && mode === 'pvp');
+  }
+
+  function updateTimerDisplay(){
+    timerLeftEl.textContent = formatTime(playerTimeLeft);
+    timerRightEl.textContent = formatTime(aiTimeLeft);
+  }
+
+  function hasOrbsForTeam(team){
+    return inventory[team].length > 0;
+  }
+
+  function canPlay(team){
+    if (team === 'player') return playerTimeLeft > 0 && hasOrbsForTeam('player');
+    return aiTimeLeft > 0 && hasOrbsForTeam('ai');
+  }
+
+  function checkGameEnd(){
+    if (busy || dragOrb || !allStationary()) {
+      return false;
+    }
+
+    if (orbs.some(o => o.bomb)) {
+      detonateBombs();
+      return false;
+    }
+
+    const playerNoOrbs = !hasOrbsForTeam('player');
+    const aiNoOrbs = !hasOrbsForTeam('ai');
+    const playerNoTime = playerTimeLeft <= 0;
+    const aiNoTime = aiTimeLeft <= 0;
+
+    const shouldEnd =
+      (playerNoOrbs && aiNoOrbs) ||
+      (playerNoOrbs && aiNoTime) ||
+      (aiNoOrbs && playerNoTime) ||
+      (playerNoTime && aiNoTime) ||
+      (!canPlay('player') && !canPlay('ai'));
+
+    if (!shouldEnd) {
+      return false;
+    }
+
+    if (!finalDelayTimer) {
+      finalDelayTimer = setTimeout(() => {
+        finalDelayTimer = null;
+        endGame();
+      }, FINAL_VISUAL_DELAY_SECONDS * 1000);
+    }
+
+    return true;
+  }
+
   function endTurn(){
-    turn = turn === 'player' ? 'ai' : 'player';
+    clearTimeout(aiTimer);
+    aiTimer = null;
+
+    const current = turn;
+    const rival = otherTeam(current);
+
+    if (!canPlay(current) && canPlay(rival)) {
+      turn = rival;
+    } else if (!canPlay(current) && !canPlay(rival)) {
+      checkGameEnd();
+      return;
+    } else if (canPlay(rival)) {
+      turn = rival;
+    } else if (canPlay(current)) {
+      // Se mantiene el turno del jugador actual si el rival no puede jugar.
+    } else {
+      checkGameEnd();
+      return;
+    }
+
     turnEl.textContent = turnLabel();
+    helpText.textContent = buildHelpText();
+    updateTurnUI();
+    updateTimerDisplay();
+
     if (turn === 'ai' && mode === 'ai'){
       aiTimer = setTimeout(()=>{ if(!gameOver) aiPlay(); }, 650);
     }
   }
 
   function endGame(){
+    if (gameOver) return;
     gameOver = true;
+    traitInventoryBtn.classList.remove('player-turn', 'ai-turn');
     clearTimeout(aiTimer); aiTimer = null;
+    economy.coins += MATCH_REWARD;
+    saveEconomy();
+    renderEconomy();
+    renderShop();
     const s = computeScores();
+    recordMatchResult(s);
     let title;
-    if (mode === 'pvp'){
-      if (s.player > s.ai) title = 'Gana el Jugador 1 (azul)';
-      else if (s.ai > s.player) title = 'Gana el Jugador 2 (naranja)';
-      else title = 'Empate';
+
+    if (mode === 'pvp') {
+      if (s.player > s.ai) title = t('pvpWinner1');
+      else if (s.ai > s.player) title = t('pvpWinner2');
+      else title = t('draw');
     } else {
-      if (s.player > s.ai) title = '¡Ganaste!';
-      else if (s.ai > s.player) title = 'Perdiste';
-      else title = 'Empate';
+      if (s.player > s.ai) title = t('victory');
+      else if (s.ai > s.player) title = t('defeat');
+      else title = t('draw');
     }
+
     overlayTitle.textContent = title;
-    overlaySub.textContent = `${s.player} — ${s.ai}`;
+    overlaySub.textContent = `${s.player} — ${s.ai} · +${MATCH_REWARD} ${t('rewardCoins')}`;
     overlay.classList.remove('hidden');
   }
 
   function drawBoard(){
     ctx.clearRect(0,0,W,H);
-    const cx = centerX();
-    // halves
-    const gB = ctx.createLinearGradient(0,0,cx,0);
-    gB.addColorStop(0,'rgba(51,193,255,0.16)'); gB.addColorStop(1,'rgba(51,193,255,0.04)');
-    ctx.fillStyle = gB; ctx.fillRect(0,0,cx,H);
-    const gO = ctx.createLinearGradient(cx,0,W,0);
-    gO.addColorStop(0,'rgba(255,138,43,0.04)'); gO.addColorStop(1,'rgba(255,138,43,0.16)');
-    ctx.fillStyle = gO; ctx.fillRect(cx,0,W-cx,H);
+    const bands = ['rgba(255,255,255,0.15)', 'rgba(51,193,255,0.18)', 'rgba(255,138,43,0.18)', 'rgba(255,255,255,0.15)'];
+    bands.forEach((color, index) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(0, index*bandHeight(), W, bandHeight());
+    });
 
     // diagonal hatch (subtle)
     ctx.save();
@@ -396,10 +1582,12 @@
     }
     ctx.restore();
 
-    // center line
+    // Separadores de las cuatro bandas
     ctx.strokeStyle = 'rgba(255,255,255,0.25)';
     ctx.setLineDash([6,8]);
-    ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+    for (let index=1; index<4; index++) {
+      ctx.beginPath(); ctx.moveTo(0,index*bandHeight()); ctx.lineTo(W,index*bandHeight()); ctx.stroke();
+    }
     ctx.setLineDash([]);
 
     // border glow
@@ -410,7 +1598,9 @@
 
   function drawOrb(o){
     const color = o.team==='player' ? {c:'#33c1ff', d:'#083047'} : {c:'#ff8a2b', d:'#4a1f04'};
+    const isScoring = o === dragOrb || Math.floor(o.y / bandHeight()) === scoringBand(o.team);
     ctx.save();
+    ctx.globalAlpha = isScoring ? 1 : 0.24;
     ctx.shadowColor = color.c; ctx.shadowBlur = 14;
     const g = ctx.createRadialGradient(o.x-o.r*0.35, o.y-o.r*0.35, o.r*0.1, o.x, o.y, o.r);
     g.addColorStop(0, '#ffffff');
@@ -419,13 +1609,73 @@
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2); ctx.fill();
     ctx.lineWidth = 2; ctx.strokeStyle = color.c; ctx.stroke();
+
+    if (o.spiked) {
+      ctx.strokeStyle = color.c;
+      ctx.fillStyle = color.c;
+      ctx.lineWidth = 1.5;
+      for (let index = 0; index < 8; index++) {
+        const angle = (Math.PI * 2 * index) / 8;
+        const innerRadius = o.r - 1;
+        const outerRadius = o.r + 8;
+        ctx.beginPath();
+        ctx.moveTo(o.x + Math.cos(angle - 0.16) * innerRadius, o.y + Math.sin(angle - 0.16) * innerRadius);
+        ctx.lineTo(o.x + Math.cos(angle) * outerRadius, o.y + Math.sin(angle) * outerRadius);
+        ctx.lineTo(o.x + Math.cos(angle + 0.16) * innerRadius, o.y + Math.sin(angle + 0.16) * innerRadius);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    if (o.bomb) {
+      ctx.beginPath(); ctx.arc(o.x,o.y,o.r+4,0,Math.PI*2); ctx.strokeStyle = 'rgba(255,255,180,0.95)'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    if (o.ghost) {
+      ctx.strokeStyle = 'rgba(205,255,255,0.95)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.arc(o.x, o.y, o.r + 5, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = 'rgba(225,255,255,0.95)';
+      for (const angle of [-Math.PI / 2, Math.PI / 6, (5 * Math.PI) / 6]) {
+        ctx.beginPath();
+        ctx.arc(o.x + Math.cos(angle) * (o.r + 5), o.y + Math.sin(angle) * (o.r + 5), 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
     ctx.restore();
 
+    ctx.save();
+    ctx.globalAlpha = isScoring ? 1 : 0.24;
     ctx.fillStyle = '#04101c';
     ctx.font = `700 ${Math.max(11,o.r*0.85)}px Orbitron, sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#04101c';
     ctx.fillText(o.value, o.x, o.y+1);
+    ctx.restore();
+  }
+
+  function updateExplosions(dt){
+    if (!explosions.length) return;
+    explosions = explosions
+      .map(e => ({...e, age: e.age + dt}))
+      .filter(e => e.age < e.maxAge);
+  }
+
+  function drawExplosions(){
+    for (const e of explosions) {
+      const life = e.age / e.maxAge;
+      const radius = e.radius * (0.2 + life);
+      ctx.save();
+      ctx.strokeStyle = `rgba(255, 210, 120, ${1-life})`;
+      ctx.fillStyle = `rgba(255, 140, 30, ${0.35*(1-life)})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(e.x, e.y, radius, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(e.x, e.y, radius*0.84, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
   }
 
   function drawDrag(){
@@ -456,20 +1706,50 @@
 
       if (busy) {
         physicsStep();
+        detonateBombs();
         if (allStationary()){
+          detonateBombs();
           busy = false;
           if (!gameOver) endTurn();
         }
+      } else if (!dragOrb && !canPlay(turn)) {
+        endTurn();
       } else if (!dragOrb && !gameOver && !aiTimer){
         // idle, waiting for input (player) - nothing
       }
 
-      if (!dragOrb){
-        timeLeft -= dt;
-        if (timeLeft <= 0){ timeLeft = 0; endGame(); }
+      if (!gameOver) {
+        updateExplosions(dt);
+        if (turn === 'player') {
+          playerTimeLeft = Math.max(0, playerTimeLeft - dt);
+          if (playerTimeLeft === 0) {
+            if (canPlay('ai')) {
+              turn = 'ai';
+              turnEl.textContent = turnLabel();
+              helpText.textContent = buildHelpText();
+              updateTurnUI();
+              if (mode === 'ai') {
+                aiTimer = setTimeout(()=>{ if(!gameOver && turn === 'ai') aiPlay(); }, 650);
+              }
+            }
+          }
+        } else {
+          aiTimeLeft = Math.max(0, aiTimeLeft - dt);
+          if (aiTimeLeft === 0) {
+            if (canPlay('player')) {
+              turn = 'player';
+              turnEl.textContent = turnLabel();
+              helpText.textContent = buildHelpText();
+              updateTurnUI();
+            }
+          }
+        }
       }
-      const mm = Math.floor(timeLeft/60), ss = Math.floor(timeLeft%60);
-      timerEl.textContent = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+
+      if (!gameOver) {
+        updateTimerDisplay();
+        checkGameEnd();
+      }
 
       const s = computeScores();
       scoreLeftEl.textContent = s.player;
@@ -478,28 +1758,179 @@
 
     drawBoard();
     for (const o of orbs) drawOrb(o);
+    if (dragOrb && !orbs.includes(dragOrb)) drawOrb(dragOrb);
+    drawExplosions();
     drawDrag();
 
     requestAnimationFrame(loop);
   }
 
-  restartBtn.addEventListener('click', ()=>{ newGame(); });
-  backToMenuBtn.addEventListener('click', backToMenu);
-  modeAiBtn.addEventListener('click', ()=>{ mode='ai'; newGame(); });
-  modePvpBtn.addEventListener('click', ()=>{ mode='pvp'; newGame(); });
-  howto.addEventListener('click', ()=>{
-    const msg = mode === 'pvp'
-      ? 'MASS BRAWL — Prototipo\n\nArrastra uno de tus orbes hacia atrás y suelta para lanzarlo como un tirachinas.\nCada orbe vale puntos según su número.\nGanas puntos por cada orbe tuyo que quede en el campo contrario cuando el tiempo se acabe.\nUsa los rebotes en las paredes y los choques entre orbes a tu favor.\nTurnos alternos: Jugador 1 (azul) y Jugador 2 (naranja), en el mismo dispositivo.'
-      : 'MASS BRAWL — Prototipo\n\nArrastra uno de tus orbes (azules) hacia atrás y suelta para lanzarlo como un tirachinas.\nCada orbe vale puntos según su número.\nGanas puntos por cada orbe tuyo que quede en el campo rival cuando el tiempo se acabe.\nUsa los rebotes en las paredes y los choques entre orbes a tu favor.\nTurnos alternos: tú y la IA.';
-    alert(msg);
+  function onInventoryClick(team, event){
+    const slot = event.target.closest('span');
+    if (!slot) return;
+    const idx = Number(slot.dataset.index);
+    if (!Number.isFinite(idx)) return;
+
+    if (mode === 'ai' && team === 'ai') return;
+    if (team === 'player' && turn !== 'player') return;
+    if (team === 'ai' && turn !== 'ai') return;
+
+    if (team === 'player') {
+      if (selectedInventory.player === idx) {
+        clearSelection('player');
+      } else {
+        selectInventoryOrb('player', idx);
+      }
+    } else {
+      if (selectedInventory.ai === idx) {
+        clearSelection('ai');
+      } else {
+        selectInventoryOrb('ai', idx);
+      }
+    }
+  }
+
+  inventoryBlueEl.addEventListener('click', (e) => onInventoryClick('player', e));
+  inventoryOrangeEl.addEventListener('click', (e) => onInventoryClick('ai', e));
+
+  shopItemsEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-buy-trait]');
+    if (!button) return;
+    const item = shopCatalog.find(({ key }) => key === button.dataset.buyTrait);
+    if (!item || economy.coins < item.price) return;
+    economy.coins -= item.price;
+    economy.stock[item.key] += 1;
+    saveEconomy();
+    renderEconomy();
+    renderShop();
   });
 
-  // Muestra el tablero (estático) detrás del menú antes de elegir modo
+  traitItemsEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-apply-trait]');
+    if (!button) return;
+    const key = button.dataset.applyTrait;
+    const team = turn;
+    const selectedIndex = selectedInventory[team];
+    const selectedOrb = selectedIndex === null ? null : inventory[team][selectedIndex];
+    if (!shopCatalog.some((item) => item.key === key) || !selectedOrb || !economy.stock[key] || selectedOrb[key]) return;
+    selectedOrb[key] = true;
+    economy.stock[key] -= 1;
+    saveEconomy();
+    renderInventory();
+    renderEconomy();
+    renderTraitInventory();
+  });
+
+  achievementListEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-claim-achievement]');
+    if (!button) return;
+    claimAchievement(button.dataset.claimAchievement);
+  });
+
+  achievementsBtn.addEventListener('click', ()=>{
+    renderAchievements();
+    menuOverlay.classList.add('hidden');
+    achievementsOverlay.classList.remove('hidden');
+  });
+  closeAchievementsBtn.addEventListener('click', ()=>{
+    achievementsOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
+
+  function selectDifficultyButton(selected){
+    const key = selected && difficultyProfiles[selected] ? selected : null;
+    difficultyEasyBtn.classList.toggle('active', key === 'easy');
+    difficultyIntermediateBtn.classList.toggle('active', key === 'intermediate');
+    difficultyHardBtn.classList.toggle('active', key === 'hard');
+  }
+
+  function startAiGame(selectedDifficulty){
+    const choice = difficultyProfiles[selectedDifficulty] ? selectedDifficulty : 'intermediate';
+    difficulty = choice;
+    mode = 'ai';
+    selectDifficultyButton(difficulty);
+    difficultyOverlay.classList.add('hidden');
+    newGame();
+  }
+
+  function showDifficultyOverlay(){
+    mode = 'ai';
+    menuOverlay.classList.add('hidden');
+    difficultyOverlay.classList.remove('hidden');
+    selectDifficultyButton(difficulty);
+  }
+
+  restartBtn.addEventListener('click', ()=>{ newGame(); });
+  backToMenuBtn.addEventListener('click', backToMenu);
+  exitGame.addEventListener('click', ()=>{ exitConfirmOverlay.classList.remove('hidden'); });
+  cancelExitBtn.addEventListener('click', ()=>{ exitConfirmOverlay.classList.add('hidden'); });
+  confirmExitBtn.addEventListener('click', backToMenu);
+  settingsBtn.addEventListener('click', ()=>{
+    syncSettingsControls();
+    menuOverlay.classList.add('hidden');
+    settingsOverlay.classList.remove('hidden');
+  });
+  cancelSettingsBtn.addEventListener('click', ()=>{
+    syncSettingsControls();
+    settingsOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
+  applySettingsBtn.addEventListener('click', ()=>{
+    settings = {
+      language: languageSelect.value,
+      sound: soundToggle.checked,
+      vibration: vibrationToggle.checked,
+      reducedMotion: motionToggle.checked
+    };
+    saveSettings();
+    applyLanguage();
+    settingsOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
+  storeBtn.addEventListener('click', ()=>{
+    renderShop();
+    menuOverlay.classList.add('hidden');
+    storeOverlay.classList.remove('hidden');
+  });
+  closeStoreBtn.addEventListener('click', ()=>{
+    storeOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
+  traitInventoryBtn.addEventListener('click', ()=>{
+    if (!started || gameOver || (mode === 'ai' && turn === 'ai')) return;
+    renderTraitInventory();
+    traitInventoryOverlay.classList.remove('hidden');
+  });
+  closeTraitInventoryBtn.addEventListener('click', ()=>{
+    traitInventoryOverlay.classList.add('hidden');
+  });
+  modeAiBtn.addEventListener('click', ()=>{ showDifficultyOverlay(); });
+  modePvpBtn.addEventListener('click', ()=>{ mode='pvp'; menuOverlay.classList.add('hidden'); newGame(); });
+  difficultyEasyBtn.addEventListener('click', ()=>{ startAiGame('easy'); });
+  difficultyIntermediateBtn.addEventListener('click', ()=>{ startAiGame('intermediate'); });
+  difficultyHardBtn.addEventListener('click', ()=>{ startAiGame('hard'); });
+  howto.addEventListener('click', ()=>{
+    helpText.textContent = buildHelpText();
+    const isVisible = helpPanel.classList.toggle('visible');
+    howto.style.display = isVisible ? 'none' : 'flex';
+  });
+
+  helpPanel.addEventListener('click', ()=>{
+    helpPanel.classList.remove('visible');
+    howto.style.display = 'flex';
+  });
+
+  applyLanguage();
+  syncSettingsControls();
+  selectDifficultyButton(difficulty);
+  renderEconomy();
+  renderShop();
+
+  // Muestra el tablero vacío detrás del menú antes de elegir modo
   resize();
-  orbs = [
-    ...makeTeam('player', [1,2,3,2,3]),
-    ...makeTeam('ai', [5,2,1,2,7])
-  ];
+  orbs = [];
+  inventory = { player: [], ai: [] };
+  renderInventory();
   requestAnimationFrame(loop);
 })();
 </script>
