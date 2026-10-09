@@ -176,6 +176,29 @@
     background:rgba(3,6,12,0.88); padding:20px;
   }
   #achievementsOverlay.hidden{ display:none; }
+  #onlineOverlay{
+    position:absolute; inset:0; z-index:17; display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,12,0.88); padding:20px;
+  }
+  #onlineOverlay.hidden{ display:none; }
+  #onlinePanel{
+    width:min(430px, 100%); max-height:100%; overflow-y:auto; padding:22px 18px;
+    border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,0.65);
+  }
+  #onlineNotice{ margin:0 0 16px; padding:10px 12px; border-left:3px solid var(--orange); background:rgba(255,138,43,0.08); color:#cbd7e8; font-size:12px; line-height:1.4; text-align:left; }
+  .onlineSection{ padding:13px 0; border-top:1px solid rgba(255,255,255,0.08); text-align:left; }
+  .onlineSection h2{ margin:0 0 10px; font-size:15px; }
+  .onlineSection p{ margin:0 0 10px; color:#9fb3d1; font-size:12px; line-height:1.4; }
+  .onlineSection button{ padding:9px 13px; border-radius:9px; font-size:13px; }
+  #onlineRoomCard{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:10px 12px; border:1px solid rgba(255,214,107,0.3); border-radius:10px; }
+  #onlineRoomCard.hidden{ display:none; }
+  #onlineRoomCode{ color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:20px; letter-spacing:2px; }
+  #joinRoomForm{ display:flex; gap:8px; }
+  #joinRoomCode{ flex:1; min-width:0; padding:9px 10px; border:1px solid rgba(255,255,255,0.18); border-radius:8px; background:#111d31; color:#eaf2ff; font:600 15px 'Orbitron',sans-serif; text-transform:uppercase; }
+  #onlineStatus{ min-height:18px; margin:9px 0 0; color:#cbd7e8; font-size:12px; }
+  #onlineActions{ display:flex; justify-content:flex-end; margin-top:10px; }
+  #closeOnlineBtn{ padding:9px 16px; }
   #achievementsPanel{
     width:min(470px, 100%); max-height:100%; display:flex; flex-direction:column; overflow:hidden; padding:22px 18px;
     border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
@@ -329,6 +352,10 @@
         <strong data-i18n="pvpMode">Play against another person</strong>
         <small data-i18n="pvpModeDesc">Same device, alternate turns</small>
       </button>
+      <button class="modeBtn" id="onlineModeBtn">
+        <strong data-i18n="onlineMode">Online multiplayer</strong>
+        <small data-i18n="onlineModeDesc">Invite by code or find a match</small>
+      </button>
       <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
       <button id="achievementsBtn" title="Achievements" aria-label="Achievements">🏆<span id="achievementCount">0</span></button>
       <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
@@ -387,6 +414,35 @@
         <h1 id="achievementsTitle" class="economyTitle" data-i18n="achievementsTitle">Achievements</h1>
         <div id="achievementList"></div>
         <div class="economyActions"><button id="closeAchievementsBtn" data-i18n="close">Close</button></div>
+      </div>
+    </div>
+    <div id="onlineOverlay" class="hidden">
+      <div id="onlinePanel" role="dialog" aria-modal="true" aria-labelledby="onlineTitle">
+        <h1 id="onlineTitle" class="economyTitle" data-i18n="onlineTitle">Online multiplayer</h1>
+        <p id="onlineNotice" data-i18n="onlineDemoNotice">Prototype only: rooms and matchmaking need an online service before they can connect devices.</p>
+        <section class="onlineSection">
+          <h2 data-i18n="createRoom">Create an invite code</h2>
+          <p data-i18n="createRoomDesc">Generate a code to preview the invitation flow.</p>
+          <button id="createRoomBtn" type="button" data-i18n="generateCode">Generate code</button>
+          <div id="onlineRoomCard" class="hidden">
+            <strong id="onlineRoomCode"></strong>
+            <button id="copyRoomCodeBtn" type="button" data-i18n="copyCode">Copy</button>
+          </div>
+        </section>
+        <section class="onlineSection">
+          <h2 data-i18n="joinRoom">Join with a code</h2>
+          <form id="joinRoomForm">
+            <input id="joinRoomCode" type="text" maxlength="6" autocomplete="off" aria-label="Room code" data-i18n-placeholder="roomCodePlaceholder" placeholder="6-character code">
+            <button type="submit" data-i18n="join">Join</button>
+          </form>
+        </section>
+        <section class="onlineSection">
+          <h2 data-i18n="randomMatch">Find a random match</h2>
+          <p data-i18n="randomMatchDesc">Random matchmaking will be enabled when an online service is connected.</p>
+          <button id="randomMatchBtn" type="button" data-i18n="searchMatch">Search for a match</button>
+        </section>
+        <p id="onlineStatus" role="status" aria-live="polite"></p>
+        <div id="onlineActions"><button id="closeOnlineBtn" type="button" data-i18n="close">Close</button></div>
       </div>
     </div>
     <div id="traitInventoryOverlay" class="hidden">
@@ -459,6 +515,17 @@
   const difficultyHardBtn = document.getElementById('difficultyHard');
   const modeAiBtn = document.getElementById('modeAiBtn');
   const modePvpBtn = document.getElementById('modePvpBtn');
+  const onlineModeBtn = document.getElementById('onlineModeBtn');
+  const onlineOverlay = document.getElementById('onlineOverlay');
+  const createRoomBtn = document.getElementById('createRoomBtn');
+  const onlineRoomCard = document.getElementById('onlineRoomCard');
+  const onlineRoomCode = document.getElementById('onlineRoomCode');
+  const copyRoomCodeBtn = document.getElementById('copyRoomCodeBtn');
+  const joinRoomForm = document.getElementById('joinRoomForm');
+  const joinRoomCode = document.getElementById('joinRoomCode');
+  const randomMatchBtn = document.getElementById('randomMatchBtn');
+  const onlineStatus = document.getElementById('onlineStatus');
+  const closeOnlineBtn = document.getElementById('closeOnlineBtn');
   const settingsBtn = document.getElementById('settingsBtn');
   const achievementsBtn = document.getElementById('achievementsBtn');
   const achievementCountEl = document.getElementById('achievementCount');
@@ -522,7 +589,16 @@
       scoreTenTitle: 'Score Chaser', scoreTenDesc: 'Score {target} points in one match.',
       doubleBombTitle: 'Chain Reaction', doubleBombDesc: 'Eliminate at least two orbs with a bomb {target} times.',
       streakTitle: 'Victory Streak', streakDesc: 'Win {target} matches in a row.',
-      tenMatchesTitle: 'Arena Veteran', tenMatchesDesc: 'Complete {target} matches in total.'
+      tenMatchesTitle: 'Arena Veteran', tenMatchesDesc: 'Complete {target} matches in total.',
+      onlineMode: 'Online (demo)', onlineModeDesc: 'Invite by code or search randomly', onlineTitle: 'Online multiplayer demo',
+      onlineDemoNotice: 'Local preview only. Codes cannot connect devices until an online service is configured.',
+      createRoom: 'Create an invite', createRoomDesc: 'Generate a six-character code to share.', generateCode: 'Create code',
+      copyCode: 'Copy', joinRoom: 'Join with a code', roomCodePlaceholder: '6-character code', join: 'Join',
+      randomMatch: 'Random matchmaking', randomMatchDesc: 'Search for another player when matchmaking is available.',
+      searchMatch: 'Search for a match', codeCreated: 'Invite code created. Share it with your friend.',
+      codeCopied: 'Code copied.', codeCopyFailed: 'Copy the code shown above manually.',
+      invalidRoomCode: 'Enter a valid six-character code.', demoJoinStatus: 'Code format accepted. Remote rooms are not connected in this demo.',
+      randomUnavailable: 'Random matchmaking is not connected in this demo.'
     },
     de: {
       menuSub: 'Wähle deinen Gegner', aiMode: 'Gegen die KI spielen',
@@ -556,7 +632,16 @@
       scoreTenTitle: 'Punktejäger', scoreTenDesc: 'Erziele {target} Punkte in einem Spiel.',
       doubleBombTitle: 'Kettenreaktion', doubleBombDesc: 'Eliminiere mit einer Bombe mindestens zwei Kugeln, {target}-mal.',
       streakTitle: 'Siegesserie', streakDesc: 'Gewinne {target} Spiele in Folge.',
-      tenMatchesTitle: 'Arena-Veteran', tenMatchesDesc: 'Schließe insgesamt {target} Spiele ab.'
+      tenMatchesTitle: 'Arena-Veteran', tenMatchesDesc: 'Schließe insgesamt {target} Spiele ab.',
+      onlineMode: 'Online (Demo)', onlineModeDesc: 'Per Code einladen oder zufällig suchen', onlineTitle: 'Online-Mehrspieler (Demo)',
+      onlineDemoNotice: 'Nur lokale Vorschau. Codes verbinden keine Geräte, solange kein Online-Dienst eingerichtet ist.',
+      createRoom: 'Einladung erstellen', createRoomDesc: 'Erzeuge einen sechsstelligen Code zum Teilen.', generateCode: 'Code erstellen',
+      copyCode: 'Kopieren', joinRoom: 'Mit Code beitreten', roomCodePlaceholder: '6-stelliger Code', join: 'Beitreten',
+      randomMatch: 'Zufällige Suche', randomMatchDesc: 'Suche nach einem Gegner, sobald die Spielersuche verfügbar ist.',
+      searchMatch: 'Gegner suchen', codeCreated: 'Einladungscode erstellt. Teile ihn mit deinem Freund.',
+      codeCopied: 'Code kopiert.', codeCopyFailed: 'Kopiere den angezeigten Code manuell.',
+      invalidRoomCode: 'Gib einen gültigen sechsstelligen Code ein.', demoJoinStatus: 'Codeformat erkannt. In dieser Demo sind keine entfernten Räume verbunden.',
+      randomUnavailable: 'Die zufällige Spielersuche ist in dieser Demo nicht verbunden.'
     },
     fr: {
       menuSub: 'Choisissez votre adversaire', aiMode: "Jouer contre l'IA",
@@ -590,7 +675,16 @@
       scoreTenTitle: 'Chasseur de points', scoreTenDesc: 'Marquez {target} points en une partie.',
       doubleBombTitle: 'Réaction en chaîne', doubleBombDesc: 'Éliminez au moins deux billes avec une bombe {target} fois.',
       streakTitle: 'Série de victoires', streakDesc: 'Gagnez {target} parties d’affilée.',
-      tenMatchesTitle: 'Vétéran de l’arène', tenMatchesDesc: 'Terminez {target} parties au total.'
+      tenMatchesTitle: 'Vétéran de l’arène', tenMatchesDesc: 'Terminez {target} parties au total.',
+      onlineMode: 'En ligne (démo)', onlineModeDesc: 'Invitez par code ou cherchez au hasard', onlineTitle: 'Multijoueur en ligne (démo)',
+      onlineDemoNotice: 'Aperçu local uniquement. Les codes ne connectent pas les appareils sans service en ligne configuré.',
+      createRoom: 'Créer une invitation', createRoomDesc: 'Générez un code de six caractères à partager.', generateCode: 'Créer un code',
+      copyCode: 'Copier', joinRoom: 'Rejoindre avec un code', roomCodePlaceholder: 'Code de 6 caractères', join: 'Rejoindre',
+      randomMatch: 'Recherche aléatoire', randomMatchDesc: 'Cherchez un adversaire lorsque le matchmaking sera disponible.',
+      searchMatch: 'Chercher une partie', codeCreated: 'Code d’invitation créé. Partagez-le avec votre ami.',
+      codeCopied: 'Code copié.', codeCopyFailed: 'Copiez manuellement le code affiché ci-dessus.',
+      invalidRoomCode: 'Saisissez un code valide de six caractères.', demoJoinStatus: 'Format du code accepté. Cette démo ne connecte pas de salles distantes.',
+      randomUnavailable: 'La recherche aléatoire n’est pas connectée dans cette démo.'
     },
     es: {
       menuSub: 'Elige a tu rival', aiMode: 'Jugar contra la IA',
@@ -624,7 +718,16 @@
       scoreTenTitle: 'Récord de puntuación', scoreTenDesc: 'Consigue {target} puntos en una partida.',
       doubleBombTitle: 'Reacción en cadena', doubleBombDesc: 'Elimina al menos dos orbes con una bomba {target} veces.',
       streakTitle: 'Racha imparable', streakDesc: 'Gana {target} partidas seguidas.',
-      tenMatchesTitle: 'Veterano de la arena', tenMatchesDesc: 'Completa {target} partidas en total.'
+      tenMatchesTitle: 'Veterano de la arena', tenMatchesDesc: 'Completa {target} partidas en total.',
+      onlineMode: 'Online (demo)', onlineModeDesc: 'Invita con código o busca al azar', onlineTitle: 'Multijugador online (demo)',
+      onlineDemoNotice: 'Solo es una vista previa local. Los códigos no conectan dispositivos hasta configurar un servicio online.',
+      createRoom: 'Crear invitación', createRoomDesc: 'Genera un código de seis caracteres para compartir.', generateCode: 'Crear código',
+      copyCode: 'Copiar', joinRoom: 'Unirse con código', roomCodePlaceholder: 'Código de 6 caracteres', join: 'Unirse',
+      randomMatch: 'Búsqueda aleatoria', randomMatchDesc: 'Busca rival cuando el emparejamiento online esté disponible.',
+      searchMatch: 'Buscar partida', codeCreated: 'Código de invitación creado. Compártelo con tu amigo.',
+      codeCopied: 'Código copiado.', codeCopyFailed: 'Copia manualmente el código que aparece arriba.',
+      invalidRoomCode: 'Introduce un código válido de seis caracteres.', demoJoinStatus: 'Formato correcto. Esta demo no conecta salas remotas.',
+      randomUnavailable: 'La búsqueda aleatoria aún no está conectada en esta demo.'
     }
   };
 
@@ -850,6 +953,9 @@
     document.body.classList.toggle('reduced-motion', settings.reducedMotion);
     document.querySelectorAll('[data-i18n]').forEach((element) => {
       element.textContent = t(element.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+      element.placeholder = t(element.dataset.i18nPlaceholder);
     });
     howto.title = t('howToPlay');
     exitGame.title = t('exit');
@@ -1906,6 +2012,51 @@
   });
   modeAiBtn.addEventListener('click', ()=>{ showDifficultyOverlay(); });
   modePvpBtn.addEventListener('click', ()=>{ mode='pvp'; menuOverlay.classList.add('hidden'); newGame(); });
+  onlineModeBtn.addEventListener('click', ()=>{
+    onlineStatus.textContent = '';
+    onlineRoomCard.classList.add('hidden');
+    joinRoomCode.value = '';
+    menuOverlay.classList.add('hidden');
+    onlineOverlay.classList.remove('hidden');
+  });
+  createRoomBtn.addEventListener('click', ()=>{
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const randomBytes = new Uint8Array(6);
+    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(randomBytes);
+    else randomBytes.forEach((_, index) => { randomBytes[index] = Math.floor(Math.random() * 256); });
+    const code = Array.from(randomBytes, (byte) => alphabet[byte % alphabet.length]).join('');
+    onlineRoomCode.textContent = code;
+    onlineRoomCard.classList.remove('hidden');
+    onlineStatus.textContent = t('codeCreated');
+  });
+  copyRoomCodeBtn.addEventListener('click', async ()=>{
+    const code = onlineRoomCode.textContent;
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      onlineStatus.textContent = t('codeCopied');
+    } catch (error) {
+      onlineStatus.textContent = t('codeCopyFailed');
+    }
+  });
+  joinRoomCode.addEventListener('input', ()=>{
+    joinRoomCode.value = joinRoomCode.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0, 6);
+  });
+  joinRoomForm.addEventListener('submit', (event)=>{
+    event.preventDefault();
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(joinRoomCode.value)) {
+      onlineStatus.textContent = t('invalidRoomCode');
+      return;
+    }
+    onlineStatus.textContent = t('demoJoinStatus');
+  });
+  randomMatchBtn.addEventListener('click', ()=>{
+    onlineStatus.textContent = t('randomUnavailable');
+  });
+  closeOnlineBtn.addEventListener('click', ()=>{
+    onlineOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
   difficultyEasyBtn.addEventListener('click', ()=>{ startAiGame('easy'); });
   difficultyIntermediateBtn.addEventListener('click', ()=>{ startAiGame('intermediate'); });
   difficultyHardBtn.addEventListener('click', ()=>{ startAiGame('hard'); });
