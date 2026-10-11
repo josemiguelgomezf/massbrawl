@@ -197,6 +197,13 @@
   #joinRoomForm{ display:flex; gap:8px; }
   #joinRoomCode{ flex:1; min-width:0; padding:9px 10px; border:1px solid rgba(255,255,255,0.18); border-radius:8px; background:#111d31; color:#eaf2ff; font:600 15px 'Orbitron',sans-serif; text-transform:uppercase; }
   #onlineStatus{ min-height:18px; margin:9px 0 0; color:#cbd7e8; font-size:12px; }
+  #onlineSyncNotice{
+    position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:18;
+    max-width:calc(100% - 32px); padding:9px 12px; border:1px solid rgba(255,138,43,0.55);
+    border-radius:9px; background:rgba(35,18,8,0.96); color:#ffe0c2; font-size:12px;
+    line-height:1.4; text-align:center; pointer-events:none;
+  }
+  #onlineSyncNotice.hidden{ display:none; }
   #onlineActions{ display:flex; justify-content:flex-end; margin-top:10px; }
   #closeOnlineBtn{ padding:9px 16px; }
   #achievementsPanel{
@@ -419,7 +426,7 @@
     <div id="onlineOverlay" class="hidden">
       <div id="onlinePanel" role="dialog" aria-modal="true" aria-labelledby="onlineTitle">
         <h1 id="onlineTitle" class="economyTitle" data-i18n="onlineTitle">Online multiplayer</h1>
-        <p id="onlineNotice" data-i18n="onlineDemoNotice">Prototype only: rooms and matchmaking need an online service before they can connect devices.</p>
+        <p id="onlineNotice" data-i18n="onlineNotice">Create a room and share its code, or join a friend's room.</p>
         <section class="onlineSection">
           <h2 data-i18n="createRoom">Create an invite code</h2>
           <p data-i18n="createRoomDesc">Generate a code to preview the invitation flow.</p>
@@ -438,13 +445,14 @@
         </section>
         <section class="onlineSection">
           <h2 data-i18n="randomMatch">Find a random match</h2>
-          <p data-i18n="randomMatchDesc">Random matchmaking will be enabled when an online service is connected.</p>
+          <p data-i18n="randomMatchDesc">Search for the next available player.</p>
           <button id="randomMatchBtn" type="button" data-i18n="searchMatch">Search for a match</button>
         </section>
         <p id="onlineStatus" role="status" aria-live="polite"></p>
         <div id="onlineActions"><button id="closeOnlineBtn" type="button" data-i18n="close">Close</button></div>
       </div>
     </div>
+    <p id="onlineSyncNotice" class="hidden" role="status" aria-live="polite"></p>
     <div id="traitInventoryOverlay" class="hidden">
       <div id="traitInventoryPanel" role="dialog" aria-modal="true" aria-labelledby="traitInventoryTitle">
         <h1 id="traitInventoryTitle" class="economyTitle" data-i18n="specialInventory">Special inventory</h1>
@@ -481,6 +489,7 @@
   </div>
 </div>
 
+<script src="firebase-config.js"></script>
 <script>
 (function(){
   const canvas = document.getElementById('game');
@@ -525,7 +534,9 @@
   const joinRoomCode = document.getElementById('joinRoomCode');
   const randomMatchBtn = document.getElementById('randomMatchBtn');
   const onlineStatus = document.getElementById('onlineStatus');
+  const onlineSyncNotice = document.getElementById('onlineSyncNotice');
   const closeOnlineBtn = document.getElementById('closeOnlineBtn');
+  const onlineNotice = document.getElementById('onlineNotice');
   const settingsBtn = document.getElementById('settingsBtn');
   const achievementsBtn = document.getElementById('achievementsBtn');
   const achievementCountEl = document.getElementById('achievementCount');
@@ -590,15 +601,17 @@
       doubleBombTitle: 'Chain Reaction', doubleBombDesc: 'Eliminate at least two orbs with a bomb {target} times.',
       streakTitle: 'Victory Streak', streakDesc: 'Win {target} matches in a row.',
       tenMatchesTitle: 'Arena Veteran', tenMatchesDesc: 'Complete {target} matches in total.',
-      onlineMode: 'Online (demo)', onlineModeDesc: 'Invite by code or search randomly', onlineTitle: 'Online multiplayer demo',
-      onlineDemoNotice: 'Local preview only. Codes cannot connect devices until an online service is configured.',
+      onlineMode: 'Online multiplayer', onlineModeDesc: 'Invite by code or find a match', onlineTitle: 'Online multiplayer',
+      onlineNotice: 'Create a room and share its code, or join a friend’s room.',
       createRoom: 'Create an invite', createRoomDesc: 'Generate a six-character code to share.', generateCode: 'Create code',
       copyCode: 'Copy', joinRoom: 'Join with a code', roomCodePlaceholder: '6-character code', join: 'Join',
-      randomMatch: 'Random matchmaking', randomMatchDesc: 'Search for another player when matchmaking is available.',
-      searchMatch: 'Search for a match', codeCreated: 'Invite code created. Share it with your friend.',
+      randomMatch: 'Random matchmaking', randomMatchDesc: 'Search for the next available player.',
+      searchMatch: 'Search for a match', codeCreated: 'Room created. Share this code with your friend.',
       codeCopied: 'Code copied.', codeCopyFailed: 'Copy the code shown above manually.',
-      invalidRoomCode: 'Enter a valid six-character code.', demoJoinStatus: 'Code format accepted. Remote rooms are not connected in this demo.',
-      randomUnavailable: 'Random matchmaking is not connected in this demo.'
+      invalidRoomCode: 'Enter a valid six-character code.', demoJoinStatus: 'Connecting to the room…',
+      randomUnavailable: 'Connecting to matchmaking…', roomWaiting: 'Waiting for the other player…',
+      searchingMatch: 'Searching for an opponent…', matchFound: 'Opponent found. Starting the game…', opponentLeft: 'The other player left the room.',
+      roomUnavailable: 'This room is no longer available.'
     },
     de: {
       menuSub: 'Wähle deinen Gegner', aiMode: 'Gegen die KI spielen',
@@ -633,15 +646,17 @@
       doubleBombTitle: 'Kettenreaktion', doubleBombDesc: 'Eliminiere mit einer Bombe mindestens zwei Kugeln, {target}-mal.',
       streakTitle: 'Siegesserie', streakDesc: 'Gewinne {target} Spiele in Folge.',
       tenMatchesTitle: 'Arena-Veteran', tenMatchesDesc: 'Schließe insgesamt {target} Spiele ab.',
-      onlineMode: 'Online (Demo)', onlineModeDesc: 'Per Code einladen oder zufällig suchen', onlineTitle: 'Online-Mehrspieler (Demo)',
-      onlineDemoNotice: 'Nur lokale Vorschau. Codes verbinden keine Geräte, solange kein Online-Dienst eingerichtet ist.',
+      onlineMode: 'Online-Mehrspieler', onlineModeDesc: 'Per Code einladen oder zufällig suchen', onlineTitle: 'Online-Mehrspieler',
+      onlineNotice: 'Erstelle einen Raum und teile den Code oder tritt dem Raum eines Freundes bei.',
       createRoom: 'Einladung erstellen', createRoomDesc: 'Erzeuge einen sechsstelligen Code zum Teilen.', generateCode: 'Code erstellen',
       copyCode: 'Kopieren', joinRoom: 'Mit Code beitreten', roomCodePlaceholder: '6-stelliger Code', join: 'Beitreten',
-      randomMatch: 'Zufällige Suche', randomMatchDesc: 'Suche nach einem Gegner, sobald die Spielersuche verfügbar ist.',
+      randomMatch: 'Zufällige Suche', randomMatchDesc: 'Suche nach dem nächsten verfügbaren Spieler.',
       searchMatch: 'Gegner suchen', codeCreated: 'Einladungscode erstellt. Teile ihn mit deinem Freund.',
       codeCopied: 'Code kopiert.', codeCopyFailed: 'Kopiere den angezeigten Code manuell.',
-      invalidRoomCode: 'Gib einen gültigen sechsstelligen Code ein.', demoJoinStatus: 'Codeformat erkannt. In dieser Demo sind keine entfernten Räume verbunden.',
-      randomUnavailable: 'Die zufällige Spielersuche ist in dieser Demo nicht verbunden.'
+      invalidRoomCode: 'Gib einen gültigen sechsstelligen Code ein.', demoJoinStatus: 'Verbindung zum Raum wird hergestellt …',
+      randomUnavailable: 'Verbindung zur Spielersuche wird hergestellt …', roomWaiting: 'Warten auf den anderen Spieler …',
+      searchingMatch: 'Suche nach einem Gegner …', matchFound: 'Gegner gefunden. Das Spiel beginnt …', opponentLeft: 'Der andere Spieler hat den Raum verlassen.',
+      roomUnavailable: 'Dieser Raum ist nicht mehr verfügbar.'
     },
     fr: {
       menuSub: 'Choisissez votre adversaire', aiMode: "Jouer contre l'IA",
@@ -676,15 +691,17 @@
       doubleBombTitle: 'Réaction en chaîne', doubleBombDesc: 'Éliminez au moins deux billes avec une bombe {target} fois.',
       streakTitle: 'Série de victoires', streakDesc: 'Gagnez {target} parties d’affilée.',
       tenMatchesTitle: 'Vétéran de l’arène', tenMatchesDesc: 'Terminez {target} parties au total.',
-      onlineMode: 'En ligne (démo)', onlineModeDesc: 'Invitez par code ou cherchez au hasard', onlineTitle: 'Multijoueur en ligne (démo)',
-      onlineDemoNotice: 'Aperçu local uniquement. Les codes ne connectent pas les appareils sans service en ligne configuré.',
+      onlineMode: 'Multijoueur en ligne', onlineModeDesc: 'Invitez par code ou cherchez au hasard', onlineTitle: 'Multijoueur en ligne',
+      onlineNotice: 'Créez une salle et partagez son code, ou rejoignez celle d’un ami.',
       createRoom: 'Créer une invitation', createRoomDesc: 'Générez un code de six caractères à partager.', generateCode: 'Créer un code',
       copyCode: 'Copier', joinRoom: 'Rejoindre avec un code', roomCodePlaceholder: 'Code de 6 caractères', join: 'Rejoindre',
-      randomMatch: 'Recherche aléatoire', randomMatchDesc: 'Cherchez un adversaire lorsque le matchmaking sera disponible.',
+      randomMatch: 'Recherche aléatoire', randomMatchDesc: 'Cherchez le prochain joueur disponible.',
       searchMatch: 'Chercher une partie', codeCreated: 'Code d’invitation créé. Partagez-le avec votre ami.',
       codeCopied: 'Code copié.', codeCopyFailed: 'Copiez manuellement le code affiché ci-dessus.',
-      invalidRoomCode: 'Saisissez un code valide de six caractères.', demoJoinStatus: 'Format du code accepté. Cette démo ne connecte pas de salles distantes.',
-      randomUnavailable: 'La recherche aléatoire n’est pas connectée dans cette démo.'
+      invalidRoomCode: 'Saisissez un code valide de six caractères.', demoJoinStatus: 'Connexion à la salle…',
+      randomUnavailable: 'Connexion à la recherche de joueurs…', roomWaiting: 'En attente de l’autre joueur…',
+      searchingMatch: 'Recherche d’un adversaire…', matchFound: 'Adversaire trouvé. La partie commence…', opponentLeft: 'L’autre joueur a quitté la salle.',
+      roomUnavailable: 'Cette salle n’est plus disponible.'
     },
     es: {
       menuSub: 'Elige a tu rival', aiMode: 'Jugar contra la IA',
@@ -719,15 +736,17 @@
       doubleBombTitle: 'Reacción en cadena', doubleBombDesc: 'Elimina al menos dos orbes con una bomba {target} veces.',
       streakTitle: 'Racha imparable', streakDesc: 'Gana {target} partidas seguidas.',
       tenMatchesTitle: 'Veterano de la arena', tenMatchesDesc: 'Completa {target} partidas en total.',
-      onlineMode: 'Online (demo)', onlineModeDesc: 'Invita con código o busca al azar', onlineTitle: 'Multijugador online (demo)',
-      onlineDemoNotice: 'Solo es una vista previa local. Los códigos no conectan dispositivos hasta configurar un servicio online.',
+      onlineMode: 'Multijugador online', onlineModeDesc: 'Invita con código o busca partida', onlineTitle: 'Multijugador online',
+      onlineNotice: 'Crea una sala y comparte el código, o únete a la sala de un amigo.',
       createRoom: 'Crear invitación', createRoomDesc: 'Genera un código de seis caracteres para compartir.', generateCode: 'Crear código',
       copyCode: 'Copiar', joinRoom: 'Unirse con código', roomCodePlaceholder: 'Código de 6 caracteres', join: 'Unirse',
-      randomMatch: 'Búsqueda aleatoria', randomMatchDesc: 'Busca rival cuando el emparejamiento online esté disponible.',
-      searchMatch: 'Buscar partida', codeCreated: 'Código de invitación creado. Compártelo con tu amigo.',
+      randomMatch: 'Búsqueda aleatoria', randomMatchDesc: 'Busca al siguiente jugador disponible.',
+      searchMatch: 'Buscar partida', codeCreated: 'Sala creada. Comparte este código con tu amigo.',
       codeCopied: 'Código copiado.', codeCopyFailed: 'Copia manualmente el código que aparece arriba.',
-      invalidRoomCode: 'Introduce un código válido de seis caracteres.', demoJoinStatus: 'Formato correcto. Esta demo no conecta salas remotas.',
-      randomUnavailable: 'La búsqueda aleatoria aún no está conectada en esta demo.'
+      invalidRoomCode: 'Introduce un código válido de seis caracteres.', demoJoinStatus: 'Conectando con la sala…',
+      randomUnavailable: 'Conectando con la búsqueda de partidas…', roomWaiting: 'Esperando al otro jugador…',
+      searchingMatch: 'Buscando rival…', matchFound: 'Rival encontrado. Iniciando la partida…', opponentLeft: 'El otro jugador ha salido de la sala.',
+      roomUnavailable: 'Esta sala ya no está disponible.'
     }
   };
 
@@ -901,7 +920,9 @@
 
   function recordMatchResult(scores){
     const stats = economy.stats;
-    const won = mode === 'pvp' ? scores.player !== scores.ai : scores.player > scores.ai;
+    const localScore = mode === 'online' && onlineRole === 'orange' ? scores.ai : scores.player;
+    const rivalScore = mode === 'online' && onlineRole === 'orange' ? scores.player : scores.ai;
+    const won = mode === 'pvp' ? scores.player !== scores.ai : localScore > rivalScore;
     stats.matches += 1;
     stats.bestScore = Math.max(stats.bestScore, scores.player, scores.ai);
     if (won) {
@@ -1033,6 +1054,13 @@
   let gameOver = false;
   let started = false;
   let mode = 'ai'; // 'ai' | 'pvp'
+  let onlineService = null;
+  let onlineRole = null;
+  let onlineStateRevision = 0;
+  let onlineSearchMode = false;
+  let onlineSyncElapsed = 0;
+  let onlinePublishPending = false;
+  let onlinePublishQueued = false;
   let difficulty = null; // 'easy' | 'intermediate' | 'hard'
   let aiTimer = null;
   let finalDelayTimer = null;
@@ -1167,19 +1195,235 @@
     };
   }
 
+  function isDuelMode(){
+    return mode === 'pvp' || mode === 'online';
+  }
+
+  function setOnlineStatus(message){
+    onlineStatus.textContent = message;
+    onlineSyncNotice.textContent = message;
+    onlineSyncNotice.classList.toggle('hidden', !message || !started || mode !== 'online');
+  }
+
+  function isOnlineTeamLocal(team){
+    return mode !== 'online' || (onlineRole === 'blue' ? team === 'player' : team === 'ai');
+  }
+
+  function serializeOnlineGame(){
+    const groups = [];
+    const groupIds = new Map();
+    for (const orb of orbs) {
+      if (!orb.linkGroup || groupIds.has(orb.linkGroup)) continue;
+      const id = groups.length;
+      groupIds.set(orb.linkGroup, id);
+      groups.push({
+        id,
+        anchor: orb.linkGroup.anchor.id,
+        members: orb.linkGroup.members.map(member => member.id),
+        vx: orb.linkGroup.vx,
+        vy: orb.linkGroup.vy,
+        offsets: orb.linkGroup.members.map(member => {
+          const offset = orb.linkGroup.offsets.get(member) || { x: 0, y: 0 };
+          return [member.id, offset.x, offset.y];
+        })
+      });
+    }
+    return {
+      turn,
+      busy,
+      board: { width: W, height: H },
+      playerTimeLeft,
+      aiTimeLeft,
+      inventory: {
+        player: inventory.player.map(item => ({ ...item })),
+        ai: inventory.ai.map(item => ({ ...item }))
+      },
+      selectedInventory: { ...selectedInventory },
+      nextOrbId,
+      orbs: orbs.map(orb => ({
+        id: orb.id, team: orb.team, value: orb.value, bomb: orb.bomb,
+        spiked: orb.spiked, ghost: orb.ghost, x: orb.x, y: orb.y,
+        vx: orb.vx, vy: orb.vy, contactDetonation: Boolean(orb.contactDetonation),
+        linkGroupId: orb.linkGroup ? groupIds.get(orb.linkGroup) : null
+      })),
+      groups
+    };
+  }
+
+  function applyOnlineGameState(state){
+    if (!state || !['player', 'ai'].includes(state.turn) ||
+        !Array.isArray(state.orbs) || !state.inventory ||
+        !Array.isArray(state.inventory.player) || !Array.isArray(state.inventory.ai)) return;
+
+    const isFiniteNumber = Number.isFinite;
+    const sourceWidth = Number.isFinite(state.board?.width) && state.board.width > 0 ? state.board.width : W;
+    const sourceHeight = Number.isFinite(state.board?.height) && state.board.height > 0 ? state.board.height : H;
+    const scaleX = W / sourceWidth;
+    const scaleY = H / sourceHeight;
+    const localSelectionKey = onlineRole === 'orange' ? 'ai' : 'player';
+    const localSelection = selectedInventory[localSelectionKey];
+    const restoredOrbs = state.orbs.filter(orb =>
+      orb && typeof orb.id === 'string' && ['player', 'ai'].includes(orb.team) &&
+      Number.isFinite(orb.value) && orb.value > 0 && orb.value <= MAX_MASS &&
+      isFiniteNumber(orb.x) && isFiniteNumber(orb.y) &&
+      isFiniteNumber(orb.vx) && isFiniteNumber(orb.vy)
+    ).map(orb => ({
+      id: orb.id,
+      team: orb.team,
+      value: orb.value,
+      bomb: Boolean(orb.bomb),
+      spiked: Boolean(orb.spiked),
+      ghost: Boolean(orb.ghost),
+      contactDetonation: Boolean(orb.contactDetonation),
+      r: orbRadius(orb.value),
+      bombRadius: orb.bomb ? BOMB_RADIUS_BASE + orb.value * BOMB_RADIUS_PER_MASS : 0,
+      x: orb.x * scaleX, y: orb.y * scaleY,
+      vx: orb.vx * scaleX, vy: orb.vy * scaleY,
+      linkGroup: null
+    }));
+    const orbsById = new Map(restoredOrbs.map(orb => [orb.id, orb]));
+
+    if (Array.isArray(state.groups)) {
+      for (const data of state.groups) {
+        if (!data || !Array.isArray(data.members) || !isFiniteNumber(data.vx) || !isFiniteNumber(data.vy)) continue;
+        const members = data.members.map(id => orbsById.get(id)).filter(Boolean);
+        const anchor = orbsById.get(data.anchor);
+        if (members.length < 2 || !anchor || !members.includes(anchor)) continue;
+        const offsets = new Map();
+        for (const [id, x, y] of data.offsets || []) {
+          if (orbsById.has(id) && isFiniteNumber(x) && isFiniteNumber(y)) {
+            offsets.set(orbsById.get(id), { x: x * scaleX, y: y * scaleY });
+          }
+        }
+        const group = { members, anchor, vx: data.vx * scaleX, vy: data.vy * scaleY, offsets };
+        for (const member of members) {
+          if (!offsets.has(member)) offsets.set(member, { x: member.x - anchor.x, y: member.y - anchor.y });
+          member.linkGroup = group;
+        }
+      }
+    }
+
+    const validInventoryItem = item => item && Number.isFinite(item.value) && item.value > 0 && item.value <= MAX_MASS;
+    orbs = restoredOrbs;
+    inventory = {
+      player: state.inventory.player.filter(validInventoryItem).map(item => ({
+        value: item.value, bomb: Boolean(item.bomb), spiked: Boolean(item.spiked), ghost: Boolean(item.ghost)
+      })),
+      ai: state.inventory.ai.filter(validInventoryItem).map(item => ({
+        value: item.value, bomb: Boolean(item.bomb), spiked: Boolean(item.spiked), ghost: Boolean(item.ghost)
+      }))
+    };
+    selectedInventory = {
+      player: Number.isInteger(state.selectedInventory?.player) && state.selectedInventory.player >= 0 && state.selectedInventory.player < inventory.player.length ? state.selectedInventory.player : null,
+      ai: Number.isInteger(state.selectedInventory?.ai) && state.selectedInventory.ai >= 0 && state.selectedInventory.ai < inventory.ai.length ? state.selectedInventory.ai : null
+    };
+    if (Number.isInteger(localSelection) && localSelection >= 0 && localSelection < inventory[localSelectionKey].length) {
+      selectedInventory[localSelectionKey] = localSelection;
+    }
+    nextOrbId = Number.isSafeInteger(state.nextOrbId) && state.nextOrbId >= 0 ? state.nextOrbId : 0;
+    playerTimeLeft = Number.isFinite(state.playerTimeLeft) ? clamp(state.playerTimeLeft, 0, TURN_SECONDS) : TURN_SECONDS;
+    aiTimeLeft = Number.isFinite(state.aiTimeLeft) ? clamp(state.aiTimeLeft, 0, TURN_SECONDS) : TURN_SECONDS;
+    turn = state.turn;
+    onlineStateRevision = Number.isSafeInteger(state.revision) ? state.revision : onlineStateRevision;
+    busy = Boolean(state.busy);
+    dragOrb = null;
+    dragStart = null;
+    dragCurrent = null;
+    gameOver = false;
+    clearTimeout(finalDelayTimer);
+    finalDelayTimer = null;
+    started = true;
+    explosions = [];
+    overlay.classList.add('hidden');
+    onlineOverlay.classList.add('hidden');
+    menuOverlay.classList.add('hidden');
+    renderInventory();
+    turnEl.textContent = turnLabel();
+    helpText.textContent = buildHelpText();
+    updateTurnUI();
+    updateTimerDisplay();
+    setOnlineStatus('');
+  }
+
+  async function publishOnlineGameState(){
+    if (mode !== 'online' || !onlineService) return;
+    if (onlinePublishPending) {
+      onlinePublishQueued = true;
+      return;
+    }
+
+    onlinePublishPending = true;
+    try {
+      do {
+        onlinePublishQueued = false;
+        await onlineService.publishGameState(serializeOnlineGame());
+      } while (onlinePublishQueued && mode === 'online');
+      setOnlineStatus('');
+    } catch (error) {
+      setOnlineStatus(error.message || String(error));
+    } finally {
+      onlinePublishPending = false;
+    }
+  }
+
+  async function ensureOnlineService(){
+    if (onlineService) return onlineService;
+    const { connectFirebaseOnline } = await import('./firebase-online.js');
+    onlineService = await connectFirebaseOnline(window.MASS_BRAWL_FIREBASE_CONFIG, {
+      onRoomStatus(status){
+        if (status === 'waiting') setOnlineStatus(onlineSearchMode ? t('searchingMatch') : t('roomWaiting'));
+        if (status === 'missing') setOnlineStatus(t('roomUnavailable'));
+        if (status === 'finished') {
+          setOnlineStatus(t('opponentLeft'));
+          if (mode === 'online' && !gameOver) {
+            gameOver = true;
+            busy = false;
+            overlayTitle.textContent = t('opponentLeft');
+            overlaySub.textContent = '';
+            overlay.classList.remove('hidden');
+          }
+        }
+      },
+      onMatched({ roomCode, role }){
+        onlineRole = role;
+        onlineSearchMode = false;
+        onlineStateRevision = 0;
+        onlineSyncElapsed = 0;
+        onlinePublishPending = false;
+        onlinePublishQueued = false;
+        onlineRoomCode.textContent = roomCode;
+        onlineRoomCard.classList.remove('hidden');
+        setOnlineStatus('');
+        mode = 'online';
+        onlineOverlay.classList.add('hidden');
+        newGame();
+        restartBtn.hidden = true;
+        if (role === 'blue') publishOnlineGameState();
+      },
+      onGameState(state){
+        if (Number.isSafeInteger(state.revision) && state.revision <= onlineStateRevision) return;
+        applyOnlineGameState(state);
+      },
+      onError(error){
+        setOnlineStatus(error.message || String(error));
+      }
+    });
+    return onlineService;
+  }
+
   function turnLabel(){
     if (turn === 'player') {
-      return mode === 'pvp'
+      return isDuelMode()
         ? t('turnPvp1')
         : t('turnAi');
     }
-    return mode === 'pvp'
+    return isDuelMode()
       ? t('turnPvp2')
       : t('aiTurn');
   }
 
   function buildHelpText(){
-    if (mode === 'pvp') {
+    if (isDuelMode()) {
       return turn === 'player'
         ? t('helpPvp')
         : t('helpPvpTurn');
@@ -1208,6 +1452,7 @@
     traitInventoryOverlay.classList.add('hidden');
     difficultyOverlay.classList.add('hidden');
     menuOverlay.classList.add('hidden');
+    restartBtn.hidden = mode === 'online';
     turnEl.textContent = turnLabel();
     helpText.textContent = buildHelpText();
     updateTurnUI();
@@ -1217,6 +1462,9 @@
   }
 
   function backToMenu(){
+    if (onlineService && mode === 'online') onlineService.leave();
+    onlineRole = null;
+    onlineSearchMode = false;
     clearTimeout(aiTimer); aiTimer = null;
     clearTimeout(finalDelayTimer); finalDelayTimer = null;
     clearTimeout(achievementToastTimer); achievementToastTimer = null;
@@ -1242,7 +1490,7 @@
   }
 
   function onDown(e){
-    if (busy || gameOver || !started || !canPlay(turn) || (mode === 'ai' && turn === 'ai')) return;
+    if (busy || gameOver || !started || !canPlay(turn) || !isOnlineTeamLocal(turn) || (mode === 'ai' && turn === 'ai')) return;
     const p = pointerPos(e);
 
     // Solo se lanzan orbes nuevos desde la zona de lanzamiento del equipo activo.
@@ -1268,11 +1516,15 @@
       dragOrb.vx = dirx * dist * POWER * 6 * massFactor;
       dragOrb.vy = diry * dist * POWER * 6 * massFactor;
       busy = true;
-      turnEl.textContent = mode === 'pvp'
+      turnEl.textContent = isDuelMode()
         ? (turn === 'player' ? t('pvpPlaying1') : t('pvpPlaying2'))
         : (turn === 'player' ? t('playing') : t('aiPlaying'));
-      if (turn === 'player' || mode === 'pvp') recordOrbLaunch(dragOrb);
+      if (turn === 'player' || mode === 'pvp' || (mode === 'online' && isOnlineTeamLocal(turn))) recordOrbLaunch(dragOrb);
       orbs.push(dragOrb);
+      if (mode === 'online') {
+        onlineSyncElapsed = 0;
+        publishOnlineGameState();
+      }
     } else if (!orbs.includes(dragOrb)) {
       inventory[dragOrb.team].push({ value: dragOrb.value, bomb: dragOrb.bomb, spiked: dragOrb.spiked, ghost: dragOrb.ghost });
       renderInventory();
@@ -1321,7 +1573,7 @@
         }
       }
 
-      if (eliminated >= 2 && (mode === 'pvp' || bomb.team === 'player')) {
+      if (eliminated >= 2 && (isDuelMode() || bomb.team === 'player')) {
         economy.stats.doubleBombs += 1;
         saveEconomy();
         checkAchievementProgress();
@@ -1560,7 +1812,7 @@
     leftBoardSide.classList.toggle('active', turn === 'player');
     rightBoardSide.classList.toggle('active', turn === 'ai');
     traitInventoryBtn.classList.toggle('player-turn', turn === 'player');
-    traitInventoryBtn.classList.toggle('ai-turn', turn === 'ai' && mode === 'pvp');
+    traitInventoryBtn.classList.toggle('ai-turn', turn === 'ai' && isDuelMode());
   }
 
   function updateTimerDisplay(){
@@ -1623,6 +1875,7 @@
     if (!canPlay(current) && canPlay(rival)) {
       turn = rival;
     } else if (!canPlay(current) && !canPlay(rival)) {
+      if (mode === 'online' && isOnlineTeamLocal(current)) publishOnlineGameState();
       checkGameEnd();
       return;
     } else if (canPlay(rival)) {
@@ -1638,6 +1891,8 @@
     helpText.textContent = buildHelpText();
     updateTurnUI();
     updateTimerDisplay();
+
+    if (mode === 'online' && isOnlineTeamLocal(current)) publishOnlineGameState();
 
     if (turn === 'ai' && mode === 'ai'){
       aiTimer = setTimeout(()=>{ if(!gameOver) aiPlay(); }, 650);
@@ -1657,7 +1912,11 @@
     recordMatchResult(s);
     let title;
 
-    if (mode === 'pvp') {
+    if (mode === 'online') {
+      const localScore = onlineRole === 'orange' ? s.ai : s.player;
+      const rivalScore = onlineRole === 'orange' ? s.player : s.ai;
+      title = localScore > rivalScore ? t('victory') : localScore < rivalScore ? t('defeat') : t('draw');
+    } else if (mode === 'pvp') {
       if (s.player > s.ai) title = t('pvpWinner1');
       else if (s.ai > s.player) title = t('pvpWinner2');
       else title = t('draw');
@@ -1813,12 +2072,19 @@
       if (busy) {
         physicsStep();
         detonateBombs();
+        if (mode === 'online' && isOnlineTeamLocal(turn)) {
+          onlineSyncElapsed += dt;
+          if (onlineSyncElapsed >= 0.12) {
+            onlineSyncElapsed = 0;
+            publishOnlineGameState();
+          }
+        }
         if (allStationary()){
           detonateBombs();
           busy = false;
-          if (!gameOver) endTurn();
+          if (!gameOver && (mode !== 'online' || isOnlineTeamLocal(turn))) endTurn();
         }
-      } else if (!dragOrb && !canPlay(turn)) {
+      } else if (!dragOrb && !canPlay(turn) && (mode !== 'online' || isOnlineTeamLocal(turn))) {
         endTurn();
       } else if (!dragOrb && !gameOver && !aiTimer){
         // idle, waiting for input (player) - nothing
@@ -1827,26 +2093,28 @@
       if (!gameOver) {
         updateExplosions(dt);
         if (turn === 'player') {
-          playerTimeLeft = Math.max(0, playerTimeLeft - dt);
-          if (playerTimeLeft === 0) {
+          if (mode !== 'online' || isOnlineTeamLocal(turn)) playerTimeLeft = Math.max(0, playerTimeLeft - dt);
+          if (playerTimeLeft === 0 && (mode !== 'online' || isOnlineTeamLocal('player'))) {
             if (canPlay('ai')) {
               turn = 'ai';
               turnEl.textContent = turnLabel();
               helpText.textContent = buildHelpText();
               updateTurnUI();
+              if (mode === 'online') publishOnlineGameState();
               if (mode === 'ai') {
                 aiTimer = setTimeout(()=>{ if(!gameOver && turn === 'ai') aiPlay(); }, 650);
               }
             }
           }
         } else {
-          aiTimeLeft = Math.max(0, aiTimeLeft - dt);
-          if (aiTimeLeft === 0) {
+          if (mode !== 'online' || isOnlineTeamLocal(turn)) aiTimeLeft = Math.max(0, aiTimeLeft - dt);
+          if (aiTimeLeft === 0 && (mode !== 'online' || isOnlineTeamLocal('ai'))) {
             if (canPlay('player')) {
               turn = 'player';
               turnEl.textContent = turnLabel();
               helpText.textContent = buildHelpText();
               updateTurnUI();
+              if (mode === 'online') publishOnlineGameState();
             }
           }
         }
@@ -1854,7 +2122,7 @@
 
       if (!gameOver) {
         updateTimerDisplay();
-        checkGameEnd();
+        if (mode !== 'online' || isOnlineTeamLocal(turn)) checkGameEnd();
       }
 
       const s = computeScores();
@@ -1877,7 +2145,7 @@
     const idx = Number(slot.dataset.index);
     if (!Number.isFinite(idx)) return;
 
-    if (mode === 'ai' && team === 'ai') return;
+    if ((mode === 'ai' && team === 'ai') || !isOnlineTeamLocal(team)) return;
     if (team === 'player' && turn !== 'player') return;
     if (team === 'ai' && turn !== 'ai') return;
 
@@ -1914,6 +2182,7 @@
   traitItemsEl.addEventListener('click', (event) => {
     const button = event.target.closest('[data-apply-trait]');
     if (!button) return;
+    if (!isOnlineTeamLocal(turn)) return;
     const key = button.dataset.applyTrait;
     const team = turn;
     const selectedIndex = selectedInventory[team];
@@ -2003,7 +2272,7 @@
     menuOverlay.classList.remove('hidden');
   });
   traitInventoryBtn.addEventListener('click', ()=>{
-    if (!started || gameOver || (mode === 'ai' && turn === 'ai')) return;
+    if (!started || gameOver || !isOnlineTeamLocal(turn) || (mode === 'ai' && turn === 'ai')) return;
     renderTraitInventory();
     traitInventoryOverlay.classList.remove('hidden');
   });
@@ -2013,47 +2282,78 @@
   modeAiBtn.addEventListener('click', ()=>{ showDifficultyOverlay(); });
   modePvpBtn.addEventListener('click', ()=>{ mode='pvp'; menuOverlay.classList.add('hidden'); newGame(); });
   onlineModeBtn.addEventListener('click', ()=>{
-    onlineStatus.textContent = '';
+    setOnlineStatus('');
     onlineRoomCard.classList.add('hidden');
     joinRoomCode.value = '';
+    onlineRoomCode.textContent = '';
+    onlineNotice.textContent = t('onlineNotice');
+    onlineSearchMode = false;
     menuOverlay.classList.add('hidden');
     onlineOverlay.classList.remove('hidden');
   });
-  createRoomBtn.addEventListener('click', ()=>{
-    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const randomBytes = new Uint8Array(6);
-    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(randomBytes);
-    else randomBytes.forEach((_, index) => { randomBytes[index] = Math.floor(Math.random() * 256); });
-    const code = Array.from(randomBytes, (byte) => alphabet[byte % alphabet.length]).join('');
-    onlineRoomCode.textContent = code;
-    onlineRoomCard.classList.remove('hidden');
-    onlineStatus.textContent = t('codeCreated');
+  createRoomBtn.addEventListener('click', async ()=>{
+    createRoomBtn.disabled = true;
+    try {
+      onlineSearchMode = false;
+      setOnlineStatus(t('demoJoinStatus'));
+      const service = await ensureOnlineService();
+      const code = await service.createRoom();
+      onlineRoomCode.textContent = code;
+      onlineRoomCard.classList.remove('hidden');
+      setOnlineStatus(t('codeCreated'));
+    } catch (error) {
+      setOnlineStatus(error.message || String(error));
+    } finally {
+      createRoomBtn.disabled = false;
+    }
   });
   copyRoomCodeBtn.addEventListener('click', async ()=>{
     const code = onlineRoomCode.textContent;
     if (!code) return;
     try {
       await navigator.clipboard.writeText(code);
-      onlineStatus.textContent = t('codeCopied');
+      setOnlineStatus(t('codeCopied'));
     } catch (error) {
-      onlineStatus.textContent = t('codeCopyFailed');
+      setOnlineStatus(t('codeCopyFailed'));
     }
   });
   joinRoomCode.addEventListener('input', ()=>{
     joinRoomCode.value = joinRoomCode.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0, 6);
   });
-  joinRoomForm.addEventListener('submit', (event)=>{
+  joinRoomForm.addEventListener('submit', async (event)=>{
     event.preventDefault();
     if (!/^[A-HJ-NP-Z2-9]{6}$/.test(joinRoomCode.value)) {
-      onlineStatus.textContent = t('invalidRoomCode');
+      setOnlineStatus(t('invalidRoomCode'));
       return;
     }
-    onlineStatus.textContent = t('demoJoinStatus');
+    try {
+      setOnlineStatus(t('demoJoinStatus'));
+      const service = await ensureOnlineService();
+      const code = await service.joinRoom(joinRoomCode.value);
+      onlineRoomCode.textContent = code;
+      onlineRoomCard.classList.remove('hidden');
+    } catch (error) {
+      setOnlineStatus(error.message || String(error));
+    }
   });
-  randomMatchBtn.addEventListener('click', ()=>{
-    onlineStatus.textContent = t('randomUnavailable');
+  randomMatchBtn.addEventListener('click', async ()=>{
+    randomMatchBtn.disabled = true;
+    try {
+      onlineSearchMode = true;
+      setOnlineStatus(t('randomUnavailable'));
+      const service = await ensureOnlineService();
+      const result = await service.findRandomMatch();
+      if (result.waiting) setOnlineStatus(t('searchingMatch'));
+    } catch (error) {
+      onlineSearchMode = false;
+      setOnlineStatus(error.message || String(error));
+    } finally {
+      randomMatchBtn.disabled = false;
+    }
   });
   closeOnlineBtn.addEventListener('click', ()=>{
+    if (onlineService) onlineService.leave();
+    onlineSearchMode = false;
     onlineOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
   });

@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "rooms": {
+      "$room": {
+        ".read": "auth != null && (!data.exists() || data.child('status').val() == 'waiting' || data.child('players/blue').val() == auth.uid || data.child('players/orange').val() == auth.uid)",
+        ".write": "auth != null && ((!data.exists() && newData.child('players/blue').val() == auth.uid) || (data.exists() && ((data.child('players/blue').val() == auth.uid && (data.child('status').val() == 'waiting' || !data.child('game/turn').exists() || data.child('game/turn').val() == 'player' || newData.child('status').val() == 'finished' || !newData.exists())) || (data.child('players/orange').val() == auth.uid && (data.child('game/turn').val() == 'ai' || newData.child('status').val() == 'finished')) || (data.child('status').val() == 'waiting' && !data.child('players/orange').exists() && newData.child('players/orange').val() == auth.uid))))"
+      }
+    },
+    "matchmaking": {
+      "waiting": {
+        ".read": "auth != null",
+        ".write": "auth != null && (newData.child('uid').val() == auth.uid || data.child('uid').val() == auth.uid)"
+      }
+    }
+  }
+}
