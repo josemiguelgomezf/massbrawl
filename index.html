@@ -611,7 +611,32 @@
       invalidRoomCode: 'Enter a valid six-character code.', demoJoinStatus: 'Connecting to the room…',
       randomUnavailable: 'Connecting to matchmaking…', roomWaiting: 'Waiting for the other player…',
       searchingMatch: 'Searching for an opponent…', matchFound: 'Opponent found. Starting the game…', opponentLeft: 'The other player left the room.',
-      roomUnavailable: 'This room is no longer available.'
+      roomUnavailable: 'This room is no longer available.',
+      opponentDisconnected: 'Opponent disconnected. Waiting {seconds}s for them to reconnect…',
+      connectionLost: 'Connection lost. Reconnecting…',
+      opponentForfeit: 'The opponent left the match. You win.',
+      opponentDisconnectedLoss: 'The opponent did not reconnect in time. You win.',
+      youDisconnectedLoss: 'You did not reconnect in time. You lose.',
+      youForfeit: 'You left the match. Your opponent wins.',
+      matchComplete: 'Match complete.',
+      matchCancelled: 'The room was closed before the match started.',
+      firebaseConfigMissing: 'Firebase is not configured. Check firebase-config.js.',
+      roomCreateFailed: 'Could not create a room code. Please try again.',
+      roomNotFound: 'No room has that code. Check that you entered the current code.',
+      sameSessionRoom: 'This session cannot join its own room. Use a private window, another browser, or another device.',
+      roomFull: 'This room is full or the match has already started.',
+      roomNotFoundSameProject: 'This room is no longer available. Check that both players use the same Firebase project and Realtime Database URL.',
+      roomJoinFailed: 'Could not join the room. Check the Realtime Database rules and try again.',
+      matchmakingQueueFailed: 'Could not find an available opponent. Please try again.',
+      matchmakingJoinFailed: 'A match was found, but its room could not be joined: {error}',
+      firebasePermissionDenied: 'Firebase denied access. Check that Anonymous sign-in is enabled and the Realtime Database rules are published.',
+      firebaseAuthDisabled: 'Anonymous sign-in is disabled in Firebase Authentication.',
+      firebaseNetworkError: 'Could not connect to Firebase. Check your internet connection and try again.',
+      noActiveOnlineRoom: 'There is no active online room.',
+      onlineSyncFailed: 'Could not sync the match state.',
+      invalidMatchResult: 'The match result is invalid.',
+      matchResultNotConfirmed: 'Could not confirm the match result for this turn.',
+      matchResultSaveFailed: 'Could not save the match result.'
     },
     de: {
       menuSub: 'Wähle deinen Gegner', aiMode: 'Gegen die KI spielen',
@@ -656,7 +681,32 @@
       invalidRoomCode: 'Gib einen gültigen sechsstelligen Code ein.', demoJoinStatus: 'Verbindung zum Raum wird hergestellt …',
       randomUnavailable: 'Verbindung zur Spielersuche wird hergestellt …', roomWaiting: 'Warten auf den anderen Spieler …',
       searchingMatch: 'Suche nach einem Gegner …', matchFound: 'Gegner gefunden. Das Spiel beginnt …', opponentLeft: 'Der andere Spieler hat den Raum verlassen.',
-      roomUnavailable: 'Dieser Raum ist nicht mehr verfügbar.'
+      roomUnavailable: 'Dieser Raum ist nicht mehr verfügbar.',
+      opponentDisconnected: 'Verbindung zum Gegner unterbrochen. {seconds}s auf Wiederverbindung warten …',
+      connectionLost: 'Verbindung unterbrochen. Wiederverbindung läuft …',
+      opponentForfeit: 'Der Gegner hat das Spiel verlassen. Du gewinnst.',
+      opponentDisconnectedLoss: 'Der Gegner ist nicht rechtzeitig zurückgekehrt. Du gewinnst.',
+      youDisconnectedLoss: 'Du hast dich nicht rechtzeitig wieder verbunden. Du verlierst.',
+      youForfeit: 'Du hast das Spiel verlassen. Dein Gegner gewinnt.',
+      matchComplete: 'Partie beendet.',
+      matchCancelled: 'Der Raum wurde vor Spielbeginn geschlossen.',
+      firebaseConfigMissing: 'Firebase ist nicht konfiguriert. Prüfe firebase-config.js.',
+      roomCreateFailed: 'Der Raumcode konnte nicht erstellt werden. Bitte versuche es erneut.',
+      roomNotFound: 'Es gibt keinen Raum mit diesem Code. Prüfe, ob du den aktuellen Code eingegeben hast.',
+      sameSessionRoom: 'Diese Sitzung kann ihrem eigenen Raum nicht beitreten. Verwende ein privates Fenster, einen anderen Browser oder ein anderes Gerät.',
+      roomFull: 'Dieser Raum ist voll oder die Partie hat bereits begonnen.',
+      roomNotFoundSameProject: 'Dieser Raum ist nicht mehr verfügbar. Prüft, ob beide Spieler dasselbe Firebase-Projekt und dieselbe Realtime-Database-URL verwenden.',
+      roomJoinFailed: 'Der Raum konnte nicht betreten werden. Prüfe die Realtime-Database-Regeln und versuche es erneut.',
+      matchmakingQueueFailed: 'Es konnte kein verfügbarer Gegner gefunden werden. Bitte versuche es erneut.',
+      matchmakingJoinFailed: 'Ein Gegner wurde gefunden, aber der Raum konnte nicht betreten werden: {error}',
+      firebasePermissionDenied: 'Firebase hat den Zugriff verweigert. Prüfe, ob die anonyme Anmeldung aktiviert und die Realtime-Database-Regeln veröffentlicht sind.',
+      firebaseAuthDisabled: 'Die anonyme Anmeldung ist in Firebase Authentication deaktiviert.',
+      firebaseNetworkError: 'Keine Verbindung zu Firebase. Prüfe deine Internetverbindung und versuche es erneut.',
+      noActiveOnlineRoom: 'Es gibt keinen aktiven Online-Raum.',
+      onlineSyncFailed: 'Der Spielstand konnte nicht synchronisiert werden.',
+      invalidMatchResult: 'Das Spielergebnis ist ungültig.',
+      matchResultNotConfirmed: 'Das Spielergebnis für diesen Zug konnte nicht bestätigt werden.',
+      matchResultSaveFailed: 'Das Spielergebnis konnte nicht gespeichert werden.'
     },
     fr: {
       menuSub: 'Choisissez votre adversaire', aiMode: "Jouer contre l'IA",
@@ -701,7 +751,32 @@
       invalidRoomCode: 'Saisissez un code valide de six caractères.', demoJoinStatus: 'Connexion à la salle…',
       randomUnavailable: 'Connexion à la recherche de joueurs…', roomWaiting: 'En attente de l’autre joueur…',
       searchingMatch: 'Recherche d’un adversaire…', matchFound: 'Adversaire trouvé. La partie commence…', opponentLeft: 'L’autre joueur a quitté la salle.',
-      roomUnavailable: 'Cette salle n’est plus disponible.'
+      roomUnavailable: 'Cette salle n’est plus disponible.',
+      opponentDisconnected: 'Connexion à l’adversaire perdue. Reconnexion pendant {seconds} s…',
+      connectionLost: 'Connexion perdue. Reconnexion en cours…',
+      opponentForfeit: 'Votre adversaire a quitté la partie. Vous gagnez.',
+      opponentDisconnectedLoss: 'Votre adversaire n’est pas revenu à temps. Vous gagnez.',
+      youDisconnectedLoss: 'Vous n’avez pas pu vous reconnecter à temps. Vous perdez.',
+      youForfeit: 'Vous avez quitté la partie. Votre adversaire gagne.',
+      matchComplete: 'Partie terminée.',
+      matchCancelled: 'La salle a été fermée avant le début de la partie.',
+      firebaseConfigMissing: 'Firebase n’est pas configuré. Vérifiez firebase-config.js.',
+      roomCreateFailed: 'Impossible de créer un code de salle. Veuillez réessayer.',
+      roomNotFound: 'Aucune salle ne correspond à ce code. Vérifiez que vous avez saisi le code actuel.',
+      sameSessionRoom: 'Cette session ne peut pas rejoindre sa propre salle. Utilisez une fenêtre privée, un autre navigateur ou un autre appareil.',
+      roomFull: 'Cette salle est complète ou la partie a déjà commencé.',
+      roomNotFoundSameProject: 'Cette salle n’est plus disponible. Vérifiez que les deux joueurs utilisent le même projet Firebase et la même URL Realtime Database.',
+      roomJoinFailed: 'Impossible de rejoindre la salle. Vérifiez les règles Realtime Database et réessayez.',
+      matchmakingQueueFailed: 'Impossible de trouver un adversaire disponible. Veuillez réessayer.',
+      matchmakingJoinFailed: 'Un adversaire a été trouvé, mais impossible de rejoindre sa salle : {error}',
+      firebasePermissionDenied: 'Firebase a refusé l’accès. Vérifiez que la connexion anonyme est activée et que les règles Realtime Database sont publiées.',
+      firebaseAuthDisabled: 'La connexion anonyme est désactivée dans Firebase Authentication.',
+      firebaseNetworkError: 'Impossible de joindre Firebase. Vérifiez votre connexion Internet et réessayez.',
+      noActiveOnlineRoom: 'Aucune salle en ligne active.',
+      onlineSyncFailed: 'Impossible de synchroniser la partie.',
+      invalidMatchResult: 'Le résultat de la partie n’est pas valide.',
+      matchResultNotConfirmed: 'Impossible de confirmer le résultat de la partie pour ce tour.',
+      matchResultSaveFailed: 'Impossible d’enregistrer le résultat de la partie.'
     },
     es: {
       menuSub: 'Elige a tu rival', aiMode: 'Jugar contra la IA',
@@ -746,7 +821,32 @@
       invalidRoomCode: 'Introduce un código válido de seis caracteres.', demoJoinStatus: 'Conectando con la sala…',
       randomUnavailable: 'Conectando con la búsqueda de partidas…', roomWaiting: 'Esperando al otro jugador…',
       searchingMatch: 'Buscando rival…', matchFound: 'Rival encontrado. Iniciando la partida…', opponentLeft: 'El otro jugador ha salido de la sala.',
-      roomUnavailable: 'Esta sala ya no está disponible.'
+      roomUnavailable: 'Esta sala ya no está disponible.',
+      opponentDisconnected: 'Se perdió la conexión con el rival. Esperando {seconds} s para que vuelva…',
+      connectionLost: 'Conexión perdida. Reconectando…',
+      opponentForfeit: 'El rival ha abandonado la partida. Has ganado.',
+      opponentDisconnectedLoss: 'El rival no volvió a tiempo. Has ganado.',
+      youDisconnectedLoss: 'No te has reconectado a tiempo. Has perdido.',
+      youForfeit: 'Has abandonado la partida. Gana tu rival.',
+      matchComplete: 'Partida finalizada.',
+      matchCancelled: 'La sala se cerró antes de empezar la partida.',
+      firebaseConfigMissing: 'Firebase no está configurado. Revisa firebase-config.js.',
+      roomCreateFailed: 'No se pudo crear el código de sala. Inténtalo de nuevo.',
+      roomNotFound: 'No hay ninguna sala con ese código. Comprueba que sea el código actual.',
+      sameSessionRoom: 'Esta sesión no puede unirse a su propia sala. Usa una ventana privada, otro navegador u otro dispositivo.',
+      roomFull: 'La sala está completa o la partida ya ha empezado.',
+      roomNotFoundSameProject: 'La sala ya no está disponible. Comprueba que ambos jugadores usen el mismo proyecto Firebase y la misma URL de Realtime Database.',
+      roomJoinFailed: 'No se pudo entrar en la sala. Comprueba las reglas de Realtime Database e inténtalo de nuevo.',
+      matchmakingQueueFailed: 'No se pudo encontrar un rival disponible. Inténtalo de nuevo.',
+      matchmakingJoinFailed: 'Se encontró una partida, pero no se pudo entrar en su sala: {error}',
+      firebasePermissionDenied: 'Firebase denegó el acceso. Comprueba que esté activado el inicio de sesión anónimo y publicadas las reglas de Realtime Database.',
+      firebaseAuthDisabled: 'El inicio de sesión anónimo está desactivado en Firebase Authentication.',
+      firebaseNetworkError: 'No se pudo conectar con Firebase. Comprueba la conexión a Internet e inténtalo de nuevo.',
+      noActiveOnlineRoom: 'No hay ninguna sala online activa.',
+      onlineSyncFailed: 'No se pudo sincronizar el estado de la partida.',
+      invalidMatchResult: 'El resultado de la partida no es válido.',
+      matchResultNotConfirmed: 'No se pudo confirmar el resultado de la partida en este turno.',
+      matchResultSaveFailed: 'No se pudo guardar el resultado de la partida.'
     }
   };
 
@@ -1061,6 +1161,9 @@
   let onlineSyncElapsed = 0;
   let onlinePublishPending = false;
   let onlinePublishQueued = false;
+  const ONLINE_RECONNECT_GRACE_SECONDS = 60;
+  let opponentDisconnectTimer = null;
+  let opponentDisconnectDeadline = 0;
   let difficulty = null; // 'easy' | 'intermediate' | 'hard'
   let aiTimer = null;
   let finalDelayTimer = null;
@@ -1200,9 +1303,56 @@
   }
 
   function setOnlineStatus(message){
+    if (!message && opponentDisconnectTimer && mode === 'online' && !gameOver) {
+      const secondsLeft = Math.max(0, Math.ceil((opponentDisconnectDeadline - Date.now()) / 1000));
+      if (secondsLeft > 0) message = t('opponentDisconnected').replace('{seconds}', secondsLeft);
+    }
     onlineStatus.textContent = message;
     onlineSyncNotice.textContent = message;
     onlineSyncNotice.classList.toggle('hidden', !message || !started || mode !== 'online');
+  }
+
+  function onlineErrorMessage(error){
+    const code = String(error?.code || '').toLowerCase();
+    const message = String(error?.message || error || '');
+    if (code.includes('permission-denied') || code.includes('permission_denied') || message.includes('PERMISSION_DENIED')) {
+      return t('firebasePermissionDenied');
+    }
+    if (code === 'auth/operation-not-allowed') return t('firebaseAuthDisabled');
+    if (code.includes('network-request-failed') || code.includes('unavailable')) return t('firebaseNetworkError');
+    return message;
+  }
+
+  function clearOpponentDisconnectTimer(){
+    clearTimeout(opponentDisconnectTimer);
+    opponentDisconnectTimer = null;
+    opponentDisconnectDeadline = 0;
+  }
+
+  function handleOpponentPresence(isConnected){
+    if (mode !== 'online' || gameOver) return;
+    if (isConnected) {
+      clearOpponentDisconnectTimer();
+      setOnlineStatus('');
+      return;
+    }
+    if (opponentDisconnectTimer) return;
+
+    opponentDisconnectDeadline = Date.now() + ONLINE_RECONNECT_GRACE_SECONDS * 1000;
+    const updateCountdown = () => {
+      const secondsLeft = Math.max(0, Math.ceil((opponentDisconnectDeadline - Date.now()) / 1000));
+      if (secondsLeft === 0) {
+        opponentDisconnectTimer = null;
+        if (!onlineService || mode !== 'online' || gameOver) return;
+        onlineService.finishForfeit('disconnect').catch(error => {
+          setOnlineStatus(onlineErrorMessage(error));
+        });
+        return;
+      }
+      setOnlineStatus(t('opponentDisconnected').replace('{seconds}', secondsLeft));
+      opponentDisconnectTimer = setTimeout(updateCountdown, 1000);
+    };
+    updateCountdown();
   }
 
   function isOnlineTeamLocal(team){
@@ -1360,7 +1510,7 @@
       } while (onlinePublishQueued && mode === 'online');
       setOnlineStatus('');
     } catch (error) {
-      setOnlineStatus(error.message || String(error));
+      setOnlineStatus(onlineErrorMessage(error));
     } finally {
       onlinePublishPending = false;
     }
@@ -1370,10 +1520,13 @@
     if (onlineService) return onlineService;
     const { connectFirebaseOnline } = await import('./firebase-online.js');
     onlineService = await connectFirebaseOnline(window.MASS_BRAWL_FIREBASE_CONFIG, {
-      onRoomStatus(status){
+      translate: t,
+      formatError: onlineErrorMessage,
+      onRoomStatus(status, hasResult){
         if (status === 'waiting') setOnlineStatus(onlineSearchMode ? t('searchingMatch') : t('roomWaiting'));
         if (status === 'missing') setOnlineStatus(t('roomUnavailable'));
-        if (status === 'finished') {
+        if (status === 'cancelled') setOnlineStatus(t('matchCancelled'));
+        if (status === 'finished' && !hasResult && started && !gameOver) {
           setOnlineStatus(t('opponentLeft'));
           if (mode === 'online' && !gameOver) {
             gameOver = true;
@@ -1384,11 +1537,38 @@
           }
         }
       },
+      onOpponentPresence: handleOpponentPresence,
+      onConnection(isConnected){
+        if (mode === 'online' && !isConnected) setOnlineStatus(t('connectionLost'));
+        else if (mode === 'online' && !opponentDisconnectTimer) setOnlineStatus('');
+      },
+      onMatchResult(result){
+        if (!started || mode !== 'online' || !result || !['blue', 'orange', 'draw'].includes(result.winner)) return;
+        clearOpponentDisconnectTimer();
+        gameOver = true;
+        busy = false;
+        clearTimeout(finalDelayTimer);
+        finalDelayTimer = null;
+        overlayTitle.textContent = result.winner === 'draw'
+          ? t('draw')
+          : result.winner === onlineRole ? t('victory') : t('defeat');
+        const won = result.winner === onlineRole;
+        if (result.reason === 'forfeit') {
+          overlaySub.textContent = won ? t('opponentForfeit') : t('youForfeit');
+        } else if (result.reason === 'disconnect') {
+          overlaySub.textContent = won ? t('opponentDisconnectedLoss') : t('youDisconnectedLoss');
+        } else {
+          overlaySub.textContent = t('matchComplete');
+        }
+        overlay.classList.remove('hidden');
+        setOnlineStatus('');
+      },
       onMatched({ roomCode, role }){
         onlineRole = role;
         onlineSearchMode = false;
         onlineStateRevision = 0;
         onlineSyncElapsed = 0;
+        clearOpponentDisconnectTimer();
         onlinePublishPending = false;
         onlinePublishQueued = false;
         onlineRoomCode.textContent = roomCode;
@@ -1405,7 +1585,7 @@
         applyOnlineGameState(state);
       },
       onError(error){
-        setOnlineStatus(error.message || String(error));
+        setOnlineStatus(onlineErrorMessage(error));
       }
     });
     return onlineService;
@@ -1463,6 +1643,7 @@
 
   function backToMenu(){
     if (onlineService && mode === 'online') onlineService.leave();
+    clearOpponentDisconnectTimer();
     onlineRole = null;
     onlineSearchMode = false;
     clearTimeout(aiTimer); aiTimer = null;
@@ -1916,6 +2097,12 @@
       const localScore = onlineRole === 'orange' ? s.ai : s.player;
       const rivalScore = onlineRole === 'orange' ? s.player : s.ai;
       title = localScore > rivalScore ? t('victory') : localScore < rivalScore ? t('defeat') : t('draw');
+      const winner = localScore > rivalScore ? onlineRole : localScore < rivalScore ? (onlineRole === 'blue' ? 'orange' : 'blue') : 'draw';
+      if (onlineService) {
+        onlineService.finishMatch(winner).catch(error => {
+          setOnlineStatus(onlineErrorMessage(error));
+        });
+      }
     } else if (mode === 'pvp') {
       if (s.player > s.ai) title = t('pvpWinner1');
       else if (s.ai > s.player) title = t('pvpWinner2');
@@ -2302,7 +2489,7 @@
       onlineRoomCard.classList.remove('hidden');
       setOnlineStatus(t('codeCreated'));
     } catch (error) {
-      setOnlineStatus(error.message || String(error));
+      setOnlineStatus(onlineErrorMessage(error));
     } finally {
       createRoomBtn.disabled = false;
     }
@@ -2333,7 +2520,7 @@
       onlineRoomCode.textContent = code;
       onlineRoomCard.classList.remove('hidden');
     } catch (error) {
-      setOnlineStatus(error.message || String(error));
+      setOnlineStatus(onlineErrorMessage(error));
     }
   });
   randomMatchBtn.addEventListener('click', async ()=>{
@@ -2346,13 +2533,14 @@
       if (result.waiting) setOnlineStatus(t('searchingMatch'));
     } catch (error) {
       onlineSearchMode = false;
-      setOnlineStatus(error.message || String(error));
+      setOnlineStatus(onlineErrorMessage(error));
     } finally {
       randomMatchBtn.disabled = false;
     }
   });
   closeOnlineBtn.addEventListener('click', ()=>{
     if (onlineService) onlineService.leave();
+    clearOpponentDisconnectTimer();
     onlineSearchMode = false;
     onlineOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
