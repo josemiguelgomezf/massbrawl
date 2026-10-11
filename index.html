@@ -63,6 +63,9 @@
   .boardSide{ position:absolute; display:flex; align-items:center; justify-content:center; gap:8px; min-width:140px; border-radius:12px; border:1px solid transparent; pointer-events:auto; transition:box-shadow 260ms ease, border-color 260ms ease, opacity 260ms ease, transform 260ms ease; }
   .boardSide.left{ left:12px; bottom:12px; }
   .boardSide.right{ right:12px; top:12px; transform:rotate(180deg); }
+  .orange-perspective #leftBoardSide{ top:12px; bottom:auto; transform:none; }
+  .orange-perspective #rightBoardSide{ top:auto; bottom:12px; transform:none; }
+  #canvasWrap.orange-perspective #traitInventoryBtn.ai-turn{ top:auto; right:12px; bottom:12px; left:auto; }
   .boardSide.left.active{ border-color:var(--blue); box-shadow:0 0 14px rgba(51,193,255,0.85), inset 0 0 12px rgba(51,193,255,0.4); }
   .boardSide.right.active{ border-color:var(--orange); box-shadow:0 0 14px rgba(255,138,43,0.85), inset 0 0 12px rgba(255,138,43,0.4); }
   .boardSide:not(.active){ opacity:0.78; }
@@ -1833,6 +1836,7 @@
       },
       onMatched({ roomCode, role }){
         onlineRole = role;
+        wrap.classList.toggle('orange-perspective', role === 'orange');
         onlineSearchMode = false;
         onlineStateRevision = 0;
         onlineSyncElapsed = 0;
@@ -1850,6 +1854,8 @@
       },
       onGameState(state){
         if (Number.isSafeInteger(state.revision) && state.revision <= onlineStateRevision) return;
+        // Keep the local motion prediction; intermediate snapshots reset orb positions and cause visible jumps.
+        if (mode === 'online' && busy && state.busy && !isOnlineTeamLocal(turn)) return;
         applyOnlineGameState(state);
       },
       onError(error){
@@ -1913,6 +1919,7 @@
     if (onlineService && mode === 'online') onlineService.leave();
     clearOpponentDisconnectTimer();
     onlineRole = null;
+    wrap.classList.remove('orange-perspective');
     onlineSearchMode = false;
     clearTimeout(aiTimer); aiTimer = null;
     clearTimeout(finalDelayTimer); finalDelayTimer = null;
@@ -1932,10 +1939,16 @@
     menuOverlay.classList.remove('hidden');
   }
 
+  function isOrangePerspective(){
+    return mode === 'online' && onlineRole === 'orange';
+  }
+
   function pointerPos(e){
     const rect = canvas.getBoundingClientRect();
     const t = e.touches ? e.touches[0] : e;
-    return { x: t.clientX-rect.left, y: t.clientY-rect.top };
+    const x = t.clientX-rect.left;
+    const y = t.clientY-rect.top;
+    return isOrangePerspective() ? { x: W-x, y: H-y } : { x, y };
   }
 
   function onDown(e){
@@ -2715,8 +2728,10 @@
         }
         if (allStationary()){
           detonateBombs();
-          busy = false;
-          if (!gameOver && (mode !== 'online' || isOnlineTeamLocal(turn))) endTurn();
+          if (mode !== 'online' || isOnlineTeamLocal(turn)) {
+            busy = false;
+            if (!gameOver) endTurn();
+          }
         }
       } else if (!dragOrb && !canPlay(turn) && (mode !== 'online' || isOnlineTeamLocal(turn))) {
         endTurn();
@@ -2764,11 +2779,17 @@
       scoreRightEl.textContent = s.ai;
     }
 
+    ctx.save();
+    if (isOrangePerspective()) {
+      ctx.translate(W, H);
+      ctx.rotate(Math.PI);
+    }
     drawBoard();
     for (const o of orbs) drawOrb(o);
     if (dragOrb && !orbs.includes(dragOrb)) drawOrb(dragOrb);
     drawExplosions();
     drawDrag();
+    ctx.restore();
 
     requestAnimationFrame(loop);
   }
