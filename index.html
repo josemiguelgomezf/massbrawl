@@ -129,6 +129,22 @@
     text-align:center; padding:30px; z-index:10;
   }
   #menuOverlay.hidden{ display:none; }
+  @media (max-width:360px){
+    #coinDisplay{ left:102px; padding:0 7px; font-size:11px; }
+    #achievementsBtn{ right:54px; }
+    #menuOverlay{ gap:14px; padding-left:14px; padding-right:14px; }
+    #menuSub{ margin:0 0 2px; }
+    .modeBtn{ width:min(240px, 100%); padding:13px 16px; }
+  }
+  @media (max-width:300px){
+    #coinDisplay{ width:52px; justify-content:center; gap:3px; padding:0 4px; font-size:10px; }
+  }
+  @media (max-height:620px){
+    #menuOverlay{ justify-content:flex-start; gap:12px; overflow-y:auto; padding-top:66px; padding-bottom:20px; }
+    #menuTitle{ font-size:32px; }
+    #menuSub{ margin:0 0 2px; }
+    .modeBtn{ padding:11px 16px; flex-shrink:0; }
+  }
   #difficultyOverlay{
     position:absolute; inset:0; background:
       radial-gradient(circle at 25% 20%, rgba(51,193,255,0.12), transparent 55%),
@@ -237,6 +253,10 @@
     border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
     box-shadow:0 10px 30px rgba(0,0,0,0.65);
   }
+  #storePanel{ padding-top:0; }
+  #storeHeader{ position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:center; min-height:66px; margin:0 -18px 12px; padding:12px 54px; border-bottom:1px solid rgba(255,255,255,0.1); background:var(--panel); }
+  #storeHeader .economyTitle{ margin:0; }
+  #closeStoreBtn{ position:absolute; right:14px; top:50%; transform:translateY(-50%); width:36px; height:36px; padding:0; border:1px solid rgba(255,255,255,0.14); border-radius:50%; background:rgba(255,255,255,0.06); color:#eaf2ff; font-size:21px; line-height:1; }
   .economyTitle{ margin:0 0 8px; font-family:'Orbitron',sans-serif; font-size:22px; text-align:center; }
   .economyBalance{ margin:0 0 16px; color:#ffd66b; text-align:center; font-weight:700; }
   .shopItem, .traitItem{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; padding:12px 0; border-top:1px solid rgba(255,255,255,0.08); }
@@ -244,11 +264,24 @@
   .shopItem small, .traitItem small{ display:block; margin-top:4px; color:#9fb3d1; font-size:12px; }
   .shopItem button, .traitItem button{ min-width:92px; padding:9px 12px; border-radius:9px; font-size:13px; }
   .shopItem button:disabled, .traitItem button:disabled{ cursor:default; opacity:0.45; }
+  .storeView.hidden{ display:none; }
+  .storeSectionDescription{ margin:0 0 12px; color:#9fb3d1; font-size:12px; line-height:1.4; text-align:center; }
+  .shopProductGrid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+  .shopProductCard{ min-width:0; display:flex; flex-direction:column; align-items:center; gap:7px; padding:12px 9px; border:1px solid rgba(255,255,255,0.09); border-radius:13px; background:rgba(255,255,255,0.035); text-align:center; }
+  .shopProductPreview{ width:88px; height:88px; border-radius:50%; background:radial-gradient(circle at 32% 25%, rgba(255,255,255,0.12), rgba(0,0,0,0.22)); }
+  .shopProductCard strong{ display:block; font-size:13px; }
+  .shopProductCard small{ min-height:28px; color:#9fb3d1; font-size:11px; line-height:1.3; }
+  .shopProductCard button{ width:100%; min-width:0; padding:8px 5px; border-radius:8px; font-size:12px; }
+  .shopProductCard button:disabled{ cursor:default; opacity:0.55; }
+  #skinShopView{ margin-top:0; }
+  .skinEquipRow{ display:grid; grid-template-columns:minmax(0,1fr) minmax(130px,1fr); align-items:center; gap:10px; padding:7px 0; }
+  .skinEquipRow label{ font-size:13px; }
+  .skinEquipRow select{ min-width:0; width:100%; padding:8px; border:1px solid rgba(255,255,255,0.16); border-radius:8px; background:#111d31; color:#eaf2ff; font:500 12px 'Rubik',sans-serif; }
   .economyActions{ display:flex; justify-content:flex-end; margin-top:16px; }
   .economyActions button{ padding:10px 18px; }
   #traitSelectionStatus{ margin:0 0 10px; color:#9fb3d1; text-align:center; font-size:13px; }
   #coinDisplay{
-    position:absolute; top:14px; left:58px; min-height:36px; display:flex; align-items:center; gap:6px;
+    position:absolute; top:14px; left:102px; min-height:36px; display:flex; align-items:center; gap:6px;
     padding:0 11px; border:1px solid rgba(255,214,107,0.38); border-radius:18px;
     background:rgba(11,18,32,0.9); color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:13px;
   }
@@ -278,11 +311,11 @@
   .difficultyBtn{ min-width:120px; padding:12px 16px; border-radius:16px; border:2px solid rgba(255,255,255,0.12); background:var(--panel); color:#eaf2ff; font-family:'Rubik',sans-serif; cursor:pointer; transition:none; animation:none; transform:none; }
   .difficultyBtn.active, .difficultyBtn:active, .difficultyBtn:focus, .difficultyBtn:focus-visible{ border-color:rgba(255,255,255,0.12); color:#eaf2ff; background:var(--panel); outline:none; transition:none; animation:none; transform:none; }
   #menuTitle{
-    font-family:'Orbitron', sans-serif; font-weight:800; font-size:38px; margin:0;
-    letter-spacing:1px;
+    font-family:'Orbitron', sans-serif; font-weight:800; font-size:clamp(28px, 9vw, 38px); margin:0;
+    letter-spacing:1px; white-space:nowrap;
   }
   #menuTitle span{ color:var(--orange); }
-  #menuSub{ color:#9fb3d1; margin:-14px 0 6px; font-size:14px; max-width:280px; }
+  #menuSub{ color:#9fb3d1; margin:0 0 6px; font-size:14px; max-width:280px; }
   .modeBtn{
     width:240px; padding:16px 20px; border-radius:16px; border:2px solid rgba(255,255,255,0.12);
     background:var(--panel); color:#eaf2ff; font-family:'Rubik',sans-serif; cursor:pointer;
@@ -309,6 +342,11 @@
   #storeBtn{
     position:absolute; top:14px; left:14px; width:36px; height:36px; padding:0;
     border-radius:50%; background:var(--panel); color:#ffd66b; border:1px solid rgba(255,214,107,0.38);
+    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  #skinStoreBtn{
+    position:absolute; top:14px; left:58px; width:36px; height:36px; padding:0;
+    border-radius:50%; background:var(--panel); color:#c49bff; border:1px solid rgba(196,155,255,0.45);
     font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
   }
   #traitInventoryBtn{
@@ -366,7 +404,8 @@
       <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
       <button id="achievementsBtn" title="Achievements" aria-label="Achievements">🏆<span id="achievementCount">0</span></button>
       <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
-      <button id="storeBtn" title="Orb shop" aria-label="Orb shop">🛒</button>
+      <button id="storeBtn" title="Special orb shop" aria-label="Special orb shop">✦</button>
+      <button id="skinStoreBtn" title="Skin shop" aria-label="Skin shop">🎨</button>
     </div>
     <div id="difficultyOverlay" class="hidden">
       <div id="difficultyPanel">
@@ -410,10 +449,21 @@
     </div>
     <div id="storeOverlay" class="hidden">
       <div id="storePanel" role="dialog" aria-modal="true" aria-labelledby="storeTitle">
-        <h1 id="storeTitle" class="economyTitle" data-i18n="shop">Orb shop</h1>
+        <div id="storeHeader">
+          <h1 id="storeTitle" class="economyTitle" data-i18n="shop">Special orbs</h1>
+          <button id="closeStoreBtn" type="button" aria-label="Close">×</button>
+        </div>
         <p class="economyBalance"><span data-i18n="coins">Coins</span>: <span id="storeCoinBalance">1000</span></p>
-        <div id="shopItems"></div>
-        <div class="economyActions"><button id="closeStoreBtn" data-i18n="close">Close</button></div>
+        <div id="specialShopView" class="storeView">
+          <p class="storeSectionDescription" data-i18n="specialShopDesc">Power up your next launch with a special orb.</p>
+          <div id="shopItems" class="shopProductGrid"></div>
+        </div>
+        <div id="skinShopView" class="storeView hidden">
+          <p class="storeSectionDescription" data-i18n="skinShopDesc">Collect looks for every orb. Equip them by mass or special type.</p>
+          <div id="skinShopItems" class="shopProductGrid"></div>
+          <h2 class="storeSectionTitle" data-i18n="equipSkins">Equip skins</h2>
+          <div id="skinEquipControls"></div>
+        </div>
       </div>
     </div>
     <div id="achievementsOverlay" class="hidden">
@@ -547,10 +597,16 @@
   const achievementToastTitleEl = document.getElementById('achievementToastTitle');
   const achievementToastRewardEl = document.getElementById('achievementToastReward');
   const storeBtn = document.getElementById('storeBtn');
+  const skinStoreBtn = document.getElementById('skinStoreBtn');
   const coinBalanceEl = document.getElementById('coinBalance');
   const storeCoinBalanceEl = document.getElementById('storeCoinBalance');
   const storeOverlay = document.getElementById('storeOverlay');
+  const storeTitleEl = document.getElementById('storeTitle');
+  const specialShopViewEl = document.getElementById('specialShopView');
+  const skinShopViewEl = document.getElementById('skinShopView');
   const shopItemsEl = document.getElementById('shopItems');
+  const skinShopItemsEl = document.getElementById('skinShopItems');
+  const skinEquipControlsEl = document.getElementById('skinEquipControls');
   const closeStoreBtn = document.getElementById('closeStoreBtn');
   const traitInventoryBtn = document.getElementById('traitInventoryBtn');
   const traitCountEl = document.getElementById('traitCount');
@@ -583,7 +639,7 @@
       playing: 'Orb launched...', pvpPlaying1: 'Player 1 orb launched...', pvpPlaying2: 'Player 2 orb launched...',
       aiPlaying: 'AI is playing...', victory: 'Victory!', defeat: 'Defeat', draw: 'Draw',
       pvpWinner1: 'Player 1 (blue) wins', pvpWinner2: 'Player 2 (orange) wins',
-      shop: 'Orb shop', coins: 'Coins', close: 'Close', buy: 'Buy', owned: 'Owned',
+      shop: 'Special orbs', coins: 'Coins', close: 'Close', buy: 'Buy', owned: 'Owned',
       bombOrb: 'Bomb orb', spikedOrb: 'Spiked orb', ghostOrb: 'Ghost orb',
       specialInventory: 'Special inventory', selectOrbFirst: 'Select an orb from your inventory first.',
       applyTrait: 'Apply',
@@ -620,6 +676,17 @@
       youForfeit: 'You left the match. Your opponent wins.',
       matchComplete: 'Match complete.',
       matchCancelled: 'The room was closed before the match started.',
+      specialShopDesc: 'Power up your next launch with a special orb.',
+      bombOrbDesc: 'Explodes on impact and clears nearby orbs.', spikedOrbDesc: 'Cuts through the crowd with sharp spikes.',
+      ghostOrbDesc: 'Glides through other orbs to surprise your rival.',
+      orbSkins: 'Orb skins', skinShopDesc: 'Collect looks for every orb. Equip them by mass or special type.',
+      equipSkins: 'Equip skins', noSkin: 'Default orb', skinMass: 'Mass {mass}', specialBomb: 'Bomb orb',
+      specialSpiked: 'Spiked orb', specialGhost: 'Ghost orb', skinOwned: 'Owned', skinEquipped: 'Equipped',
+      skinPrice: 'Price', skinSpain: 'Spain', skinMexico: 'Mexico', skinArgentina: 'Argentina',
+      skinUnitedStates: 'United States', skinFrance: 'France', skinGermany: 'Germany', skinItaly: 'Italy',
+      skinBrazil: 'Brazil', skinJapan: 'Japan', skinUnitedKingdom: 'United Kingdom',
+      skinGalaxy: 'Galaxy', skinLava: 'Lava core', skinSlime: 'Slime', skinAurora: 'Aurora',
+      skinPixel: 'Pixel pop', skinGold: 'Molten gold',
       firebaseConfigMissing: 'Firebase is not configured. Check firebase-config.js.',
       roomCreateFailed: 'Could not create a room code. Please try again.',
       roomNotFound: 'No room has that code. Check that you entered the current code.',
@@ -654,7 +721,7 @@
       playing: 'Kugel gestartet...', pvpPlaying1: 'Kugel von Spieler 1 gestartet...', pvpPlaying2: 'Kugel von Spieler 2 gestartet...',
       aiPlaying: 'Die KI spielt...', victory: 'Sieg!', defeat: 'Niederlage', draw: 'Unentschieden',
       pvpWinner1: 'Spieler 1 (blau) gewinnt', pvpWinner2: 'Spieler 2 (orange) gewinnt',
-      shop: 'Kugel-Shop', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
+      shop: 'Spezialkugeln', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
       bombOrb: 'Bombenkugel', spikedOrb: 'Stachelkugel', ghostOrb: 'Geisterkugel',
       specialInventory: 'Spezialinventar', selectOrbFirst: 'Wähle zuerst eine Kugel aus deinem Vorrat.',
       applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten', achievementsTitle: 'Erfolge', achievementUnlocked: 'Erfolg freigeschaltet',
@@ -690,6 +757,17 @@
       youForfeit: 'Du hast das Spiel verlassen. Dein Gegner gewinnt.',
       matchComplete: 'Partie beendet.',
       matchCancelled: 'Der Raum wurde vor Spielbeginn geschlossen.',
+      specialShopDesc: 'Rüste deinen nächsten Wurf mit einer Spezialkugel auf.',
+      bombOrbDesc: 'Explodiert beim Aufprall und entfernt Kugeln in der Nähe.', spikedOrbDesc: 'Schneidet sich mit scharfen Stacheln durch die Menge.',
+      ghostOrbDesc: 'Gleitet durch andere Kugeln und überrascht den Gegner.',
+      orbSkins: 'Kugel-Skins', skinShopDesc: 'Sammle Designs für alle Kugeln. Rüste sie nach Masse oder Spezialtyp aus.',
+      equipSkins: 'Skins ausrüsten', noSkin: 'Standardkugel', skinMass: 'Masse {mass}', specialBomb: 'Bombenkugel',
+      specialSpiked: 'Stachelkugel', specialGhost: 'Geisterkugel', skinOwned: 'Im Besitz', skinEquipped: 'Ausgerüstet',
+      skinPrice: 'Preis', skinSpain: 'Spanien', skinMexico: 'Mexiko', skinArgentina: 'Argentinien',
+      skinUnitedStates: 'Vereinigte Staaten', skinFrance: 'Frankreich', skinGermany: 'Deutschland', skinItaly: 'Italien',
+      skinBrazil: 'Brasilien', skinJapan: 'Japan', skinUnitedKingdom: 'Vereinigtes Königreich',
+      skinGalaxy: 'Galaxie', skinLava: 'Lava-Kern', skinSlime: 'Schleim', skinAurora: 'Polarlicht',
+      skinPixel: 'Pixel-Pop', skinGold: 'Flüssiges Gold',
       firebaseConfigMissing: 'Firebase ist nicht konfiguriert. Prüfe firebase-config.js.',
       roomCreateFailed: 'Der Raumcode konnte nicht erstellt werden. Bitte versuche es erneut.',
       roomNotFound: 'Es gibt keinen Raum mit diesem Code. Prüfe, ob du den aktuellen Code eingegeben hast.',
@@ -724,7 +802,7 @@
       playing: 'Bille lancée...', pvpPlaying1: 'Bille du joueur 1 lancée...', pvpPlaying2: 'Bille du joueur 2 lancée...',
       aiPlaying: 'L’IA joue...', victory: 'Victoire !', defeat: 'Défaite', draw: 'Égalité',
       pvpWinner1: 'Le joueur 1 (bleu) gagne', pvpWinner2: 'Le joueur 2 (orange) gagne',
-      shop: 'Boutique de billes', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
+      shop: 'Billes spéciales', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
       bombOrb: 'Bille bombe', spikedOrb: 'Bille à pointes', ghostOrb: 'Bille fantôme',
       specialInventory: 'Inventaire spécial', selectOrbFirst: 'Sélectionnez d’abord une bille dans votre inventaire.',
       applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées', achievementsTitle: 'Succès', achievementUnlocked: 'Succès débloqué',
@@ -760,6 +838,17 @@
       youForfeit: 'Vous avez quitté la partie. Votre adversaire gagne.',
       matchComplete: 'Partie terminée.',
       matchCancelled: 'La salle a été fermée avant le début de la partie.',
+      specialShopDesc: 'Améliorez votre prochain lancer avec une bille spéciale.',
+      bombOrbDesc: 'Explose à l’impact et élimine les billes proches.', spikedOrbDesc: 'Traverse le groupe grâce à ses pointes.',
+      ghostOrbDesc: 'Traverse les autres billes pour surprendre l’adversaire.',
+      orbSkins: 'Apparences des billes', skinShopDesc: 'Collectionnez des styles pour toutes les billes. Équipez-les par masse ou type spécial.',
+      equipSkins: 'Équiper les apparences', noSkin: 'Bille par défaut', skinMass: 'Masse {mass}', specialBomb: 'Bille bombe',
+      specialSpiked: 'Bille à pointes', specialGhost: 'Bille fantôme', skinOwned: 'Possédée', skinEquipped: 'Équipée',
+      skinPrice: 'Prix', skinSpain: 'Espagne', skinMexico: 'Mexique', skinArgentina: 'Argentine',
+      skinUnitedStates: 'États-Unis', skinFrance: 'France', skinGermany: 'Allemagne', skinItaly: 'Italie',
+      skinBrazil: 'Brésil', skinJapan: 'Japon', skinUnitedKingdom: 'Royaume-Uni',
+      skinGalaxy: 'Galaxie', skinLava: 'Cœur de lave', skinSlime: 'Gelée', skinAurora: 'Aurore',
+      skinPixel: 'Pixel pop', skinGold: 'Or fondu',
       firebaseConfigMissing: 'Firebase n’est pas configuré. Vérifiez firebase-config.js.',
       roomCreateFailed: 'Impossible de créer un code de salle. Veuillez réessayer.',
       roomNotFound: 'Aucune salle ne correspond à ce code. Vérifiez que vous avez saisi le code actuel.',
@@ -794,7 +883,7 @@
       playing: 'Orbe lanzado...', pvpPlaying1: 'Orbe del Jugador 1 lanzado...', pvpPlaying2: 'Orbe del Jugador 2 lanzado...',
       aiPlaying: 'La IA está jugando...', victory: '¡Victoria!', defeat: 'Derrota', draw: 'Empate',
       pvpWinner1: 'Gana el Jugador 1 (azul)', pvpWinner2: 'Gana el Jugador 2 (naranja)',
-      shop: 'Tienda de orbes', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
+      shop: 'Orbes especiales', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
       bombOrb: 'Orbe bomba', spikedOrb: 'Orbe con pinchos', ghostOrb: 'Orbe fantasma',
       specialInventory: 'Inventario especial', selectOrbFirst: 'Primero selecciona un orbe de tu inventario.',
       applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas', achievementsTitle: 'Logros', achievementUnlocked: 'Logro conseguido',
@@ -830,6 +919,17 @@
       youForfeit: 'Has abandonado la partida. Gana tu rival.',
       matchComplete: 'Partida finalizada.',
       matchCancelled: 'La sala se cerró antes de empezar la partida.',
+      specialShopDesc: 'Potencia tu próximo lanzamiento con un orbe especial.',
+      bombOrbDesc: 'Explota al impactar y elimina los orbes cercanos.', spikedOrbDesc: 'Atraviesa el grupo con sus pinchos.',
+      ghostOrbDesc: 'Se desliza entre otros orbes para sorprender al rival.',
+      orbSkins: 'Skins de orbes', skinShopDesc: 'Colecciona diseños para todos los orbes. Equípalos por masa o tipo especial.',
+      equipSkins: 'Equipar skins', noSkin: 'Orbe predeterminado', skinMass: 'Masa {mass}', specialBomb: 'Orbe bomba',
+      specialSpiked: 'Orbe con pinchos', specialGhost: 'Orbe fantasma', skinOwned: 'En propiedad', skinEquipped: 'Equipada',
+      skinPrice: 'Precio', skinSpain: 'España', skinMexico: 'México', skinArgentina: 'Argentina',
+      skinUnitedStates: 'Estados Unidos', skinFrance: 'Francia', skinGermany: 'Alemania', skinItaly: 'Italia',
+      skinBrazil: 'Brasil', skinJapan: 'Japón', skinUnitedKingdom: 'Reino Unido',
+      skinGalaxy: 'Galaxia', skinLava: 'Núcleo de lava', skinSlime: 'Baba', skinAurora: 'Aurora',
+      skinPixel: 'Estilo píxel', skinGold: 'Oro fundido',
       firebaseConfigMissing: 'Firebase no está configurado. Revisa firebase-config.js.',
       roomCreateFailed: 'No se pudo crear el código de sala. Inténtalo de nuevo.',
       roomNotFound: 'No hay ninguna sala con ese código. Comprueba que sea el código actual.',
@@ -853,10 +953,29 @@
   const defaultSettings = { language: 'en', sound: false, vibration: false, reducedMotion: false };
   let settings = loadSettings();
   const shopCatalog = [
-    { key: 'bomb', label: 'bombOrb', price: 30 },
-    { key: 'spiked', label: 'spikedOrb', price: 25 },
-    { key: 'ghost', label: 'ghostOrb', price: 35 }
+    { key: 'bomb', label: 'bombOrb', description: 'bombOrbDesc', price: 30 },
+    { key: 'spiked', label: 'spikedOrb', description: 'spikedOrbDesc', price: 25 },
+    { key: 'ghost', label: 'ghostOrb', description: 'ghostOrbDesc', price: 35 }
   ];
+  const skinCatalog = [
+    { id: 'es', label: 'skinSpain', flag: '🇪🇸', price: 250 },
+    { id: 'mx', label: 'skinMexico', flag: '🇲🇽', price: 250 },
+    { id: 'ar', label: 'skinArgentina', flag: '🇦🇷', price: 250 },
+    { id: 'us', label: 'skinUnitedStates', flag: '🇺🇸', price: 250 },
+    { id: 'fr', label: 'skinFrance', flag: '🇫🇷', price: 250 },
+    { id: 'de', label: 'skinGermany', flag: '🇩🇪', price: 250 },
+    { id: 'it', label: 'skinItaly', flag: '🇮🇹', price: 250 },
+    { id: 'br', label: 'skinBrazil', flag: '🇧🇷', price: 250 },
+    { id: 'jp', label: 'skinJapan', flag: '🇯🇵', price: 250 },
+    { id: 'gb', label: 'skinUnitedKingdom', flag: '🇬🇧', price: 250 },
+    { id: 'galaxy', label: 'skinGalaxy', flag: '🌌', price: 400 },
+    { id: 'lava', label: 'skinLava', flag: '🌋', price: 400 },
+    { id: 'slime', label: 'skinSlime', flag: '🟢', price: 350 },
+    { id: 'aurora', label: 'skinAurora', flag: '🌌', price: 400 },
+    { id: 'pixel', label: 'skinPixel', flag: '👾', price: 350 },
+    { id: 'gold', label: 'skinGold', flag: '🪙', price: 500 }
+  ];
+  const SKIN_MASS_LEVELS = [1, 2, 3, 4, 5];
   const STARTING_COINS = 1000;
   const MATCH_REWARD = 100;
   const achievementDefinitions = [
@@ -878,11 +997,32 @@
     return { launches: 0, bombUses: 0, spikedUses: 0, ghostUses: 0, matches: 0, wins: 0, winStreak: 0, hardWins: 0, pvpWins: 0, bestScore: 0, doubleBombs: 0 };
   }
 
+  function defaultEquippedMassSkins(){
+    return Object.fromEntries(SKIN_MASS_LEVELS.map(mass => [String(mass), '']));
+  }
+
+  function defaultEquippedSpecialSkins(){
+    return { bomb: '', spiked: '', ghost: '' };
+  }
+
+  function defaultEconomy(){
+    return {
+      coins: STARTING_COINS,
+      stock: { bomb: 0, spiked: 0, ghost: 0 },
+      ownedSkins: [],
+      equippedMassSkins: defaultEquippedMassSkins(),
+      equippedSpecialSkins: defaultEquippedSpecialSkins(),
+      achievementLevels: {},
+      notifiedAchievementLevels: {},
+      stats: defaultAchievementStats()
+    };
+  }
+
   function loadEconomy(){
     try {
       const stored = JSON.parse(localStorage.getItem('massBrawlEconomy') || 'null');
       if (!stored || !Number.isSafeInteger(stored.coins) || stored.coins < 0) {
-        return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievements: [], claimedAchievements: [], stats: defaultAchievementStats() };
+        return defaultEconomy();
       }
       const defaults = defaultAchievementStats();
       const storedStats = stored.stats && typeof stored.stats === 'object' ? stored.stats : {};
@@ -896,15 +1036,31 @@
       const notifiedAchievementLevels = stored.notifiedAchievementLevels && typeof stored.notifiedAchievementLevels === 'object'
         ? stored.notifiedAchievementLevels
         : {};
+      const ownedSkins = Array.isArray(stored.ownedSkins)
+        ? [...new Set(stored.ownedSkins.filter(id => skinCatalog.some(skin => skin.id === id)))]
+        : [];
+      const validEquippedSkin = id => ownedSkins.includes(id) ? id : '';
+      const savedMassSkins = stored.equippedMassSkins && typeof stored.equippedMassSkins === 'object'
+        ? stored.equippedMassSkins
+        : {};
+      const savedSpecialSkins = stored.equippedSpecialSkins && typeof stored.equippedSpecialSkins === 'object'
+        ? stored.equippedSpecialSkins
+        : {};
       return {
         coins: stored.coins,
         stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0])),
+        ownedSkins,
+        equippedMassSkins: Object.fromEntries(SKIN_MASS_LEVELS.map(value => {
+          const mass = String(value);
+          return [mass, validEquippedSkin(savedMassSkins[mass])];
+        })),
+        equippedSpecialSkins: Object.fromEntries(Object.keys(defaultEquippedSpecialSkins()).map(key => [key, validEquippedSkin(savedSpecialSkins[key])])),
         achievementLevels,
         notifiedAchievementLevels: Object.fromEntries(achievementDefinitions.map(({ id }) => [id, Number.isSafeInteger(notifiedAchievementLevels[id]) && notifiedAchievementLevels[id] > 0 ? notifiedAchievementLevels[id] : 0])),
         stats: Object.fromEntries(Object.entries(defaults).map(([key, fallback]) => [key, Number.isSafeInteger(storedStats[key]) && storedStats[key] >= 0 ? storedStats[key] : fallback]))
       };
     } catch (error) {
-      return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievementLevels: {}, notifiedAchievementLevels: {}, stats: defaultAchievementStats() };
+      return defaultEconomy();
     }
   }
 
@@ -1038,9 +1194,117 @@
   }
 
   function renderShop(){
-    shopItemsEl.innerHTML = shopCatalog.map(({ key, label, price }) =>
-      `<div class="shopItem"><div><strong>${t(label)}</strong><small>${t('owned')}: ${economy.stock[key]}</small></div><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}>${t('buy')} · ${price} ◈</button></div>`
+    shopItemsEl.innerHTML = shopCatalog.map(({ key, label, description, price }) =>
+      `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-special-preview="${key}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><small>${t(description)}</small><small>${t('owned')}: ${economy.stock[key]}</small><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}>${t('buy')} · ${price} ◈</button></article>`
     ).join('');
+    skinShopItemsEl.innerHTML = skinCatalog.map(({ id, label, price }) => {
+      const owned = economy.ownedSkins.includes(id);
+      return `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-skin-preview="${id}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><small>${owned ? t('skinOwned') : `${t('skinPrice')}: ${price} ◈`}</small><button type="button" data-buy-skin="${id}" ${owned || economy.coins < price ? 'disabled' : ''}>${owned ? t('skinOwned') : `${t('buy')} · ${price} ◈`}</button></article>`;
+    }).join('');
+    renderShopPreviews();
+    renderSkinEquipControls();
+  }
+
+  function openStore(category){
+    const showSkins = category === 'skins';
+    specialShopViewEl.classList.toggle('hidden', showSkins);
+    skinShopViewEl.classList.toggle('hidden', !showSkins);
+    storeTitleEl.textContent = t(showSkins ? 'orbSkins' : 'shop');
+    renderShop();
+    menuOverlay.classList.add('hidden');
+    storeOverlay.classList.remove('hidden');
+  }
+
+  function renderShopPreviews(){
+    shopItemsEl.querySelectorAll('[data-special-preview]').forEach(preview => {
+      drawShopOrbPreview(preview, null, preview.dataset.specialPreview);
+    });
+    skinShopItemsEl.querySelectorAll('[data-skin-preview]').forEach(preview => {
+      drawShopOrbPreview(preview, preview.dataset.skinPreview, null);
+    });
+  }
+
+  function drawShopOrbPreview(preview, skinId, specialType){
+    const previewContext = preview.getContext('2d');
+    if (!previewContext) return;
+    const center = preview.width / 2;
+    const radius = 66;
+    previewContext.clearRect(0, 0, preview.width, preview.height);
+    previewContext.save();
+    previewContext.shadowColor = specialType === 'bomb' ? '#ffd66b' : specialType === 'ghost' ? '#a9ffff' : '#c49bff';
+    previewContext.shadowBlur = 18;
+    const gradient = previewContext.createRadialGradient(center - 19, center - 21, 5, center, center, radius);
+    gradient.addColorStop(0, '#ffffff');
+    gradient.addColorStop(0.32, specialType ? '#a17cff' : '#33c1ff');
+    gradient.addColorStop(1, '#111d31');
+    previewContext.fillStyle = gradient;
+    previewContext.beginPath();
+    previewContext.arc(center, center, radius, 0, Math.PI * 2);
+    previewContext.fill();
+    previewContext.restore();
+    if (skinId) drawOrbFlagSkin(previewContext, skinId, center, center, radius);
+    previewContext.lineWidth = 4;
+    previewContext.strokeStyle = specialType === 'bomb' ? '#ffd66b' : specialType === 'ghost' ? '#a9ffff' : specialType === 'spiked' ? '#c49bff' : '#9ee8ff';
+    previewContext.beginPath();
+    previewContext.arc(center, center, radius, 0, Math.PI * 2);
+    previewContext.stroke();
+    if (specialType === 'bomb') {
+      previewContext.strokeStyle = '#ffeaa0';
+      previewContext.lineWidth = 7;
+      previewContext.beginPath();
+      previewContext.moveTo(center + 22, center - 54);
+      previewContext.quadraticCurveTo(center + 52, center - 78, center + 48, center - 48);
+      previewContext.stroke();
+      previewContext.fillStyle = '#fff2ad';
+      previewContext.beginPath();
+      previewContext.arc(center + 49, center - 49, 7, 0, Math.PI * 2);
+      previewContext.fill();
+    } else if (specialType === 'spiked') {
+      previewContext.fillStyle = '#d9c4ff';
+      for (let index = 0; index < 8; index += 1) {
+        const angle = (Math.PI * 2 * index) / 8;
+        previewContext.beginPath();
+        previewContext.moveTo(center + Math.cos(angle - 0.2) * radius * 0.86, center + Math.sin(angle - 0.2) * radius * 0.86);
+        previewContext.lineTo(center + Math.cos(angle) * (radius + 17), center + Math.sin(angle) * (radius + 17));
+        previewContext.lineTo(center + Math.cos(angle + 0.2) * radius * 0.86, center + Math.sin(angle + 0.2) * radius * 0.86);
+        previewContext.closePath();
+        previewContext.fill();
+      }
+    } else if (specialType === 'ghost') {
+      previewContext.setLineDash([9, 7]);
+      previewContext.strokeStyle = '#d1ffff';
+      previewContext.lineWidth = 5;
+      previewContext.beginPath();
+      previewContext.arc(center, center, radius + 10, 0, Math.PI * 2);
+      previewContext.stroke();
+      previewContext.setLineDash([]);
+    }
+  }
+
+  function renderSkinEquipControls(){
+    const ownedSkins = skinCatalog.filter(({ id }) => economy.ownedSkins.includes(id));
+    const renderSelect = (target, equippedId, label) => {
+      const options = [
+        `<option value="">${t('noSkin')}</option>`,
+        ...ownedSkins.map(({ id, label: skinLabel, flag }) =>
+          `<option value="${id}" ${equippedId === id ? 'selected' : ''}>${flag || '●'} ${t(skinLabel)}</option>`
+        )
+      ];
+      const isMass = target.startsWith('mass');
+      const value = isMass ? target.slice(4) : target.slice(7).toLowerCase();
+      return `<div class="skinEquipRow"><label for="${target}">${label}</label><select id="${target}" data-${isMass ? 'equip-mass' : 'equip-special'}="${value}">${options.join('')}</select></div>`;
+    };
+    const massRows = SKIN_MASS_LEVELS.map(value => {
+      const mass = String(value);
+      const label = t('skinMass').replace('{mass}', mass);
+      return renderSelect(`mass${mass}`, economy.equippedMassSkins[mass], label);
+    });
+    const specialRows = [
+      renderSelect('specialBomb', economy.equippedSpecialSkins.bomb, t('specialBomb')),
+      renderSelect('specialSpiked', economy.equippedSpecialSkins.spiked, t('specialSpiked')),
+      renderSelect('specialGhost', economy.equippedSpecialSkins.ghost, t('specialGhost'))
+    ];
+    skinEquipControlsEl.innerHTML = [...massRows, ...specialRows].join('');
   }
 
   function renderTraitInventory(){
@@ -1087,6 +1351,10 @@
     achievementsBtn.setAttribute('aria-label', t('achievementsTitle'));
     storeBtn.title = t('shop');
     storeBtn.setAttribute('aria-label', t('shop'));
+    skinStoreBtn.title = t('orbSkins');
+    skinStoreBtn.setAttribute('aria-label', t('orbSkins'));
+    closeStoreBtn.title = t('close');
+    closeStoreBtn.setAttribute('aria-label', t('close'));
     traitInventoryBtn.title = t('specialInventory');
     traitInventoryBtn.setAttribute('aria-label', t('specialInventory'));
     languageSelect.value = settings.language;
@@ -2148,6 +2416,183 @@
     ctx.strokeRect(1,1,W-2,H-2);
   }
 
+  function equippedSkinForOrb(orb){
+    const specialType = orb.bomb ? 'bomb' : orb.spiked ? 'spiked' : orb.ghost ? 'ghost' : null;
+    const skinId = (specialType && economy.equippedSpecialSkins[specialType])
+      || economy.equippedMassSkins[String(orb.value)];
+    return skinCatalog.find(({ id }) => id === skinId) || null;
+  }
+
+  function drawOrbFlagSkin(context, skinId, x, y, radius){
+    const ctx = context;
+    const size = radius * 0.88;
+    const left = x - size;
+    const top = y - size;
+    const width = size * 2;
+    const height = size * 2;
+    const polygon = points => {
+      ctx.beginPath();
+      points.forEach(([px, py], index) => {
+        if (index === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.closePath();
+      ctx.fill();
+    };
+    const horizontalBands = colors => colors.forEach((color, index) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(left, top + (height * index) / colors.length, width, height / colors.length + 0.5);
+    });
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.clip();
+    switch (skinId) {
+      case 'es':
+        horizontalBands(['#aa151b', '#f1bf00', '#aa151b']);
+        break;
+      case 'mx':
+        ['#006847', '#ffffff', '#ce1126'].forEach((color, index) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(left + (width * index) / 3, top, width / 3 + 0.5, height);
+        });
+        break;
+      case 'ar':
+        horizontalBands(['#75aadb', '#ffffff', '#75aadb']);
+        ctx.fillStyle = '#f6b40e';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.16, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'us':
+        for (let index = 0; index < 13; index += 1) {
+          ctx.fillStyle = index % 2 === 0 ? '#b22234' : '#ffffff';
+          ctx.fillRect(left, top + (height * index) / 13, width, height / 13 + 0.3);
+        }
+        ctx.fillStyle = '#3c3b6e';
+        ctx.fillRect(left, top, width * 0.48, height * 0.54);
+        ctx.fillStyle = '#ffffff';
+        for (let row = 0; row < 5; row += 1) {
+          for (let column = 0; column < 5; column += 1) {
+            ctx.beginPath();
+            ctx.arc(left + width * (0.08 + column * 0.08), top + height * (0.07 + row * 0.1), Math.max(0.45, size * 0.025), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        break;
+      case 'fr':
+      case 'it':
+        [skinId === 'fr' ? '#002395' : '#009246', '#ffffff', skinId === 'fr' ? '#ed2939' : '#ce2b37'].forEach((color, index) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(left + (width * index) / 3, top, width / 3 + 0.5, height);
+        });
+        break;
+      case 'de':
+        horizontalBands(['#000000', '#dd0000', '#ffce00']);
+        break;
+      case 'br':
+        ctx.fillStyle = '#009b3a'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#ffdf00';
+        polygon([[x, top + size * 0.68], [left + size * 0.78, y], [x, top + size * 1.32], [left + size * 1.22, y]]);
+        ctx.fillStyle = '#002776';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.25, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'jp':
+        horizontalBands(['#ffffff']);
+        ctx.fillStyle = '#bc002d';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.32, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'gb':
+        ctx.fillStyle = '#012169'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#ffffff';
+        polygon([[left, top + size * 0.16], [left + size * 0.16, top], [left + width, top + size * 1.84], [left + width, top + height], [left + width - size * 0.16, top + height]]);
+        polygon([[left + width - size * 0.16, top], [left + width, top + size * 0.16], [left, top + height], [left, top + size * 1.84], [left + size * 0.16, top + height]]);
+        ctx.fillStyle = '#c8102e';
+        polygon([[left, top + size * 0.28], [left + size * 0.1, top], [left + width, top + size * 1.72], [left + width, top + size * 1.92]]);
+        polygon([[left + width - size * 0.1, top], [left + width, top + size * 0.28], [left, top + size * 1.92], [left, top + size * 1.72]]);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(x - size * 0.24, top, size * 0.48, height);
+        ctx.fillRect(left, y - size * 0.24, width, size * 0.48);
+        ctx.fillStyle = '#c8102e'; ctx.fillRect(x - size * 0.13, top, size * 0.26, height);
+        ctx.fillRect(left, y - size * 0.13, width, size * 0.26);
+        break;
+      case 'galaxy':
+        ctx.fillStyle = '#100c3a'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = 'rgba(176,74,255,0.65)';
+        ctx.beginPath(); ctx.ellipse(x - size * 0.25, y + size * 0.2, size * 0.65, size * 0.25, -0.55, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(44,184,255,0.55)';
+        ctx.beginPath(); ctx.ellipse(x + size * 0.2, y - size * 0.2, size * 0.58, size * 0.2, -0.55, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        for (let index = 0; index < 24; index += 1) {
+          const starX = left + width * (((index * 37) % 97) / 100);
+          const starY = top + height * (((index * 61) % 89) / 100);
+          ctx.beginPath(); ctx.arc(starX, starY, Math.max(0.6, size * (index % 4 === 0 ? 0.035 : 0.018)), 0, Math.PI * 2); ctx.fill();
+        }
+        break;
+      case 'lava':
+        ctx.fillStyle = '#32101a'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#b82b16';
+        ctx.beginPath(); ctx.ellipse(x, y + size * 0.15, size * 0.72, size * 0.82, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ffca42'; ctx.lineWidth = Math.max(1.5, size * 0.075); ctx.lineCap = 'round';
+        [[-0.7,-0.45,-0.35,-0.05,-0.55,0.3],[-0.15,-0.85,0.1,-0.4,-0.05,-0.15],[0.5,-0.6,0.25,-0.2,0.65,0.05],[0.1,0.15,-0.1,0.45,0.25,0.78]].forEach(([x1,y1,x2,y2,x3,y3]) => {
+          ctx.beginPath(); ctx.moveTo(x + size * x1, y + size * y1); ctx.lineTo(x + size * x2, y + size * y2); ctx.lineTo(x + size * x3, y + size * y3); ctx.stroke();
+        });
+        break;
+      case 'slime':
+        ctx.fillStyle = '#55c91c'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#a8ff48';
+        ctx.beginPath(); ctx.ellipse(x, y + size * 0.16, size * 0.94, size * 0.76, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        [[-0.42,-0.25,0.1],[0.35,-0.42,0.07],[-0.12,0.05,0.055],[0.47,0.2,0.045]].forEach(([dx,dy,r]) => {
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, size * r, 0, Math.PI * 2); ctx.fill();
+        });
+        break;
+      case 'aurora':
+        ctx.fillStyle = '#071b3c'; ctx.fillRect(left, top, width, height);
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = '#20d6ac';
+        ctx.beginPath(); ctx.moveTo(left, top + size * 0.8); ctx.bezierCurveTo(x - size, y - size * 0.7, x + size * 0.15, y - size * 0.25, left + width, top + size * 0.1); ctx.lineTo(left + width, top + size * 0.62); ctx.bezierCurveTo(x, y - size * 0.1, x - size * 0.25, y + size * 0.1, left, top + size * 1.5); ctx.fill();
+        ctx.fillStyle = '#9b65ff';
+        ctx.beginPath(); ctx.moveTo(left, top + size * 1.35); ctx.bezierCurveTo(x - size * 0.4, y + size * 0.4, x + size * 0.25, y - size * 0.25, left + width, top + size * 0.75); ctx.lineTo(left + width, top + size * 1.1); ctx.bezierCurveTo(x, y + size * 0.35, x - size * 0.45, y + size * 0.8, left, top + size * 1.8); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#ffffff';
+        [[-0.55,-0.45],[0.4,-0.55],[0.62,0.3],[-0.35,0.5]].forEach(([dx,dy]) => {
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, Math.max(0.6, size * 0.025), 0, Math.PI * 2); ctx.fill();
+        });
+        break;
+      case 'pixel':
+        ctx.fillStyle = '#15102e'; ctx.fillRect(left, top, width, height);
+        ['#37e0bd','#a65cff','#ffcf4a','#4d8dff','#ff5e91'].forEach((color, index) => {
+          ctx.fillStyle = color;
+          for (let row = 0; row < 8; row += 1) {
+            for (let column = 0; column < 8; column += 1) {
+              if ((row * 3 + column * 5 + index) % 7 < 2) {
+                ctx.fillRect(left + column * width / 8, top + row * height / 8, width / 8 + 0.5, height / 8 + 0.5);
+              }
+            }
+          }
+        });
+        break;
+      case 'gold': {
+        const goldGradient = ctx.createLinearGradient(left, top, left + width, top + height);
+        goldGradient.addColorStop(0, '#fff3a6');
+        goldGradient.addColorStop(0.35, '#e9a91c');
+        goldGradient.addColorStop(0.62, '#fff1a1');
+        goldGradient.addColorStop(1, '#9a5a08');
+        ctx.fillStyle = goldGradient; ctx.fillRect(left, top, width, height);
+        ctx.strokeStyle = 'rgba(255,255,220,0.58)'; ctx.lineWidth = Math.max(1, size * 0.035);
+        for (let index = -2; index < 5; index += 1) {
+          ctx.beginPath(); ctx.moveTo(left + size * index * 0.55, top); ctx.lineTo(left + size * (index * 0.55 + 1.5), top + height); ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(255,255,230,0.8)';
+        ctx.beginPath(); ctx.ellipse(x - size * 0.3, y - size * 0.45, size * 0.25, size * 0.1, -0.5, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      default:
+        ctx.restore();
+        return;
+    }
+    ctx.restore();
+  }
+
   function drawOrb(o){
     const color = o.team==='player' ? {c:'#33c1ff', d:'#083047'} : {c:'#ff8a2b', d:'#4a1f04'};
     const isScoring = o === dragOrb || Math.floor(o.y / bandHeight()) === scoringBand(o.team);
@@ -2160,6 +2605,8 @@
     g.addColorStop(1, color.d);
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2); ctx.fill();
+    const skin = equippedSkinForOrb(o);
+    if (skin) drawOrbFlagSkin(ctx, skin.id, o.x, o.y, o.r);
     ctx.lineWidth = 2; ctx.strokeStyle = color.c; ctx.stroke();
 
     if (o.spiked) {
@@ -2366,6 +2813,36 @@
     renderShop();
   });
 
+  skinShopItemsEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-buy-skin]');
+    if (!button) return;
+    const skin = skinCatalog.find(({ id }) => id === button.dataset.buySkin);
+    if (!skin || economy.ownedSkins.includes(skin.id) || economy.coins < skin.price) return;
+    economy.coins -= skin.price;
+    economy.ownedSkins.push(skin.id);
+    saveEconomy();
+    renderEconomy();
+    renderShop();
+  });
+
+  skinEquipControlsEl.addEventListener('change', (event) => {
+    const select = event.target.closest('select');
+    if (!select) return;
+    const skinId = select.value;
+    if (skinId && !economy.ownedSkins.includes(skinId)) {
+      renderSkinEquipControls();
+      return;
+    }
+    if (select.dataset.equipMass) {
+      economy.equippedMassSkins[select.dataset.equipMass] = skinId;
+    } else if (select.dataset.equipSpecial) {
+      economy.equippedSpecialSkins[select.dataset.equipSpecial] = skinId;
+    } else {
+      return;
+    }
+    saveEconomy();
+  });
+
   traitItemsEl.addEventListener('click', (event) => {
     const button = event.target.closest('[data-apply-trait]');
     if (!button) return;
@@ -2449,11 +2926,8 @@
     settingsOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
   });
-  storeBtn.addEventListener('click', ()=>{
-    renderShop();
-    menuOverlay.classList.add('hidden');
-    storeOverlay.classList.remove('hidden');
-  });
+  storeBtn.addEventListener('click', ()=> openStore('specials'));
+  skinStoreBtn.addEventListener('click', ()=> openStore('skins'));
   closeStoreBtn.addEventListener('click', ()=>{
     storeOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
