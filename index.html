@@ -63,6 +63,9 @@
   .boardSide{ position:absolute; display:flex; align-items:center; justify-content:center; gap:8px; min-width:140px; border-radius:12px; border:1px solid transparent; pointer-events:auto; transition:box-shadow 260ms ease, border-color 260ms ease, opacity 260ms ease, transform 260ms ease; }
   .boardSide.left{ left:12px; bottom:12px; }
   .boardSide.right{ right:12px; top:12px; transform:rotate(180deg); }
+  .orange-perspective #leftBoardSide{ top:12px; bottom:auto; transform:none; }
+  .orange-perspective #rightBoardSide{ top:auto; bottom:12px; transform:none; }
+  #canvasWrap.orange-perspective #traitInventoryBtn.ai-turn{ top:auto; right:12px; bottom:12px; left:auto; }
   .boardSide.left.active{ border-color:var(--blue); box-shadow:0 0 14px rgba(51,193,255,0.85), inset 0 0 12px rgba(51,193,255,0.4); }
   .boardSide.right.active{ border-color:var(--orange); box-shadow:0 0 14px rgba(255,138,43,0.85), inset 0 0 12px rgba(255,138,43,0.4); }
   .boardSide:not(.active){ opacity:0.78; }
@@ -129,6 +132,22 @@
     text-align:center; padding:30px; z-index:10;
   }
   #menuOverlay.hidden{ display:none; }
+  @media (max-width:360px){
+    #coinDisplay{ left:102px; padding:0 7px; font-size:11px; }
+    #achievementsBtn{ right:54px; }
+    #menuOverlay{ gap:14px; padding-left:14px; padding-right:14px; }
+    #menuSub{ margin:0 0 2px; }
+    .modeBtn{ width:min(240px, 100%); padding:13px 16px; }
+  }
+  @media (max-width:300px){
+    #coinDisplay{ width:52px; justify-content:center; gap:3px; padding:0 4px; font-size:10px; }
+  }
+  @media (max-height:620px){
+    #menuOverlay{ justify-content:flex-start; gap:12px; overflow-y:auto; padding-top:66px; padding-bottom:20px; }
+    #menuTitle{ font-size:32px; }
+    #menuSub{ margin:0 0 2px; }
+    .modeBtn{ padding:11px 16px; flex-shrink:0; }
+  }
   #difficultyOverlay{
     position:absolute; inset:0; background:
       radial-gradient(circle at 25% 20%, rgba(51,193,255,0.12), transparent 55%),
@@ -176,6 +195,36 @@
     background:rgba(3,6,12,0.88); padding:20px;
   }
   #achievementsOverlay.hidden{ display:none; }
+  #onlineOverlay{
+    position:absolute; inset:0; z-index:17; display:flex; align-items:center; justify-content:center;
+    background:rgba(3,6,12,0.88); padding:20px;
+  }
+  #onlineOverlay.hidden{ display:none; }
+  #onlinePanel{
+    width:min(430px, 100%); max-height:100%; overflow-y:auto; padding:22px 18px;
+    border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,0.65);
+  }
+  #onlineNotice{ margin:0 0 16px; padding:10px 12px; border-left:3px solid var(--orange); background:rgba(255,138,43,0.08); color:#cbd7e8; font-size:12px; line-height:1.4; text-align:left; }
+  .onlineSection{ padding:13px 0; border-top:1px solid rgba(255,255,255,0.08); text-align:left; }
+  .onlineSection h2{ margin:0 0 10px; font-size:15px; }
+  .onlineSection p{ margin:0 0 10px; color:#9fb3d1; font-size:12px; line-height:1.4; }
+  .onlineSection button{ padding:9px 13px; border-radius:9px; font-size:13px; }
+  #onlineRoomCard{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:10px 12px; border:1px solid rgba(255,214,107,0.3); border-radius:10px; }
+  #onlineRoomCard.hidden{ display:none; }
+  #onlineRoomCode{ color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:20px; letter-spacing:2px; }
+  #joinRoomForm{ display:flex; gap:8px; }
+  #joinRoomCode{ flex:1; min-width:0; padding:9px 10px; border:1px solid rgba(255,255,255,0.18); border-radius:8px; background:#111d31; color:#eaf2ff; font:600 15px 'Orbitron',sans-serif; text-transform:uppercase; }
+  #onlineStatus{ min-height:18px; margin:9px 0 0; color:#cbd7e8; font-size:12px; }
+  #onlineSyncNotice{
+    position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:18;
+    max-width:calc(100% - 32px); padding:9px 12px; border:1px solid rgba(255,138,43,0.55);
+    border-radius:9px; background:rgba(35,18,8,0.96); color:#ffe0c2; font-size:12px;
+    line-height:1.4; text-align:center; pointer-events:none;
+  }
+  #onlineSyncNotice.hidden{ display:none; }
+  #onlineActions{ display:flex; justify-content:flex-end; margin-top:10px; }
+  #closeOnlineBtn{ padding:9px 16px; }
   #achievementsPanel{
     width:min(470px, 100%); max-height:100%; display:flex; flex-direction:column; overflow:hidden; padding:22px 18px;
     border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
@@ -207,6 +256,10 @@
     border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel);
     box-shadow:0 10px 30px rgba(0,0,0,0.65);
   }
+  #storePanel{ padding-top:0; }
+  #storeHeader{ position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:center; min-height:66px; margin:0 -18px 12px; padding:12px 54px; border-bottom:1px solid rgba(255,255,255,0.1); background:var(--panel); }
+  #storeHeader .economyTitle{ margin:0; }
+  #closeStoreBtn{ position:absolute; right:14px; top:50%; transform:translateY(-50%); width:36px; height:36px; padding:0; border:1px solid rgba(255,255,255,0.14); border-radius:50%; background:rgba(255,255,255,0.06); color:#eaf2ff; font-size:21px; line-height:1; }
   .economyTitle{ margin:0 0 8px; font-family:'Orbitron',sans-serif; font-size:22px; text-align:center; }
   .economyBalance{ margin:0 0 16px; color:#ffd66b; text-align:center; font-weight:700; }
   .shopItem, .traitItem{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; padding:12px 0; border-top:1px solid rgba(255,255,255,0.08); }
@@ -214,11 +267,24 @@
   .shopItem small, .traitItem small{ display:block; margin-top:4px; color:#9fb3d1; font-size:12px; }
   .shopItem button, .traitItem button{ min-width:92px; padding:9px 12px; border-radius:9px; font-size:13px; }
   .shopItem button:disabled, .traitItem button:disabled{ cursor:default; opacity:0.45; }
+  .storeView.hidden{ display:none; }
+  .storeSectionDescription{ margin:0 0 12px; color:#9fb3d1; font-size:12px; line-height:1.4; text-align:center; }
+  .shopProductGrid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+  .shopProductCard{ min-width:0; display:flex; flex-direction:column; align-items:center; gap:7px; padding:12px 9px; border:1px solid rgba(255,255,255,0.09); border-radius:13px; background:rgba(255,255,255,0.035); text-align:center; }
+  .shopProductPreview{ width:88px; height:88px; border-radius:50%; background:radial-gradient(circle at 32% 25%, rgba(255,255,255,0.12), rgba(0,0,0,0.22)); }
+  .shopProductCard strong{ display:block; font-size:13px; }
+  .shopProductCard small{ min-height:28px; color:#9fb3d1; font-size:11px; line-height:1.3; }
+  .shopProductCard button{ width:100%; min-width:0; padding:8px 5px; border-radius:8px; font-size:12px; }
+  .shopProductCard button:disabled{ cursor:default; opacity:0.55; }
+  #skinShopView{ margin-top:0; }
+  .skinEquipRow{ display:grid; grid-template-columns:minmax(0,1fr) minmax(130px,1fr); align-items:center; gap:10px; padding:7px 0; }
+  .skinEquipRow label{ font-size:13px; }
+  .skinEquipRow select{ min-width:0; width:100%; padding:8px; border:1px solid rgba(255,255,255,0.16); border-radius:8px; background:#111d31; color:#eaf2ff; font:500 12px 'Rubik',sans-serif; }
   .economyActions{ display:flex; justify-content:flex-end; margin-top:16px; }
   .economyActions button{ padding:10px 18px; }
   #traitSelectionStatus{ margin:0 0 10px; color:#9fb3d1; text-align:center; font-size:13px; }
   #coinDisplay{
-    position:absolute; top:14px; left:58px; min-height:36px; display:flex; align-items:center; gap:6px;
+    position:absolute; top:14px; left:102px; min-height:36px; display:flex; align-items:center; gap:6px;
     padding:0 11px; border:1px solid rgba(255,214,107,0.38); border-radius:18px;
     background:rgba(11,18,32,0.9); color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:13px;
   }
@@ -248,11 +314,11 @@
   .difficultyBtn{ min-width:120px; padding:12px 16px; border-radius:16px; border:2px solid rgba(255,255,255,0.12); background:var(--panel); color:#eaf2ff; font-family:'Rubik',sans-serif; cursor:pointer; transition:none; animation:none; transform:none; }
   .difficultyBtn.active, .difficultyBtn:active, .difficultyBtn:focus, .difficultyBtn:focus-visible{ border-color:rgba(255,255,255,0.12); color:#eaf2ff; background:var(--panel); outline:none; transition:none; animation:none; transform:none; }
   #menuTitle{
-    font-family:'Orbitron', sans-serif; font-weight:800; font-size:38px; margin:0;
-    letter-spacing:1px;
+    font-family:'Orbitron', sans-serif; font-weight:800; font-size:clamp(28px, 9vw, 38px); margin:0;
+    letter-spacing:1px; white-space:nowrap;
   }
   #menuTitle span{ color:var(--orange); }
-  #menuSub{ color:#9fb3d1; margin:-14px 0 6px; font-size:14px; max-width:280px; }
+  #menuSub{ color:#9fb3d1; margin:0 0 6px; font-size:14px; max-width:280px; }
   .modeBtn{
     width:240px; padding:16px 20px; border-radius:16px; border:2px solid rgba(255,255,255,0.12);
     background:var(--panel); color:#eaf2ff; font-family:'Rubik',sans-serif; cursor:pointer;
@@ -279,6 +345,11 @@
   #storeBtn{
     position:absolute; top:14px; left:14px; width:36px; height:36px; padding:0;
     border-radius:50%; background:var(--panel); color:#ffd66b; border:1px solid rgba(255,214,107,0.38);
+    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  #skinStoreBtn{
+    position:absolute; top:14px; left:58px; width:36px; height:36px; padding:0;
+    border-radius:50%; background:var(--panel); color:#c49bff; border:1px solid rgba(196,155,255,0.45);
     font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
   }
   #traitInventoryBtn{
@@ -329,10 +400,15 @@
         <strong data-i18n="pvpMode">Play against another person</strong>
         <small data-i18n="pvpModeDesc">Same device, alternate turns</small>
       </button>
+      <button class="modeBtn" id="onlineModeBtn">
+        <strong data-i18n="onlineMode">Online multiplayer</strong>
+        <small data-i18n="onlineModeDesc">Invite by code or find a match</small>
+      </button>
       <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
       <button id="achievementsBtn" title="Achievements" aria-label="Achievements">🏆<span id="achievementCount">0</span></button>
       <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
-      <button id="storeBtn" title="Orb shop" aria-label="Orb shop">🛒</button>
+      <button id="storeBtn" title="Special orb shop" aria-label="Special orb shop">✦</button>
+      <button id="skinStoreBtn" title="Skin shop" aria-label="Skin shop">🎨</button>
     </div>
     <div id="difficultyOverlay" class="hidden">
       <div id="difficultyPanel">
@@ -376,10 +452,21 @@
     </div>
     <div id="storeOverlay" class="hidden">
       <div id="storePanel" role="dialog" aria-modal="true" aria-labelledby="storeTitle">
-        <h1 id="storeTitle" class="economyTitle" data-i18n="shop">Orb shop</h1>
+        <div id="storeHeader">
+          <h1 id="storeTitle" class="economyTitle" data-i18n="shop">Special orbs</h1>
+          <button id="closeStoreBtn" type="button" aria-label="Close">×</button>
+        </div>
         <p class="economyBalance"><span data-i18n="coins">Coins</span>: <span id="storeCoinBalance">1000</span></p>
-        <div id="shopItems"></div>
-        <div class="economyActions"><button id="closeStoreBtn" data-i18n="close">Close</button></div>
+        <div id="specialShopView" class="storeView">
+          <p class="storeSectionDescription" data-i18n="specialShopDesc">Power up your next launch with a special orb.</p>
+          <div id="shopItems" class="shopProductGrid"></div>
+        </div>
+        <div id="skinShopView" class="storeView hidden">
+          <p class="storeSectionDescription" data-i18n="skinShopDesc">Collect looks for every orb. Equip them by mass or special type.</p>
+          <div id="skinShopItems" class="shopProductGrid"></div>
+          <h2 class="storeSectionTitle" data-i18n="equipSkins">Equip skins</h2>
+          <div id="skinEquipControls"></div>
+        </div>
       </div>
     </div>
     <div id="achievementsOverlay" class="hidden">
@@ -389,6 +476,36 @@
         <div class="economyActions"><button id="closeAchievementsBtn" data-i18n="close">Close</button></div>
       </div>
     </div>
+    <div id="onlineOverlay" class="hidden">
+      <div id="onlinePanel" role="dialog" aria-modal="true" aria-labelledby="onlineTitle">
+        <h1 id="onlineTitle" class="economyTitle" data-i18n="onlineTitle">Online multiplayer</h1>
+        <p id="onlineNotice" data-i18n="onlineNotice">Create a room and share its code, or join a friend's room.</p>
+        <section class="onlineSection">
+          <h2 data-i18n="createRoom">Create an invite code</h2>
+          <p data-i18n="createRoomDesc">Generate a code to preview the invitation flow.</p>
+          <button id="createRoomBtn" type="button" data-i18n="generateCode">Generate code</button>
+          <div id="onlineRoomCard" class="hidden">
+            <strong id="onlineRoomCode"></strong>
+            <button id="copyRoomCodeBtn" type="button" data-i18n="copyCode">Copy</button>
+          </div>
+        </section>
+        <section class="onlineSection">
+          <h2 data-i18n="joinRoom">Join with a code</h2>
+          <form id="joinRoomForm">
+            <input id="joinRoomCode" type="text" maxlength="6" autocomplete="off" aria-label="Room code" data-i18n-placeholder="roomCodePlaceholder" placeholder="6-character code">
+            <button type="submit" data-i18n="join">Join</button>
+          </form>
+        </section>
+        <section class="onlineSection">
+          <h2 data-i18n="randomMatch">Find a random match</h2>
+          <p data-i18n="randomMatchDesc">Search for the next available player.</p>
+          <button id="randomMatchBtn" type="button" data-i18n="searchMatch">Search for a match</button>
+        </section>
+        <p id="onlineStatus" role="status" aria-live="polite"></p>
+        <div id="onlineActions"><button id="closeOnlineBtn" type="button" data-i18n="close">Close</button></div>
+      </div>
+    </div>
+    <p id="onlineSyncNotice" class="hidden" role="status" aria-live="polite"></p>
     <div id="traitInventoryOverlay" class="hidden">
       <div id="traitInventoryPanel" role="dialog" aria-modal="true" aria-labelledby="traitInventoryTitle">
         <h1 id="traitInventoryTitle" class="economyTitle" data-i18n="specialInventory">Special inventory</h1>
@@ -425,6 +542,7 @@
   </div>
 </div>
 
+<script src="firebase-config.js"></script>
 <script>
 (function(){
   const canvas = document.getElementById('game');
@@ -459,6 +577,19 @@
   const difficultyHardBtn = document.getElementById('difficultyHard');
   const modeAiBtn = document.getElementById('modeAiBtn');
   const modePvpBtn = document.getElementById('modePvpBtn');
+  const onlineModeBtn = document.getElementById('onlineModeBtn');
+  const onlineOverlay = document.getElementById('onlineOverlay');
+  const createRoomBtn = document.getElementById('createRoomBtn');
+  const onlineRoomCard = document.getElementById('onlineRoomCard');
+  const onlineRoomCode = document.getElementById('onlineRoomCode');
+  const copyRoomCodeBtn = document.getElementById('copyRoomCodeBtn');
+  const joinRoomForm = document.getElementById('joinRoomForm');
+  const joinRoomCode = document.getElementById('joinRoomCode');
+  const randomMatchBtn = document.getElementById('randomMatchBtn');
+  const onlineStatus = document.getElementById('onlineStatus');
+  const onlineSyncNotice = document.getElementById('onlineSyncNotice');
+  const closeOnlineBtn = document.getElementById('closeOnlineBtn');
+  const onlineNotice = document.getElementById('onlineNotice');
   const settingsBtn = document.getElementById('settingsBtn');
   const achievementsBtn = document.getElementById('achievementsBtn');
   const achievementCountEl = document.getElementById('achievementCount');
@@ -469,10 +600,16 @@
   const achievementToastTitleEl = document.getElementById('achievementToastTitle');
   const achievementToastRewardEl = document.getElementById('achievementToastReward');
   const storeBtn = document.getElementById('storeBtn');
+  const skinStoreBtn = document.getElementById('skinStoreBtn');
   const coinBalanceEl = document.getElementById('coinBalance');
   const storeCoinBalanceEl = document.getElementById('storeCoinBalance');
   const storeOverlay = document.getElementById('storeOverlay');
+  const storeTitleEl = document.getElementById('storeTitle');
+  const specialShopViewEl = document.getElementById('specialShopView');
+  const skinShopViewEl = document.getElementById('skinShopView');
   const shopItemsEl = document.getElementById('shopItems');
+  const skinShopItemsEl = document.getElementById('skinShopItems');
+  const skinEquipControlsEl = document.getElementById('skinEquipControls');
   const closeStoreBtn = document.getElementById('closeStoreBtn');
   const traitInventoryBtn = document.getElementById('traitInventoryBtn');
   const traitCountEl = document.getElementById('traitCount');
@@ -505,7 +642,7 @@
       playing: 'Orb launched...', pvpPlaying1: 'Player 1 orb launched...', pvpPlaying2: 'Player 2 orb launched...',
       aiPlaying: 'AI is playing...', victory: 'Victory!', defeat: 'Defeat', draw: 'Draw',
       pvpWinner1: 'Player 1 (blue) wins', pvpWinner2: 'Player 2 (orange) wins',
-      shop: 'Orb shop', coins: 'Coins', close: 'Close', buy: 'Buy', owned: 'Owned',
+      shop: 'Special orbs', coins: 'Coins', close: 'Close', buy: 'Buy', owned: 'Owned',
       bombOrb: 'Bomb orb', spikedOrb: 'Spiked orb', ghostOrb: 'Ghost orb',
       specialInventory: 'Special inventory', selectOrbFirst: 'Select an orb from your inventory first.',
       applyTrait: 'Apply',
@@ -522,7 +659,54 @@
       scoreTenTitle: 'Score Chaser', scoreTenDesc: 'Score {target} points in one match.',
       doubleBombTitle: 'Chain Reaction', doubleBombDesc: 'Eliminate at least two orbs with a bomb {target} times.',
       streakTitle: 'Victory Streak', streakDesc: 'Win {target} matches in a row.',
-      tenMatchesTitle: 'Arena Veteran', tenMatchesDesc: 'Complete {target} matches in total.'
+      tenMatchesTitle: 'Arena Veteran', tenMatchesDesc: 'Complete {target} matches in total.',
+      onlineMode: 'Online multiplayer', onlineModeDesc: 'Invite by code or find a match', onlineTitle: 'Online multiplayer',
+      onlineNotice: 'Create a room and share its code, or join a friend’s room.',
+      createRoom: 'Create an invite', createRoomDesc: 'Generate a six-character code to share.', generateCode: 'Create code',
+      copyCode: 'Copy', joinRoom: 'Join with a code', roomCodePlaceholder: '6-character code', join: 'Join',
+      randomMatch: 'Random matchmaking', randomMatchDesc: 'Search for the next available player.',
+      searchMatch: 'Search for a match', codeCreated: 'Room created. Share this code with your friend.',
+      codeCopied: 'Code copied.', codeCopyFailed: 'Copy the code shown above manually.',
+      invalidRoomCode: 'Enter a valid six-character code.', demoJoinStatus: 'Connecting to the room…',
+      randomUnavailable: 'Connecting to matchmaking…', roomWaiting: 'Waiting for the other player…',
+      searchingMatch: 'Searching for an opponent…', matchFound: 'Opponent found. Starting the game…', opponentLeft: 'The other player left the room.',
+      roomUnavailable: 'This room is no longer available.',
+      opponentDisconnected: 'Opponent disconnected. Waiting {seconds}s for them to reconnect…',
+      connectionLost: 'Connection lost. Reconnecting…',
+      opponentForfeit: 'The opponent left the match. You win.',
+      opponentDisconnectedLoss: 'The opponent did not reconnect in time. You win.',
+      youDisconnectedLoss: 'You did not reconnect in time. You lose.',
+      youForfeit: 'You left the match. Your opponent wins.',
+      matchComplete: 'Match complete.',
+      matchCancelled: 'The room was closed before the match started.',
+      specialShopDesc: 'Power up your next launch with a special orb.',
+      bombOrbDesc: 'Explodes on impact and clears nearby orbs.', spikedOrbDesc: 'Cuts through the crowd with sharp spikes.',
+      ghostOrbDesc: 'Glides through other orbs to surprise your rival.',
+      orbSkins: 'Orb skins', skinShopDesc: 'Collect looks for every orb. Equip them by mass or special type.',
+      equipSkins: 'Equip skins', noSkin: 'Default orb', skinMass: 'Mass {mass}', specialBomb: 'Bomb orb',
+      specialSpiked: 'Spiked orb', specialGhost: 'Ghost orb', skinOwned: 'Owned', skinEquipped: 'Equipped',
+      skinPrice: 'Price', skinSpain: 'Spain', skinMexico: 'Mexico', skinArgentina: 'Argentina',
+      skinUnitedStates: 'United States', skinFrance: 'France', skinGermany: 'Germany', skinItaly: 'Italy',
+      skinBrazil: 'Brazil', skinJapan: 'Japan', skinUnitedKingdom: 'United Kingdom',
+      skinGalaxy: 'Galaxy', skinLava: 'Lava core', skinSlime: 'Slime', skinAurora: 'Aurora',
+      skinPixel: 'Pixel pop', skinGold: 'Molten gold',
+      firebaseConfigMissing: 'Firebase is not configured. Check firebase-config.js.',
+      roomCreateFailed: 'Could not create a room code. Please try again.',
+      roomNotFound: 'No room has that code. Check that you entered the current code.',
+      sameSessionRoom: 'This session cannot join its own room. Use a private window, another browser, or another device.',
+      roomFull: 'This room is full or the match has already started.',
+      roomNotFoundSameProject: 'This room is no longer available. Check that both players use the same Firebase project and Realtime Database URL.',
+      roomJoinFailed: 'Could not join the room. Check the Realtime Database rules and try again.',
+      matchmakingQueueFailed: 'Could not find an available opponent. Please try again.',
+      matchmakingJoinFailed: 'A match was found, but its room could not be joined: {error}',
+      firebasePermissionDenied: 'Firebase denied access. Check that Anonymous sign-in is enabled and the Realtime Database rules are published.',
+      firebaseAuthDisabled: 'Anonymous sign-in is disabled in Firebase Authentication.',
+      firebaseNetworkError: 'Could not connect to Firebase. Check your internet connection and try again.',
+      noActiveOnlineRoom: 'There is no active online room.',
+      onlineSyncFailed: 'Could not sync the match state.',
+      invalidMatchResult: 'The match result is invalid.',
+      matchResultNotConfirmed: 'Could not confirm the match result for this turn.',
+      matchResultSaveFailed: 'Could not save the match result.'
     },
     de: {
       menuSub: 'Wähle deinen Gegner', aiMode: 'Gegen die KI spielen',
@@ -540,7 +724,7 @@
       playing: 'Kugel gestartet...', pvpPlaying1: 'Kugel von Spieler 1 gestartet...', pvpPlaying2: 'Kugel von Spieler 2 gestartet...',
       aiPlaying: 'Die KI spielt...', victory: 'Sieg!', defeat: 'Niederlage', draw: 'Unentschieden',
       pvpWinner1: 'Spieler 1 (blau) gewinnt', pvpWinner2: 'Spieler 2 (orange) gewinnt',
-      shop: 'Kugel-Shop', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
+      shop: 'Spezialkugeln', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
       bombOrb: 'Bombenkugel', spikedOrb: 'Stachelkugel', ghostOrb: 'Geisterkugel',
       specialInventory: 'Spezialinventar', selectOrbFirst: 'Wähle zuerst eine Kugel aus deinem Vorrat.',
       applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten', achievementsTitle: 'Erfolge', achievementUnlocked: 'Erfolg freigeschaltet',
@@ -556,7 +740,54 @@
       scoreTenTitle: 'Punktejäger', scoreTenDesc: 'Erziele {target} Punkte in einem Spiel.',
       doubleBombTitle: 'Kettenreaktion', doubleBombDesc: 'Eliminiere mit einer Bombe mindestens zwei Kugeln, {target}-mal.',
       streakTitle: 'Siegesserie', streakDesc: 'Gewinne {target} Spiele in Folge.',
-      tenMatchesTitle: 'Arena-Veteran', tenMatchesDesc: 'Schließe insgesamt {target} Spiele ab.'
+      tenMatchesTitle: 'Arena-Veteran', tenMatchesDesc: 'Schließe insgesamt {target} Spiele ab.',
+      onlineMode: 'Online-Mehrspieler', onlineModeDesc: 'Per Code einladen oder zufällig suchen', onlineTitle: 'Online-Mehrspieler',
+      onlineNotice: 'Erstelle einen Raum und teile den Code oder tritt dem Raum eines Freundes bei.',
+      createRoom: 'Einladung erstellen', createRoomDesc: 'Erzeuge einen sechsstelligen Code zum Teilen.', generateCode: 'Code erstellen',
+      copyCode: 'Kopieren', joinRoom: 'Mit Code beitreten', roomCodePlaceholder: '6-stelliger Code', join: 'Beitreten',
+      randomMatch: 'Zufällige Suche', randomMatchDesc: 'Suche nach dem nächsten verfügbaren Spieler.',
+      searchMatch: 'Gegner suchen', codeCreated: 'Einladungscode erstellt. Teile ihn mit deinem Freund.',
+      codeCopied: 'Code kopiert.', codeCopyFailed: 'Kopiere den angezeigten Code manuell.',
+      invalidRoomCode: 'Gib einen gültigen sechsstelligen Code ein.', demoJoinStatus: 'Verbindung zum Raum wird hergestellt …',
+      randomUnavailable: 'Verbindung zur Spielersuche wird hergestellt …', roomWaiting: 'Warten auf den anderen Spieler …',
+      searchingMatch: 'Suche nach einem Gegner …', matchFound: 'Gegner gefunden. Das Spiel beginnt …', opponentLeft: 'Der andere Spieler hat den Raum verlassen.',
+      roomUnavailable: 'Dieser Raum ist nicht mehr verfügbar.',
+      opponentDisconnected: 'Verbindung zum Gegner unterbrochen. {seconds}s auf Wiederverbindung warten …',
+      connectionLost: 'Verbindung unterbrochen. Wiederverbindung läuft …',
+      opponentForfeit: 'Der Gegner hat das Spiel verlassen. Du gewinnst.',
+      opponentDisconnectedLoss: 'Der Gegner ist nicht rechtzeitig zurückgekehrt. Du gewinnst.',
+      youDisconnectedLoss: 'Du hast dich nicht rechtzeitig wieder verbunden. Du verlierst.',
+      youForfeit: 'Du hast das Spiel verlassen. Dein Gegner gewinnt.',
+      matchComplete: 'Partie beendet.',
+      matchCancelled: 'Der Raum wurde vor Spielbeginn geschlossen.',
+      specialShopDesc: 'Rüste deinen nächsten Wurf mit einer Spezialkugel auf.',
+      bombOrbDesc: 'Explodiert beim Aufprall und entfernt Kugeln in der Nähe.', spikedOrbDesc: 'Schneidet sich mit scharfen Stacheln durch die Menge.',
+      ghostOrbDesc: 'Gleitet durch andere Kugeln und überrascht den Gegner.',
+      orbSkins: 'Kugel-Skins', skinShopDesc: 'Sammle Designs für alle Kugeln. Rüste sie nach Masse oder Spezialtyp aus.',
+      equipSkins: 'Skins ausrüsten', noSkin: 'Standardkugel', skinMass: 'Masse {mass}', specialBomb: 'Bombenkugel',
+      specialSpiked: 'Stachelkugel', specialGhost: 'Geisterkugel', skinOwned: 'Im Besitz', skinEquipped: 'Ausgerüstet',
+      skinPrice: 'Preis', skinSpain: 'Spanien', skinMexico: 'Mexiko', skinArgentina: 'Argentinien',
+      skinUnitedStates: 'Vereinigte Staaten', skinFrance: 'Frankreich', skinGermany: 'Deutschland', skinItaly: 'Italien',
+      skinBrazil: 'Brasilien', skinJapan: 'Japan', skinUnitedKingdom: 'Vereinigtes Königreich',
+      skinGalaxy: 'Galaxie', skinLava: 'Lava-Kern', skinSlime: 'Schleim', skinAurora: 'Polarlicht',
+      skinPixel: 'Pixel-Pop', skinGold: 'Flüssiges Gold',
+      firebaseConfigMissing: 'Firebase ist nicht konfiguriert. Prüfe firebase-config.js.',
+      roomCreateFailed: 'Der Raumcode konnte nicht erstellt werden. Bitte versuche es erneut.',
+      roomNotFound: 'Es gibt keinen Raum mit diesem Code. Prüfe, ob du den aktuellen Code eingegeben hast.',
+      sameSessionRoom: 'Diese Sitzung kann ihrem eigenen Raum nicht beitreten. Verwende ein privates Fenster, einen anderen Browser oder ein anderes Gerät.',
+      roomFull: 'Dieser Raum ist voll oder die Partie hat bereits begonnen.',
+      roomNotFoundSameProject: 'Dieser Raum ist nicht mehr verfügbar. Prüft, ob beide Spieler dasselbe Firebase-Projekt und dieselbe Realtime-Database-URL verwenden.',
+      roomJoinFailed: 'Der Raum konnte nicht betreten werden. Prüfe die Realtime-Database-Regeln und versuche es erneut.',
+      matchmakingQueueFailed: 'Es konnte kein verfügbarer Gegner gefunden werden. Bitte versuche es erneut.',
+      matchmakingJoinFailed: 'Ein Gegner wurde gefunden, aber der Raum konnte nicht betreten werden: {error}',
+      firebasePermissionDenied: 'Firebase hat den Zugriff verweigert. Prüfe, ob die anonyme Anmeldung aktiviert und die Realtime-Database-Regeln veröffentlicht sind.',
+      firebaseAuthDisabled: 'Die anonyme Anmeldung ist in Firebase Authentication deaktiviert.',
+      firebaseNetworkError: 'Keine Verbindung zu Firebase. Prüfe deine Internetverbindung und versuche es erneut.',
+      noActiveOnlineRoom: 'Es gibt keinen aktiven Online-Raum.',
+      onlineSyncFailed: 'Der Spielstand konnte nicht synchronisiert werden.',
+      invalidMatchResult: 'Das Spielergebnis ist ungültig.',
+      matchResultNotConfirmed: 'Das Spielergebnis für diesen Zug konnte nicht bestätigt werden.',
+      matchResultSaveFailed: 'Das Spielergebnis konnte nicht gespeichert werden.'
     },
     fr: {
       menuSub: 'Choisissez votre adversaire', aiMode: "Jouer contre l'IA",
@@ -574,7 +805,7 @@
       playing: 'Bille lancée...', pvpPlaying1: 'Bille du joueur 1 lancée...', pvpPlaying2: 'Bille du joueur 2 lancée...',
       aiPlaying: 'L’IA joue...', victory: 'Victoire !', defeat: 'Défaite', draw: 'Égalité',
       pvpWinner1: 'Le joueur 1 (bleu) gagne', pvpWinner2: 'Le joueur 2 (orange) gagne',
-      shop: 'Boutique de billes', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
+      shop: 'Billes spéciales', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
       bombOrb: 'Bille bombe', spikedOrb: 'Bille à pointes', ghostOrb: 'Bille fantôme',
       specialInventory: 'Inventaire spécial', selectOrbFirst: 'Sélectionnez d’abord une bille dans votre inventaire.',
       applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées', achievementsTitle: 'Succès', achievementUnlocked: 'Succès débloqué',
@@ -590,7 +821,54 @@
       scoreTenTitle: 'Chasseur de points', scoreTenDesc: 'Marquez {target} points en une partie.',
       doubleBombTitle: 'Réaction en chaîne', doubleBombDesc: 'Éliminez au moins deux billes avec une bombe {target} fois.',
       streakTitle: 'Série de victoires', streakDesc: 'Gagnez {target} parties d’affilée.',
-      tenMatchesTitle: 'Vétéran de l’arène', tenMatchesDesc: 'Terminez {target} parties au total.'
+      tenMatchesTitle: 'Vétéran de l’arène', tenMatchesDesc: 'Terminez {target} parties au total.',
+      onlineMode: 'Multijoueur en ligne', onlineModeDesc: 'Invitez par code ou cherchez au hasard', onlineTitle: 'Multijoueur en ligne',
+      onlineNotice: 'Créez une salle et partagez son code, ou rejoignez celle d’un ami.',
+      createRoom: 'Créer une invitation', createRoomDesc: 'Générez un code de six caractères à partager.', generateCode: 'Créer un code',
+      copyCode: 'Copier', joinRoom: 'Rejoindre avec un code', roomCodePlaceholder: 'Code de 6 caractères', join: 'Rejoindre',
+      randomMatch: 'Recherche aléatoire', randomMatchDesc: 'Cherchez le prochain joueur disponible.',
+      searchMatch: 'Chercher une partie', codeCreated: 'Code d’invitation créé. Partagez-le avec votre ami.',
+      codeCopied: 'Code copié.', codeCopyFailed: 'Copiez manuellement le code affiché ci-dessus.',
+      invalidRoomCode: 'Saisissez un code valide de six caractères.', demoJoinStatus: 'Connexion à la salle…',
+      randomUnavailable: 'Connexion à la recherche de joueurs…', roomWaiting: 'En attente de l’autre joueur…',
+      searchingMatch: 'Recherche d’un adversaire…', matchFound: 'Adversaire trouvé. La partie commence…', opponentLeft: 'L’autre joueur a quitté la salle.',
+      roomUnavailable: 'Cette salle n’est plus disponible.',
+      opponentDisconnected: 'Connexion à l’adversaire perdue. Reconnexion pendant {seconds} s…',
+      connectionLost: 'Connexion perdue. Reconnexion en cours…',
+      opponentForfeit: 'Votre adversaire a quitté la partie. Vous gagnez.',
+      opponentDisconnectedLoss: 'Votre adversaire n’est pas revenu à temps. Vous gagnez.',
+      youDisconnectedLoss: 'Vous n’avez pas pu vous reconnecter à temps. Vous perdez.',
+      youForfeit: 'Vous avez quitté la partie. Votre adversaire gagne.',
+      matchComplete: 'Partie terminée.',
+      matchCancelled: 'La salle a été fermée avant le début de la partie.',
+      specialShopDesc: 'Améliorez votre prochain lancer avec une bille spéciale.',
+      bombOrbDesc: 'Explose à l’impact et élimine les billes proches.', spikedOrbDesc: 'Traverse le groupe grâce à ses pointes.',
+      ghostOrbDesc: 'Traverse les autres billes pour surprendre l’adversaire.',
+      orbSkins: 'Apparences des billes', skinShopDesc: 'Collectionnez des styles pour toutes les billes. Équipez-les par masse ou type spécial.',
+      equipSkins: 'Équiper les apparences', noSkin: 'Bille par défaut', skinMass: 'Masse {mass}', specialBomb: 'Bille bombe',
+      specialSpiked: 'Bille à pointes', specialGhost: 'Bille fantôme', skinOwned: 'Possédée', skinEquipped: 'Équipée',
+      skinPrice: 'Prix', skinSpain: 'Espagne', skinMexico: 'Mexique', skinArgentina: 'Argentine',
+      skinUnitedStates: 'États-Unis', skinFrance: 'France', skinGermany: 'Allemagne', skinItaly: 'Italie',
+      skinBrazil: 'Brésil', skinJapan: 'Japon', skinUnitedKingdom: 'Royaume-Uni',
+      skinGalaxy: 'Galaxie', skinLava: 'Cœur de lave', skinSlime: 'Gelée', skinAurora: 'Aurore',
+      skinPixel: 'Pixel pop', skinGold: 'Or fondu',
+      firebaseConfigMissing: 'Firebase n’est pas configuré. Vérifiez firebase-config.js.',
+      roomCreateFailed: 'Impossible de créer un code de salle. Veuillez réessayer.',
+      roomNotFound: 'Aucune salle ne correspond à ce code. Vérifiez que vous avez saisi le code actuel.',
+      sameSessionRoom: 'Cette session ne peut pas rejoindre sa propre salle. Utilisez une fenêtre privée, un autre navigateur ou un autre appareil.',
+      roomFull: 'Cette salle est complète ou la partie a déjà commencé.',
+      roomNotFoundSameProject: 'Cette salle n’est plus disponible. Vérifiez que les deux joueurs utilisent le même projet Firebase et la même URL Realtime Database.',
+      roomJoinFailed: 'Impossible de rejoindre la salle. Vérifiez les règles Realtime Database et réessayez.',
+      matchmakingQueueFailed: 'Impossible de trouver un adversaire disponible. Veuillez réessayer.',
+      matchmakingJoinFailed: 'Un adversaire a été trouvé, mais impossible de rejoindre sa salle : {error}',
+      firebasePermissionDenied: 'Firebase a refusé l’accès. Vérifiez que la connexion anonyme est activée et que les règles Realtime Database sont publiées.',
+      firebaseAuthDisabled: 'La connexion anonyme est désactivée dans Firebase Authentication.',
+      firebaseNetworkError: 'Impossible de joindre Firebase. Vérifiez votre connexion Internet et réessayez.',
+      noActiveOnlineRoom: 'Aucune salle en ligne active.',
+      onlineSyncFailed: 'Impossible de synchroniser la partie.',
+      invalidMatchResult: 'Le résultat de la partie n’est pas valide.',
+      matchResultNotConfirmed: 'Impossible de confirmer le résultat de la partie pour ce tour.',
+      matchResultSaveFailed: 'Impossible d’enregistrer le résultat de la partie.'
     },
     es: {
       menuSub: 'Elige a tu rival', aiMode: 'Jugar contra la IA',
@@ -608,7 +886,7 @@
       playing: 'Orbe lanzado...', pvpPlaying1: 'Orbe del Jugador 1 lanzado...', pvpPlaying2: 'Orbe del Jugador 2 lanzado...',
       aiPlaying: 'La IA está jugando...', victory: '¡Victoria!', defeat: 'Derrota', draw: 'Empate',
       pvpWinner1: 'Gana el Jugador 1 (azul)', pvpWinner2: 'Gana el Jugador 2 (naranja)',
-      shop: 'Tienda de orbes', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
+      shop: 'Orbes especiales', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
       bombOrb: 'Orbe bomba', spikedOrb: 'Orbe con pinchos', ghostOrb: 'Orbe fantasma',
       specialInventory: 'Inventario especial', selectOrbFirst: 'Primero selecciona un orbe de tu inventario.',
       applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas', achievementsTitle: 'Logros', achievementUnlocked: 'Logro conseguido',
@@ -624,17 +902,83 @@
       scoreTenTitle: 'Récord de puntuación', scoreTenDesc: 'Consigue {target} puntos en una partida.',
       doubleBombTitle: 'Reacción en cadena', doubleBombDesc: 'Elimina al menos dos orbes con una bomba {target} veces.',
       streakTitle: 'Racha imparable', streakDesc: 'Gana {target} partidas seguidas.',
-      tenMatchesTitle: 'Veterano de la arena', tenMatchesDesc: 'Completa {target} partidas en total.'
+      tenMatchesTitle: 'Veterano de la arena', tenMatchesDesc: 'Completa {target} partidas en total.',
+      onlineMode: 'Multijugador online', onlineModeDesc: 'Invita con código o busca partida', onlineTitle: 'Multijugador online',
+      onlineNotice: 'Crea una sala y comparte el código, o únete a la sala de un amigo.',
+      createRoom: 'Crear invitación', createRoomDesc: 'Genera un código de seis caracteres para compartir.', generateCode: 'Crear código',
+      copyCode: 'Copiar', joinRoom: 'Unirse con código', roomCodePlaceholder: 'Código de 6 caracteres', join: 'Unirse',
+      randomMatch: 'Búsqueda aleatoria', randomMatchDesc: 'Busca al siguiente jugador disponible.',
+      searchMatch: 'Buscar partida', codeCreated: 'Sala creada. Comparte este código con tu amigo.',
+      codeCopied: 'Código copiado.', codeCopyFailed: 'Copia manualmente el código que aparece arriba.',
+      invalidRoomCode: 'Introduce un código válido de seis caracteres.', demoJoinStatus: 'Conectando con la sala…',
+      randomUnavailable: 'Conectando con la búsqueda de partidas…', roomWaiting: 'Esperando al otro jugador…',
+      searchingMatch: 'Buscando rival…', matchFound: 'Rival encontrado. Iniciando la partida…', opponentLeft: 'El otro jugador ha salido de la sala.',
+      roomUnavailable: 'Esta sala ya no está disponible.',
+      opponentDisconnected: 'Se perdió la conexión con el rival. Esperando {seconds} s para que vuelva…',
+      connectionLost: 'Conexión perdida. Reconectando…',
+      opponentForfeit: 'El rival ha abandonado la partida. Has ganado.',
+      opponentDisconnectedLoss: 'El rival no volvió a tiempo. Has ganado.',
+      youDisconnectedLoss: 'No te has reconectado a tiempo. Has perdido.',
+      youForfeit: 'Has abandonado la partida. Gana tu rival.',
+      matchComplete: 'Partida finalizada.',
+      matchCancelled: 'La sala se cerró antes de empezar la partida.',
+      specialShopDesc: 'Potencia tu próximo lanzamiento con un orbe especial.',
+      bombOrbDesc: 'Explota al impactar y elimina los orbes cercanos.', spikedOrbDesc: 'Atraviesa el grupo con sus pinchos.',
+      ghostOrbDesc: 'Se desliza entre otros orbes para sorprender al rival.',
+      orbSkins: 'Skins de orbes', skinShopDesc: 'Colecciona diseños para todos los orbes. Equípalos por masa o tipo especial.',
+      equipSkins: 'Equipar skins', noSkin: 'Orbe predeterminado', skinMass: 'Masa {mass}', specialBomb: 'Orbe bomba',
+      specialSpiked: 'Orbe con pinchos', specialGhost: 'Orbe fantasma', skinOwned: 'En propiedad', skinEquipped: 'Equipada',
+      skinPrice: 'Precio', skinSpain: 'España', skinMexico: 'México', skinArgentina: 'Argentina',
+      skinUnitedStates: 'Estados Unidos', skinFrance: 'Francia', skinGermany: 'Alemania', skinItaly: 'Italia',
+      skinBrazil: 'Brasil', skinJapan: 'Japón', skinUnitedKingdom: 'Reino Unido',
+      skinGalaxy: 'Galaxia', skinLava: 'Núcleo de lava', skinSlime: 'Baba', skinAurora: 'Aurora',
+      skinPixel: 'Estilo píxel', skinGold: 'Oro fundido',
+      firebaseConfigMissing: 'Firebase no está configurado. Revisa firebase-config.js.',
+      roomCreateFailed: 'No se pudo crear el código de sala. Inténtalo de nuevo.',
+      roomNotFound: 'No hay ninguna sala con ese código. Comprueba que sea el código actual.',
+      sameSessionRoom: 'Esta sesión no puede unirse a su propia sala. Usa una ventana privada, otro navegador u otro dispositivo.',
+      roomFull: 'La sala está completa o la partida ya ha empezado.',
+      roomNotFoundSameProject: 'La sala ya no está disponible. Comprueba que ambos jugadores usen el mismo proyecto Firebase y la misma URL de Realtime Database.',
+      roomJoinFailed: 'No se pudo entrar en la sala. Comprueba las reglas de Realtime Database e inténtalo de nuevo.',
+      matchmakingQueueFailed: 'No se pudo encontrar un rival disponible. Inténtalo de nuevo.',
+      matchmakingJoinFailed: 'Se encontró una partida, pero no se pudo entrar en su sala: {error}',
+      firebasePermissionDenied: 'Firebase denegó el acceso. Comprueba que esté activado el inicio de sesión anónimo y publicadas las reglas de Realtime Database.',
+      firebaseAuthDisabled: 'El inicio de sesión anónimo está desactivado en Firebase Authentication.',
+      firebaseNetworkError: 'No se pudo conectar con Firebase. Comprueba la conexión a Internet e inténtalo de nuevo.',
+      noActiveOnlineRoom: 'No hay ninguna sala online activa.',
+      onlineSyncFailed: 'No se pudo sincronizar el estado de la partida.',
+      invalidMatchResult: 'El resultado de la partida no es válido.',
+      matchResultNotConfirmed: 'No se pudo confirmar el resultado de la partida en este turno.',
+      matchResultSaveFailed: 'No se pudo guardar el resultado de la partida.'
     }
   };
 
   const defaultSettings = { language: 'en', sound: false, vibration: false, reducedMotion: false };
   let settings = loadSettings();
   const shopCatalog = [
-    { key: 'bomb', label: 'bombOrb', price: 30 },
-    { key: 'spiked', label: 'spikedOrb', price: 25 },
-    { key: 'ghost', label: 'ghostOrb', price: 35 }
+    { key: 'bomb', label: 'bombOrb', description: 'bombOrbDesc', price: 30 },
+    { key: 'spiked', label: 'spikedOrb', description: 'spikedOrbDesc', price: 25 },
+    { key: 'ghost', label: 'ghostOrb', description: 'ghostOrbDesc', price: 35 }
   ];
+  const skinCatalog = [
+    { id: 'es', label: 'skinSpain', flag: '🇪🇸', price: 250 },
+    { id: 'mx', label: 'skinMexico', flag: '🇲🇽', price: 250 },
+    { id: 'ar', label: 'skinArgentina', flag: '🇦🇷', price: 250 },
+    { id: 'us', label: 'skinUnitedStates', flag: '🇺🇸', price: 250 },
+    { id: 'fr', label: 'skinFrance', flag: '🇫🇷', price: 250 },
+    { id: 'de', label: 'skinGermany', flag: '🇩🇪', price: 250 },
+    { id: 'it', label: 'skinItaly', flag: '🇮🇹', price: 250 },
+    { id: 'br', label: 'skinBrazil', flag: '🇧🇷', price: 250 },
+    { id: 'jp', label: 'skinJapan', flag: '🇯🇵', price: 250 },
+    { id: 'gb', label: 'skinUnitedKingdom', flag: '🇬🇧', price: 250 },
+    { id: 'galaxy', label: 'skinGalaxy', flag: '🌌', price: 400 },
+    { id: 'lava', label: 'skinLava', flag: '🌋', price: 400 },
+    { id: 'slime', label: 'skinSlime', flag: '🟢', price: 350 },
+    { id: 'aurora', label: 'skinAurora', flag: '🌌', price: 400 },
+    { id: 'pixel', label: 'skinPixel', flag: '👾', price: 350 },
+    { id: 'gold', label: 'skinGold', flag: '🪙', price: 500 }
+  ];
+  const SKIN_MASS_LEVELS = [1, 2, 3, 4, 5];
   const STARTING_COINS = 1000;
   const MATCH_REWARD = 100;
   const achievementDefinitions = [
@@ -656,11 +1000,32 @@
     return { launches: 0, bombUses: 0, spikedUses: 0, ghostUses: 0, matches: 0, wins: 0, winStreak: 0, hardWins: 0, pvpWins: 0, bestScore: 0, doubleBombs: 0 };
   }
 
+  function defaultEquippedMassSkins(){
+    return Object.fromEntries(SKIN_MASS_LEVELS.map(mass => [String(mass), '']));
+  }
+
+  function defaultEquippedSpecialSkins(){
+    return { bomb: '', spiked: '', ghost: '' };
+  }
+
+  function defaultEconomy(){
+    return {
+      coins: STARTING_COINS,
+      stock: { bomb: 0, spiked: 0, ghost: 0 },
+      ownedSkins: [],
+      equippedMassSkins: defaultEquippedMassSkins(),
+      equippedSpecialSkins: defaultEquippedSpecialSkins(),
+      achievementLevels: {},
+      notifiedAchievementLevels: {},
+      stats: defaultAchievementStats()
+    };
+  }
+
   function loadEconomy(){
     try {
       const stored = JSON.parse(localStorage.getItem('massBrawlEconomy') || 'null');
       if (!stored || !Number.isSafeInteger(stored.coins) || stored.coins < 0) {
-        return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievements: [], claimedAchievements: [], stats: defaultAchievementStats() };
+        return defaultEconomy();
       }
       const defaults = defaultAchievementStats();
       const storedStats = stored.stats && typeof stored.stats === 'object' ? stored.stats : {};
@@ -674,15 +1039,31 @@
       const notifiedAchievementLevels = stored.notifiedAchievementLevels && typeof stored.notifiedAchievementLevels === 'object'
         ? stored.notifiedAchievementLevels
         : {};
+      const ownedSkins = Array.isArray(stored.ownedSkins)
+        ? [...new Set(stored.ownedSkins.filter(id => skinCatalog.some(skin => skin.id === id)))]
+        : [];
+      const validEquippedSkin = id => ownedSkins.includes(id) ? id : '';
+      const savedMassSkins = stored.equippedMassSkins && typeof stored.equippedMassSkins === 'object'
+        ? stored.equippedMassSkins
+        : {};
+      const savedSpecialSkins = stored.equippedSpecialSkins && typeof stored.equippedSpecialSkins === 'object'
+        ? stored.equippedSpecialSkins
+        : {};
       return {
         coins: stored.coins,
         stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0])),
+        ownedSkins,
+        equippedMassSkins: Object.fromEntries(SKIN_MASS_LEVELS.map(value => {
+          const mass = String(value);
+          return [mass, validEquippedSkin(savedMassSkins[mass])];
+        })),
+        equippedSpecialSkins: Object.fromEntries(Object.keys(defaultEquippedSpecialSkins()).map(key => [key, validEquippedSkin(savedSpecialSkins[key])])),
         achievementLevels,
         notifiedAchievementLevels: Object.fromEntries(achievementDefinitions.map(({ id }) => [id, Number.isSafeInteger(notifiedAchievementLevels[id]) && notifiedAchievementLevels[id] > 0 ? notifiedAchievementLevels[id] : 0])),
         stats: Object.fromEntries(Object.entries(defaults).map(([key, fallback]) => [key, Number.isSafeInteger(storedStats[key]) && storedStats[key] >= 0 ? storedStats[key] : fallback]))
       };
     } catch (error) {
-      return { coins: STARTING_COINS, stock: { bomb: 0, spiked: 0, ghost: 0 }, achievementLevels: {}, notifiedAchievementLevels: {}, stats: defaultAchievementStats() };
+      return defaultEconomy();
     }
   }
 
@@ -798,7 +1179,9 @@
 
   function recordMatchResult(scores){
     const stats = economy.stats;
-    const won = mode === 'pvp' ? scores.player !== scores.ai : scores.player > scores.ai;
+    const localScore = mode === 'online' && onlineRole === 'orange' ? scores.ai : scores.player;
+    const rivalScore = mode === 'online' && onlineRole === 'orange' ? scores.player : scores.ai;
+    const won = mode === 'pvp' ? scores.player !== scores.ai : localScore > rivalScore;
     stats.matches += 1;
     stats.bestScore = Math.max(stats.bestScore, scores.player, scores.ai);
     if (won) {
@@ -814,9 +1197,117 @@
   }
 
   function renderShop(){
-    shopItemsEl.innerHTML = shopCatalog.map(({ key, label, price }) =>
-      `<div class="shopItem"><div><strong>${t(label)}</strong><small>${t('owned')}: ${economy.stock[key]}</small></div><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}>${t('buy')} · ${price} ◈</button></div>`
+    shopItemsEl.innerHTML = shopCatalog.map(({ key, label, description, price }) =>
+      `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-special-preview="${key}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><small>${t(description)}</small><small>${t('owned')}: ${economy.stock[key]}</small><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}>${t('buy')} · ${price} ◈</button></article>`
     ).join('');
+    skinShopItemsEl.innerHTML = skinCatalog.map(({ id, label, price }) => {
+      const owned = economy.ownedSkins.includes(id);
+      return `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-skin-preview="${id}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><small>${owned ? t('skinOwned') : `${t('skinPrice')}: ${price} ◈`}</small><button type="button" data-buy-skin="${id}" ${owned || economy.coins < price ? 'disabled' : ''}>${owned ? t('skinOwned') : `${t('buy')} · ${price} ◈`}</button></article>`;
+    }).join('');
+    renderShopPreviews();
+    renderSkinEquipControls();
+  }
+
+  function openStore(category){
+    const showSkins = category === 'skins';
+    specialShopViewEl.classList.toggle('hidden', showSkins);
+    skinShopViewEl.classList.toggle('hidden', !showSkins);
+    storeTitleEl.textContent = t(showSkins ? 'orbSkins' : 'shop');
+    renderShop();
+    menuOverlay.classList.add('hidden');
+    storeOverlay.classList.remove('hidden');
+  }
+
+  function renderShopPreviews(){
+    shopItemsEl.querySelectorAll('[data-special-preview]').forEach(preview => {
+      drawShopOrbPreview(preview, null, preview.dataset.specialPreview);
+    });
+    skinShopItemsEl.querySelectorAll('[data-skin-preview]').forEach(preview => {
+      drawShopOrbPreview(preview, preview.dataset.skinPreview, null);
+    });
+  }
+
+  function drawShopOrbPreview(preview, skinId, specialType){
+    const previewContext = preview.getContext('2d');
+    if (!previewContext) return;
+    const center = preview.width / 2;
+    const radius = 66;
+    previewContext.clearRect(0, 0, preview.width, preview.height);
+    previewContext.save();
+    previewContext.shadowColor = specialType === 'bomb' ? '#ffd66b' : specialType === 'ghost' ? '#a9ffff' : '#c49bff';
+    previewContext.shadowBlur = 18;
+    const gradient = previewContext.createRadialGradient(center - 19, center - 21, 5, center, center, radius);
+    gradient.addColorStop(0, '#ffffff');
+    gradient.addColorStop(0.32, specialType ? '#a17cff' : '#33c1ff');
+    gradient.addColorStop(1, '#111d31');
+    previewContext.fillStyle = gradient;
+    previewContext.beginPath();
+    previewContext.arc(center, center, radius, 0, Math.PI * 2);
+    previewContext.fill();
+    previewContext.restore();
+    if (skinId) drawOrbFlagSkin(previewContext, skinId, center, center, radius);
+    previewContext.lineWidth = 4;
+    previewContext.strokeStyle = specialType === 'bomb' ? '#ffd66b' : specialType === 'ghost' ? '#a9ffff' : specialType === 'spiked' ? '#c49bff' : '#9ee8ff';
+    previewContext.beginPath();
+    previewContext.arc(center, center, radius, 0, Math.PI * 2);
+    previewContext.stroke();
+    if (specialType === 'bomb') {
+      previewContext.strokeStyle = '#ffeaa0';
+      previewContext.lineWidth = 7;
+      previewContext.beginPath();
+      previewContext.moveTo(center + 22, center - 54);
+      previewContext.quadraticCurveTo(center + 52, center - 78, center + 48, center - 48);
+      previewContext.stroke();
+      previewContext.fillStyle = '#fff2ad';
+      previewContext.beginPath();
+      previewContext.arc(center + 49, center - 49, 7, 0, Math.PI * 2);
+      previewContext.fill();
+    } else if (specialType === 'spiked') {
+      previewContext.fillStyle = '#d9c4ff';
+      for (let index = 0; index < 8; index += 1) {
+        const angle = (Math.PI * 2 * index) / 8;
+        previewContext.beginPath();
+        previewContext.moveTo(center + Math.cos(angle - 0.2) * radius * 0.86, center + Math.sin(angle - 0.2) * radius * 0.86);
+        previewContext.lineTo(center + Math.cos(angle) * (radius + 17), center + Math.sin(angle) * (radius + 17));
+        previewContext.lineTo(center + Math.cos(angle + 0.2) * radius * 0.86, center + Math.sin(angle + 0.2) * radius * 0.86);
+        previewContext.closePath();
+        previewContext.fill();
+      }
+    } else if (specialType === 'ghost') {
+      previewContext.setLineDash([9, 7]);
+      previewContext.strokeStyle = '#d1ffff';
+      previewContext.lineWidth = 5;
+      previewContext.beginPath();
+      previewContext.arc(center, center, radius + 10, 0, Math.PI * 2);
+      previewContext.stroke();
+      previewContext.setLineDash([]);
+    }
+  }
+
+  function renderSkinEquipControls(){
+    const ownedSkins = skinCatalog.filter(({ id }) => economy.ownedSkins.includes(id));
+    const renderSelect = (target, equippedId, label) => {
+      const options = [
+        `<option value="">${t('noSkin')}</option>`,
+        ...ownedSkins.map(({ id, label: skinLabel, flag }) =>
+          `<option value="${id}" ${equippedId === id ? 'selected' : ''}>${flag || '●'} ${t(skinLabel)}</option>`
+        )
+      ];
+      const isMass = target.startsWith('mass');
+      const value = isMass ? target.slice(4) : target.slice(7).toLowerCase();
+      return `<div class="skinEquipRow"><label for="${target}">${label}</label><select id="${target}" data-${isMass ? 'equip-mass' : 'equip-special'}="${value}">${options.join('')}</select></div>`;
+    };
+    const massRows = SKIN_MASS_LEVELS.map(value => {
+      const mass = String(value);
+      const label = t('skinMass').replace('{mass}', mass);
+      return renderSelect(`mass${mass}`, economy.equippedMassSkins[mass], label);
+    });
+    const specialRows = [
+      renderSelect('specialBomb', economy.equippedSpecialSkins.bomb, t('specialBomb')),
+      renderSelect('specialSpiked', economy.equippedSpecialSkins.spiked, t('specialSpiked')),
+      renderSelect('specialGhost', economy.equippedSpecialSkins.ghost, t('specialGhost'))
+    ];
+    skinEquipControlsEl.innerHTML = [...massRows, ...specialRows].join('');
   }
 
   function renderTraitInventory(){
@@ -851,6 +1342,9 @@
     document.querySelectorAll('[data-i18n]').forEach((element) => {
       element.textContent = t(element.dataset.i18n);
     });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+      element.placeholder = t(element.dataset.i18nPlaceholder);
+    });
     howto.title = t('howToPlay');
     exitGame.title = t('exit');
     exitGame.setAttribute('aria-label', t('exit'));
@@ -860,6 +1354,10 @@
     achievementsBtn.setAttribute('aria-label', t('achievementsTitle'));
     storeBtn.title = t('shop');
     storeBtn.setAttribute('aria-label', t('shop'));
+    skinStoreBtn.title = t('orbSkins');
+    skinStoreBtn.setAttribute('aria-label', t('orbSkins'));
+    closeStoreBtn.title = t('close');
+    closeStoreBtn.setAttribute('aria-label', t('close'));
     traitInventoryBtn.title = t('specialInventory');
     traitInventoryBtn.setAttribute('aria-label', t('specialInventory'));
     languageSelect.value = settings.language;
@@ -927,6 +1425,16 @@
   let gameOver = false;
   let started = false;
   let mode = 'ai'; // 'ai' | 'pvp'
+  let onlineService = null;
+  let onlineRole = null;
+  let onlineStateRevision = 0;
+  let onlineSearchMode = false;
+  let onlineSyncElapsed = 0;
+  let onlinePublishPending = false;
+  let onlinePublishQueued = false;
+  const ONLINE_RECONNECT_GRACE_SECONDS = 60;
+  let opponentDisconnectTimer = null;
+  let opponentDisconnectDeadline = 0;
   let difficulty = null; // 'easy' | 'intermediate' | 'hard'
   let aiTimer = null;
   let finalDelayTimer = null;
@@ -1061,19 +1569,315 @@
     };
   }
 
+  function isDuelMode(){
+    return mode === 'pvp' || mode === 'online';
+  }
+
+  function setOnlineStatus(message){
+    if (!message && opponentDisconnectTimer && mode === 'online' && !gameOver) {
+      const secondsLeft = Math.max(0, Math.ceil((opponentDisconnectDeadline - Date.now()) / 1000));
+      if (secondsLeft > 0) message = t('opponentDisconnected').replace('{seconds}', secondsLeft);
+    }
+    onlineStatus.textContent = message;
+    onlineSyncNotice.textContent = message;
+    onlineSyncNotice.classList.toggle('hidden', !message || !started || mode !== 'online');
+  }
+
+  function onlineErrorMessage(error){
+    const code = String(error?.code || '').toLowerCase();
+    const message = String(error?.message || error || '');
+    if (code.includes('permission-denied') || code.includes('permission_denied') || message.includes('PERMISSION_DENIED')) {
+      return t('firebasePermissionDenied');
+    }
+    if (code === 'auth/operation-not-allowed') return t('firebaseAuthDisabled');
+    if (code.includes('network-request-failed') || code.includes('unavailable')) return t('firebaseNetworkError');
+    return message;
+  }
+
+  function clearOpponentDisconnectTimer(){
+    clearTimeout(opponentDisconnectTimer);
+    opponentDisconnectTimer = null;
+    opponentDisconnectDeadline = 0;
+  }
+
+  function handleOpponentPresence(isConnected){
+    if (mode !== 'online' || gameOver) return;
+    if (isConnected) {
+      clearOpponentDisconnectTimer();
+      setOnlineStatus('');
+      return;
+    }
+    if (opponentDisconnectTimer) return;
+
+    opponentDisconnectDeadline = Date.now() + ONLINE_RECONNECT_GRACE_SECONDS * 1000;
+    const updateCountdown = () => {
+      const secondsLeft = Math.max(0, Math.ceil((opponentDisconnectDeadline - Date.now()) / 1000));
+      if (secondsLeft === 0) {
+        opponentDisconnectTimer = null;
+        if (!onlineService || mode !== 'online' || gameOver) return;
+        onlineService.finishForfeit('disconnect').catch(error => {
+          setOnlineStatus(onlineErrorMessage(error));
+        });
+        return;
+      }
+      setOnlineStatus(t('opponentDisconnected').replace('{seconds}', secondsLeft));
+      opponentDisconnectTimer = setTimeout(updateCountdown, 1000);
+    };
+    updateCountdown();
+  }
+
+  function isOnlineTeamLocal(team){
+    return mode !== 'online' || (onlineRole === 'blue' ? team === 'player' : team === 'ai');
+  }
+
+  function serializeOnlineGame(){
+    const groups = [];
+    const groupIds = new Map();
+    for (const orb of orbs) {
+      if (!orb.linkGroup || groupIds.has(orb.linkGroup)) continue;
+      const id = groups.length;
+      groupIds.set(orb.linkGroup, id);
+      groups.push({
+        id,
+        anchor: orb.linkGroup.anchor.id,
+        members: orb.linkGroup.members.map(member => member.id),
+        vx: orb.linkGroup.vx,
+        vy: orb.linkGroup.vy,
+        offsets: orb.linkGroup.members.map(member => {
+          const offset = orb.linkGroup.offsets.get(member) || { x: 0, y: 0 };
+          return [member.id, offset.x, offset.y];
+        })
+      });
+    }
+    return {
+      turn,
+      busy,
+      board: { width: W, height: H },
+      playerTimeLeft,
+      aiTimeLeft,
+      inventory: {
+        player: inventory.player.map(item => ({ ...item })),
+        ai: inventory.ai.map(item => ({ ...item }))
+      },
+      selectedInventory: { ...selectedInventory },
+      nextOrbId,
+      orbs: orbs.map(orb => ({
+        id: orb.id, team: orb.team, value: orb.value, bomb: orb.bomb,
+        spiked: orb.spiked, ghost: orb.ghost, x: orb.x, y: orb.y,
+        vx: orb.vx, vy: orb.vy, contactDetonation: Boolean(orb.contactDetonation),
+        linkGroupId: orb.linkGroup ? groupIds.get(orb.linkGroup) : null
+      })),
+      groups
+    };
+  }
+
+  function applyOnlineGameState(state){
+    if (!state || !['player', 'ai'].includes(state.turn) ||
+        !Array.isArray(state.orbs) || !state.inventory ||
+        !Array.isArray(state.inventory.player) || !Array.isArray(state.inventory.ai)) return;
+
+    const isFiniteNumber = Number.isFinite;
+    const sourceWidth = Number.isFinite(state.board?.width) && state.board.width > 0 ? state.board.width : W;
+    const sourceHeight = Number.isFinite(state.board?.height) && state.board.height > 0 ? state.board.height : H;
+    const scaleX = W / sourceWidth;
+    const scaleY = H / sourceHeight;
+    const localSelectionKey = onlineRole === 'orange' ? 'ai' : 'player';
+    const localSelection = selectedInventory[localSelectionKey];
+    const restoredOrbs = state.orbs.filter(orb =>
+      orb && typeof orb.id === 'string' && ['player', 'ai'].includes(orb.team) &&
+      Number.isFinite(orb.value) && orb.value > 0 && orb.value <= MAX_MASS &&
+      isFiniteNumber(orb.x) && isFiniteNumber(orb.y) &&
+      isFiniteNumber(orb.vx) && isFiniteNumber(orb.vy)
+    ).map(orb => ({
+      id: orb.id,
+      team: orb.team,
+      value: orb.value,
+      bomb: Boolean(orb.bomb),
+      spiked: Boolean(orb.spiked),
+      ghost: Boolean(orb.ghost),
+      contactDetonation: Boolean(orb.contactDetonation),
+      r: orbRadius(orb.value),
+      bombRadius: orb.bomb ? BOMB_RADIUS_BASE + orb.value * BOMB_RADIUS_PER_MASS : 0,
+      x: orb.x * scaleX, y: orb.y * scaleY,
+      vx: orb.vx * scaleX, vy: orb.vy * scaleY,
+      linkGroup: null
+    }));
+    const orbsById = new Map(restoredOrbs.map(orb => [orb.id, orb]));
+
+    if (Array.isArray(state.groups)) {
+      for (const data of state.groups) {
+        if (!data || !Array.isArray(data.members) || !isFiniteNumber(data.vx) || !isFiniteNumber(data.vy)) continue;
+        const members = data.members.map(id => orbsById.get(id)).filter(Boolean);
+        const anchor = orbsById.get(data.anchor);
+        if (members.length < 2 || !anchor || !members.includes(anchor)) continue;
+        const offsets = new Map();
+        for (const [id, x, y] of data.offsets || []) {
+          if (orbsById.has(id) && isFiniteNumber(x) && isFiniteNumber(y)) {
+            offsets.set(orbsById.get(id), { x: x * scaleX, y: y * scaleY });
+          }
+        }
+        const group = { members, anchor, vx: data.vx * scaleX, vy: data.vy * scaleY, offsets };
+        for (const member of members) {
+          if (!offsets.has(member)) offsets.set(member, { x: member.x - anchor.x, y: member.y - anchor.y });
+          member.linkGroup = group;
+        }
+      }
+    }
+
+    const validInventoryItem = item => item && Number.isFinite(item.value) && item.value > 0 && item.value <= MAX_MASS;
+    orbs = restoredOrbs;
+    inventory = {
+      player: state.inventory.player.filter(validInventoryItem).map(item => ({
+        value: item.value, bomb: Boolean(item.bomb), spiked: Boolean(item.spiked), ghost: Boolean(item.ghost)
+      })),
+      ai: state.inventory.ai.filter(validInventoryItem).map(item => ({
+        value: item.value, bomb: Boolean(item.bomb), spiked: Boolean(item.spiked), ghost: Boolean(item.ghost)
+      }))
+    };
+    selectedInventory = {
+      player: Number.isInteger(state.selectedInventory?.player) && state.selectedInventory.player >= 0 && state.selectedInventory.player < inventory.player.length ? state.selectedInventory.player : null,
+      ai: Number.isInteger(state.selectedInventory?.ai) && state.selectedInventory.ai >= 0 && state.selectedInventory.ai < inventory.ai.length ? state.selectedInventory.ai : null
+    };
+    if (Number.isInteger(localSelection) && localSelection >= 0 && localSelection < inventory[localSelectionKey].length) {
+      selectedInventory[localSelectionKey] = localSelection;
+    }
+    nextOrbId = Number.isSafeInteger(state.nextOrbId) && state.nextOrbId >= 0 ? state.nextOrbId : 0;
+    playerTimeLeft = Number.isFinite(state.playerTimeLeft) ? clamp(state.playerTimeLeft, 0, TURN_SECONDS) : TURN_SECONDS;
+    aiTimeLeft = Number.isFinite(state.aiTimeLeft) ? clamp(state.aiTimeLeft, 0, TURN_SECONDS) : TURN_SECONDS;
+    turn = state.turn;
+    onlineStateRevision = Number.isSafeInteger(state.revision) ? state.revision : onlineStateRevision;
+    busy = Boolean(state.busy);
+    dragOrb = null;
+    dragStart = null;
+    dragCurrent = null;
+    gameOver = false;
+    clearTimeout(finalDelayTimer);
+    finalDelayTimer = null;
+    started = true;
+    explosions = [];
+    overlay.classList.add('hidden');
+    onlineOverlay.classList.add('hidden');
+    menuOverlay.classList.add('hidden');
+    renderInventory();
+    turnEl.textContent = turnLabel();
+    helpText.textContent = buildHelpText();
+    updateTurnUI();
+    updateTimerDisplay();
+    setOnlineStatus('');
+  }
+
+  async function publishOnlineGameState(){
+    if (mode !== 'online' || !onlineService) return;
+    if (onlinePublishPending) {
+      onlinePublishQueued = true;
+      return;
+    }
+
+    onlinePublishPending = true;
+    try {
+      do {
+        onlinePublishQueued = false;
+        await onlineService.publishGameState(serializeOnlineGame());
+      } while (onlinePublishQueued && mode === 'online');
+      setOnlineStatus('');
+    } catch (error) {
+      setOnlineStatus(onlineErrorMessage(error));
+    } finally {
+      onlinePublishPending = false;
+    }
+  }
+
+  async function ensureOnlineService(){
+    if (onlineService) return onlineService;
+    const { connectFirebaseOnline } = await import('./firebase-online.js');
+    onlineService = await connectFirebaseOnline(window.MASS_BRAWL_FIREBASE_CONFIG, {
+      translate: t,
+      formatError: onlineErrorMessage,
+      onRoomStatus(status, hasResult){
+        if (status === 'waiting') setOnlineStatus(onlineSearchMode ? t('searchingMatch') : t('roomWaiting'));
+        if (status === 'missing') setOnlineStatus(t('roomUnavailable'));
+        if (status === 'cancelled') setOnlineStatus(t('matchCancelled'));
+        if (status === 'finished' && !hasResult && started && !gameOver) {
+          setOnlineStatus(t('opponentLeft'));
+          if (mode === 'online' && !gameOver) {
+            gameOver = true;
+            busy = false;
+            overlayTitle.textContent = t('opponentLeft');
+            overlaySub.textContent = '';
+            overlay.classList.remove('hidden');
+          }
+        }
+      },
+      onOpponentPresence: handleOpponentPresence,
+      onConnection(isConnected){
+        if (mode === 'online' && !isConnected) setOnlineStatus(t('connectionLost'));
+        else if (mode === 'online' && !opponentDisconnectTimer) setOnlineStatus('');
+      },
+      onMatchResult(result){
+        if (!started || mode !== 'online' || !result || !['blue', 'orange', 'draw'].includes(result.winner)) return;
+        clearOpponentDisconnectTimer();
+        gameOver = true;
+        busy = false;
+        clearTimeout(finalDelayTimer);
+        finalDelayTimer = null;
+        overlayTitle.textContent = result.winner === 'draw'
+          ? t('draw')
+          : result.winner === onlineRole ? t('victory') : t('defeat');
+        const won = result.winner === onlineRole;
+        if (result.reason === 'forfeit') {
+          overlaySub.textContent = won ? t('opponentForfeit') : t('youForfeit');
+        } else if (result.reason === 'disconnect') {
+          overlaySub.textContent = won ? t('opponentDisconnectedLoss') : t('youDisconnectedLoss');
+        } else {
+          overlaySub.textContent = t('matchComplete');
+        }
+        overlay.classList.remove('hidden');
+        setOnlineStatus('');
+      },
+      onMatched({ roomCode, role }){
+        onlineRole = role;
+        wrap.classList.toggle('orange-perspective', role === 'orange');
+        onlineSearchMode = false;
+        onlineStateRevision = 0;
+        onlineSyncElapsed = 0;
+        clearOpponentDisconnectTimer();
+        onlinePublishPending = false;
+        onlinePublishQueued = false;
+        onlineRoomCode.textContent = roomCode;
+        onlineRoomCard.classList.remove('hidden');
+        setOnlineStatus('');
+        mode = 'online';
+        onlineOverlay.classList.add('hidden');
+        newGame();
+        restartBtn.hidden = true;
+        if (role === 'blue') publishOnlineGameState();
+      },
+      onGameState(state){
+        if (Number.isSafeInteger(state.revision) && state.revision <= onlineStateRevision) return;
+        // Keep the local motion prediction; intermediate snapshots reset orb positions and cause visible jumps.
+        if (mode === 'online' && busy && state.busy && !isOnlineTeamLocal(turn)) return;
+        applyOnlineGameState(state);
+      },
+      onError(error){
+        setOnlineStatus(onlineErrorMessage(error));
+      }
+    });
+    return onlineService;
+  }
+
   function turnLabel(){
     if (turn === 'player') {
-      return mode === 'pvp'
+      return isDuelMode()
         ? t('turnPvp1')
         : t('turnAi');
     }
-    return mode === 'pvp'
+    return isDuelMode()
       ? t('turnPvp2')
       : t('aiTurn');
   }
 
   function buildHelpText(){
-    if (mode === 'pvp') {
+    if (isDuelMode()) {
       return turn === 'player'
         ? t('helpPvp')
         : t('helpPvpTurn');
@@ -1102,6 +1906,7 @@
     traitInventoryOverlay.classList.add('hidden');
     difficultyOverlay.classList.add('hidden');
     menuOverlay.classList.add('hidden');
+    restartBtn.hidden = mode === 'online';
     turnEl.textContent = turnLabel();
     helpText.textContent = buildHelpText();
     updateTurnUI();
@@ -1111,6 +1916,11 @@
   }
 
   function backToMenu(){
+    if (onlineService && mode === 'online') onlineService.leave();
+    clearOpponentDisconnectTimer();
+    onlineRole = null;
+    wrap.classList.remove('orange-perspective');
+    onlineSearchMode = false;
     clearTimeout(aiTimer); aiTimer = null;
     clearTimeout(finalDelayTimer); finalDelayTimer = null;
     clearTimeout(achievementToastTimer); achievementToastTimer = null;
@@ -1129,14 +1939,20 @@
     menuOverlay.classList.remove('hidden');
   }
 
+  function isOrangePerspective(){
+    return mode === 'online' && onlineRole === 'orange';
+  }
+
   function pointerPos(e){
     const rect = canvas.getBoundingClientRect();
     const t = e.touches ? e.touches[0] : e;
-    return { x: t.clientX-rect.left, y: t.clientY-rect.top };
+    const x = t.clientX-rect.left;
+    const y = t.clientY-rect.top;
+    return isOrangePerspective() ? { x: W-x, y: H-y } : { x, y };
   }
 
   function onDown(e){
-    if (busy || gameOver || !started || !canPlay(turn) || (mode === 'ai' && turn === 'ai')) return;
+    if (busy || gameOver || !started || !canPlay(turn) || !isOnlineTeamLocal(turn) || (mode === 'ai' && turn === 'ai')) return;
     const p = pointerPos(e);
 
     // Solo se lanzan orbes nuevos desde la zona de lanzamiento del equipo activo.
@@ -1162,11 +1978,15 @@
       dragOrb.vx = dirx * dist * POWER * 6 * massFactor;
       dragOrb.vy = diry * dist * POWER * 6 * massFactor;
       busy = true;
-      turnEl.textContent = mode === 'pvp'
+      turnEl.textContent = isDuelMode()
         ? (turn === 'player' ? t('pvpPlaying1') : t('pvpPlaying2'))
         : (turn === 'player' ? t('playing') : t('aiPlaying'));
-      if (turn === 'player' || mode === 'pvp') recordOrbLaunch(dragOrb);
+      if (turn === 'player' || mode === 'pvp' || (mode === 'online' && isOnlineTeamLocal(turn))) recordOrbLaunch(dragOrb);
       orbs.push(dragOrb);
+      if (mode === 'online') {
+        onlineSyncElapsed = 0;
+        publishOnlineGameState();
+      }
     } else if (!orbs.includes(dragOrb)) {
       inventory[dragOrb.team].push({ value: dragOrb.value, bomb: dragOrb.bomb, spiked: dragOrb.spiked, ghost: dragOrb.ghost });
       renderInventory();
@@ -1215,7 +2035,7 @@
         }
       }
 
-      if (eliminated >= 2 && (mode === 'pvp' || bomb.team === 'player')) {
+      if (eliminated >= 2 && (isDuelMode() || bomb.team === 'player')) {
         economy.stats.doubleBombs += 1;
         saveEconomy();
         checkAchievementProgress();
@@ -1454,7 +2274,7 @@
     leftBoardSide.classList.toggle('active', turn === 'player');
     rightBoardSide.classList.toggle('active', turn === 'ai');
     traitInventoryBtn.classList.toggle('player-turn', turn === 'player');
-    traitInventoryBtn.classList.toggle('ai-turn', turn === 'ai' && mode === 'pvp');
+    traitInventoryBtn.classList.toggle('ai-turn', turn === 'ai' && isDuelMode());
   }
 
   function updateTimerDisplay(){
@@ -1517,6 +2337,7 @@
     if (!canPlay(current) && canPlay(rival)) {
       turn = rival;
     } else if (!canPlay(current) && !canPlay(rival)) {
+      if (mode === 'online' && isOnlineTeamLocal(current)) publishOnlineGameState();
       checkGameEnd();
       return;
     } else if (canPlay(rival)) {
@@ -1532,6 +2353,8 @@
     helpText.textContent = buildHelpText();
     updateTurnUI();
     updateTimerDisplay();
+
+    if (mode === 'online' && isOnlineTeamLocal(current)) publishOnlineGameState();
 
     if (turn === 'ai' && mode === 'ai'){
       aiTimer = setTimeout(()=>{ if(!gameOver) aiPlay(); }, 650);
@@ -1551,7 +2374,17 @@
     recordMatchResult(s);
     let title;
 
-    if (mode === 'pvp') {
+    if (mode === 'online') {
+      const localScore = onlineRole === 'orange' ? s.ai : s.player;
+      const rivalScore = onlineRole === 'orange' ? s.player : s.ai;
+      title = localScore > rivalScore ? t('victory') : localScore < rivalScore ? t('defeat') : t('draw');
+      const winner = localScore > rivalScore ? onlineRole : localScore < rivalScore ? (onlineRole === 'blue' ? 'orange' : 'blue') : 'draw';
+      if (onlineService) {
+        onlineService.finishMatch(winner).catch(error => {
+          setOnlineStatus(onlineErrorMessage(error));
+        });
+      }
+    } else if (mode === 'pvp') {
       if (s.player > s.ai) title = t('pvpWinner1');
       else if (s.ai > s.player) title = t('pvpWinner2');
       else title = t('draw');
@@ -1596,6 +2429,183 @@
     ctx.strokeRect(1,1,W-2,H-2);
   }
 
+  function equippedSkinForOrb(orb){
+    const specialType = orb.bomb ? 'bomb' : orb.spiked ? 'spiked' : orb.ghost ? 'ghost' : null;
+    const skinId = (specialType && economy.equippedSpecialSkins[specialType])
+      || economy.equippedMassSkins[String(orb.value)];
+    return skinCatalog.find(({ id }) => id === skinId) || null;
+  }
+
+  function drawOrbFlagSkin(context, skinId, x, y, radius){
+    const ctx = context;
+    const size = radius * 0.88;
+    const left = x - size;
+    const top = y - size;
+    const width = size * 2;
+    const height = size * 2;
+    const polygon = points => {
+      ctx.beginPath();
+      points.forEach(([px, py], index) => {
+        if (index === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.closePath();
+      ctx.fill();
+    };
+    const horizontalBands = colors => colors.forEach((color, index) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(left, top + (height * index) / colors.length, width, height / colors.length + 0.5);
+    });
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.clip();
+    switch (skinId) {
+      case 'es':
+        horizontalBands(['#aa151b', '#f1bf00', '#aa151b']);
+        break;
+      case 'mx':
+        ['#006847', '#ffffff', '#ce1126'].forEach((color, index) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(left + (width * index) / 3, top, width / 3 + 0.5, height);
+        });
+        break;
+      case 'ar':
+        horizontalBands(['#75aadb', '#ffffff', '#75aadb']);
+        ctx.fillStyle = '#f6b40e';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.16, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'us':
+        for (let index = 0; index < 13; index += 1) {
+          ctx.fillStyle = index % 2 === 0 ? '#b22234' : '#ffffff';
+          ctx.fillRect(left, top + (height * index) / 13, width, height / 13 + 0.3);
+        }
+        ctx.fillStyle = '#3c3b6e';
+        ctx.fillRect(left, top, width * 0.48, height * 0.54);
+        ctx.fillStyle = '#ffffff';
+        for (let row = 0; row < 5; row += 1) {
+          for (let column = 0; column < 5; column += 1) {
+            ctx.beginPath();
+            ctx.arc(left + width * (0.08 + column * 0.08), top + height * (0.07 + row * 0.1), Math.max(0.45, size * 0.025), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        break;
+      case 'fr':
+      case 'it':
+        [skinId === 'fr' ? '#002395' : '#009246', '#ffffff', skinId === 'fr' ? '#ed2939' : '#ce2b37'].forEach((color, index) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(left + (width * index) / 3, top, width / 3 + 0.5, height);
+        });
+        break;
+      case 'de':
+        horizontalBands(['#000000', '#dd0000', '#ffce00']);
+        break;
+      case 'br':
+        ctx.fillStyle = '#009b3a'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#ffdf00';
+        polygon([[x, top + size * 0.68], [left + size * 0.78, y], [x, top + size * 1.32], [left + size * 1.22, y]]);
+        ctx.fillStyle = '#002776';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.25, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'jp':
+        horizontalBands(['#ffffff']);
+        ctx.fillStyle = '#bc002d';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.32, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'gb':
+        ctx.fillStyle = '#012169'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#ffffff';
+        polygon([[left, top + size * 0.16], [left + size * 0.16, top], [left + width, top + size * 1.84], [left + width, top + height], [left + width - size * 0.16, top + height]]);
+        polygon([[left + width - size * 0.16, top], [left + width, top + size * 0.16], [left, top + height], [left, top + size * 1.84], [left + size * 0.16, top + height]]);
+        ctx.fillStyle = '#c8102e';
+        polygon([[left, top + size * 0.28], [left + size * 0.1, top], [left + width, top + size * 1.72], [left + width, top + size * 1.92]]);
+        polygon([[left + width - size * 0.1, top], [left + width, top + size * 0.28], [left, top + size * 1.92], [left, top + size * 1.72]]);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(x - size * 0.24, top, size * 0.48, height);
+        ctx.fillRect(left, y - size * 0.24, width, size * 0.48);
+        ctx.fillStyle = '#c8102e'; ctx.fillRect(x - size * 0.13, top, size * 0.26, height);
+        ctx.fillRect(left, y - size * 0.13, width, size * 0.26);
+        break;
+      case 'galaxy':
+        ctx.fillStyle = '#100c3a'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = 'rgba(176,74,255,0.65)';
+        ctx.beginPath(); ctx.ellipse(x - size * 0.25, y + size * 0.2, size * 0.65, size * 0.25, -0.55, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(44,184,255,0.55)';
+        ctx.beginPath(); ctx.ellipse(x + size * 0.2, y - size * 0.2, size * 0.58, size * 0.2, -0.55, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        for (let index = 0; index < 24; index += 1) {
+          const starX = left + width * (((index * 37) % 97) / 100);
+          const starY = top + height * (((index * 61) % 89) / 100);
+          ctx.beginPath(); ctx.arc(starX, starY, Math.max(0.6, size * (index % 4 === 0 ? 0.035 : 0.018)), 0, Math.PI * 2); ctx.fill();
+        }
+        break;
+      case 'lava':
+        ctx.fillStyle = '#32101a'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#b82b16';
+        ctx.beginPath(); ctx.ellipse(x, y + size * 0.15, size * 0.72, size * 0.82, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ffca42'; ctx.lineWidth = Math.max(1.5, size * 0.075); ctx.lineCap = 'round';
+        [[-0.7,-0.45,-0.35,-0.05,-0.55,0.3],[-0.15,-0.85,0.1,-0.4,-0.05,-0.15],[0.5,-0.6,0.25,-0.2,0.65,0.05],[0.1,0.15,-0.1,0.45,0.25,0.78]].forEach(([x1,y1,x2,y2,x3,y3]) => {
+          ctx.beginPath(); ctx.moveTo(x + size * x1, y + size * y1); ctx.lineTo(x + size * x2, y + size * y2); ctx.lineTo(x + size * x3, y + size * y3); ctx.stroke();
+        });
+        break;
+      case 'slime':
+        ctx.fillStyle = '#55c91c'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#a8ff48';
+        ctx.beginPath(); ctx.ellipse(x, y + size * 0.16, size * 0.94, size * 0.76, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        [[-0.42,-0.25,0.1],[0.35,-0.42,0.07],[-0.12,0.05,0.055],[0.47,0.2,0.045]].forEach(([dx,dy,r]) => {
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, size * r, 0, Math.PI * 2); ctx.fill();
+        });
+        break;
+      case 'aurora':
+        ctx.fillStyle = '#071b3c'; ctx.fillRect(left, top, width, height);
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = '#20d6ac';
+        ctx.beginPath(); ctx.moveTo(left, top + size * 0.8); ctx.bezierCurveTo(x - size, y - size * 0.7, x + size * 0.15, y - size * 0.25, left + width, top + size * 0.1); ctx.lineTo(left + width, top + size * 0.62); ctx.bezierCurveTo(x, y - size * 0.1, x - size * 0.25, y + size * 0.1, left, top + size * 1.5); ctx.fill();
+        ctx.fillStyle = '#9b65ff';
+        ctx.beginPath(); ctx.moveTo(left, top + size * 1.35); ctx.bezierCurveTo(x - size * 0.4, y + size * 0.4, x + size * 0.25, y - size * 0.25, left + width, top + size * 0.75); ctx.lineTo(left + width, top + size * 1.1); ctx.bezierCurveTo(x, y + size * 0.35, x - size * 0.45, y + size * 0.8, left, top + size * 1.8); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#ffffff';
+        [[-0.55,-0.45],[0.4,-0.55],[0.62,0.3],[-0.35,0.5]].forEach(([dx,dy]) => {
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, Math.max(0.6, size * 0.025), 0, Math.PI * 2); ctx.fill();
+        });
+        break;
+      case 'pixel':
+        ctx.fillStyle = '#15102e'; ctx.fillRect(left, top, width, height);
+        ['#37e0bd','#a65cff','#ffcf4a','#4d8dff','#ff5e91'].forEach((color, index) => {
+          ctx.fillStyle = color;
+          for (let row = 0; row < 8; row += 1) {
+            for (let column = 0; column < 8; column += 1) {
+              if ((row * 3 + column * 5 + index) % 7 < 2) {
+                ctx.fillRect(left + column * width / 8, top + row * height / 8, width / 8 + 0.5, height / 8 + 0.5);
+              }
+            }
+          }
+        });
+        break;
+      case 'gold': {
+        const goldGradient = ctx.createLinearGradient(left, top, left + width, top + height);
+        goldGradient.addColorStop(0, '#fff3a6');
+        goldGradient.addColorStop(0.35, '#e9a91c');
+        goldGradient.addColorStop(0.62, '#fff1a1');
+        goldGradient.addColorStop(1, '#9a5a08');
+        ctx.fillStyle = goldGradient; ctx.fillRect(left, top, width, height);
+        ctx.strokeStyle = 'rgba(255,255,220,0.58)'; ctx.lineWidth = Math.max(1, size * 0.035);
+        for (let index = -2; index < 5; index += 1) {
+          ctx.beginPath(); ctx.moveTo(left + size * index * 0.55, top); ctx.lineTo(left + size * (index * 0.55 + 1.5), top + height); ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(255,255,230,0.8)';
+        ctx.beginPath(); ctx.ellipse(x - size * 0.3, y - size * 0.45, size * 0.25, size * 0.1, -0.5, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      default:
+        ctx.restore();
+        return;
+    }
+    ctx.restore();
+  }
+
   function drawOrb(o){
     const color = o.team==='player' ? {c:'#33c1ff', d:'#083047'} : {c:'#ff8a2b', d:'#4a1f04'};
     const isScoring = o === dragOrb || Math.floor(o.y / bandHeight()) === scoringBand(o.team);
@@ -1608,6 +2618,8 @@
     g.addColorStop(1, color.d);
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2); ctx.fill();
+    const skin = equippedSkinForOrb(o);
+    if (skin) drawOrbFlagSkin(ctx, skin.id, o.x, o.y, o.r);
     ctx.lineWidth = 2; ctx.strokeStyle = color.c; ctx.stroke();
 
     if (o.spiked) {
@@ -1707,12 +2719,21 @@
       if (busy) {
         physicsStep();
         detonateBombs();
+        if (mode === 'online' && isOnlineTeamLocal(turn)) {
+          onlineSyncElapsed += dt;
+          if (onlineSyncElapsed >= 0.12) {
+            onlineSyncElapsed = 0;
+            publishOnlineGameState();
+          }
+        }
         if (allStationary()){
           detonateBombs();
-          busy = false;
-          if (!gameOver) endTurn();
+          if (mode !== 'online' || isOnlineTeamLocal(turn)) {
+            busy = false;
+            if (!gameOver) endTurn();
+          }
         }
-      } else if (!dragOrb && !canPlay(turn)) {
+      } else if (!dragOrb && !canPlay(turn) && (mode !== 'online' || isOnlineTeamLocal(turn))) {
         endTurn();
       } else if (!dragOrb && !gameOver && !aiTimer){
         // idle, waiting for input (player) - nothing
@@ -1721,26 +2742,28 @@
       if (!gameOver) {
         updateExplosions(dt);
         if (turn === 'player') {
-          playerTimeLeft = Math.max(0, playerTimeLeft - dt);
-          if (playerTimeLeft === 0) {
+          if (mode !== 'online' || isOnlineTeamLocal(turn)) playerTimeLeft = Math.max(0, playerTimeLeft - dt);
+          if (playerTimeLeft === 0 && (mode !== 'online' || isOnlineTeamLocal('player'))) {
             if (canPlay('ai')) {
               turn = 'ai';
               turnEl.textContent = turnLabel();
               helpText.textContent = buildHelpText();
               updateTurnUI();
+              if (mode === 'online') publishOnlineGameState();
               if (mode === 'ai') {
                 aiTimer = setTimeout(()=>{ if(!gameOver && turn === 'ai') aiPlay(); }, 650);
               }
             }
           }
         } else {
-          aiTimeLeft = Math.max(0, aiTimeLeft - dt);
-          if (aiTimeLeft === 0) {
+          if (mode !== 'online' || isOnlineTeamLocal(turn)) aiTimeLeft = Math.max(0, aiTimeLeft - dt);
+          if (aiTimeLeft === 0 && (mode !== 'online' || isOnlineTeamLocal('ai'))) {
             if (canPlay('player')) {
               turn = 'player';
               turnEl.textContent = turnLabel();
               helpText.textContent = buildHelpText();
               updateTurnUI();
+              if (mode === 'online') publishOnlineGameState();
             }
           }
         }
@@ -1748,7 +2771,7 @@
 
       if (!gameOver) {
         updateTimerDisplay();
-        checkGameEnd();
+        if (mode !== 'online' || isOnlineTeamLocal(turn)) checkGameEnd();
       }
 
       const s = computeScores();
@@ -1756,11 +2779,17 @@
       scoreRightEl.textContent = s.ai;
     }
 
+    ctx.save();
+    if (isOrangePerspective()) {
+      ctx.translate(W, H);
+      ctx.rotate(Math.PI);
+    }
     drawBoard();
     for (const o of orbs) drawOrb(o);
     if (dragOrb && !orbs.includes(dragOrb)) drawOrb(dragOrb);
     drawExplosions();
     drawDrag();
+    ctx.restore();
 
     requestAnimationFrame(loop);
   }
@@ -1771,7 +2800,7 @@
     const idx = Number(slot.dataset.index);
     if (!Number.isFinite(idx)) return;
 
-    if (mode === 'ai' && team === 'ai') return;
+    if ((mode === 'ai' && team === 'ai') || !isOnlineTeamLocal(team)) return;
     if (team === 'player' && turn !== 'player') return;
     if (team === 'ai' && turn !== 'ai') return;
 
@@ -1805,9 +2834,40 @@
     renderShop();
   });
 
+  skinShopItemsEl.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-buy-skin]');
+    if (!button) return;
+    const skin = skinCatalog.find(({ id }) => id === button.dataset.buySkin);
+    if (!skin || economy.ownedSkins.includes(skin.id) || economy.coins < skin.price) return;
+    economy.coins -= skin.price;
+    economy.ownedSkins.push(skin.id);
+    saveEconomy();
+    renderEconomy();
+    renderShop();
+  });
+
+  skinEquipControlsEl.addEventListener('change', (event) => {
+    const select = event.target.closest('select');
+    if (!select) return;
+    const skinId = select.value;
+    if (skinId && !economy.ownedSkins.includes(skinId)) {
+      renderSkinEquipControls();
+      return;
+    }
+    if (select.dataset.equipMass) {
+      economy.equippedMassSkins[select.dataset.equipMass] = skinId;
+    } else if (select.dataset.equipSpecial) {
+      economy.equippedSpecialSkins[select.dataset.equipSpecial] = skinId;
+    } else {
+      return;
+    }
+    saveEconomy();
+  });
+
   traitItemsEl.addEventListener('click', (event) => {
     const button = event.target.closest('[data-apply-trait]');
     if (!button) return;
+    if (!isOnlineTeamLocal(turn)) return;
     const key = button.dataset.applyTrait;
     const team = turn;
     const selectedIndex = selectedInventory[team];
@@ -1887,17 +2947,14 @@
     settingsOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
   });
-  storeBtn.addEventListener('click', ()=>{
-    renderShop();
-    menuOverlay.classList.add('hidden');
-    storeOverlay.classList.remove('hidden');
-  });
+  storeBtn.addEventListener('click', ()=> openStore('specials'));
+  skinStoreBtn.addEventListener('click', ()=> openStore('skins'));
   closeStoreBtn.addEventListener('click', ()=>{
     storeOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
   });
   traitInventoryBtn.addEventListener('click', ()=>{
-    if (!started || gameOver || (mode === 'ai' && turn === 'ai')) return;
+    if (!started || gameOver || !isOnlineTeamLocal(turn) || (mode === 'ai' && turn === 'ai')) return;
     renderTraitInventory();
     traitInventoryOverlay.classList.remove('hidden');
   });
@@ -1906,6 +2963,83 @@
   });
   modeAiBtn.addEventListener('click', ()=>{ showDifficultyOverlay(); });
   modePvpBtn.addEventListener('click', ()=>{ mode='pvp'; menuOverlay.classList.add('hidden'); newGame(); });
+  onlineModeBtn.addEventListener('click', ()=>{
+    setOnlineStatus('');
+    onlineRoomCard.classList.add('hidden');
+    joinRoomCode.value = '';
+    onlineRoomCode.textContent = '';
+    onlineNotice.textContent = t('onlineNotice');
+    onlineSearchMode = false;
+    menuOverlay.classList.add('hidden');
+    onlineOverlay.classList.remove('hidden');
+  });
+  createRoomBtn.addEventListener('click', async ()=>{
+    createRoomBtn.disabled = true;
+    try {
+      onlineSearchMode = false;
+      setOnlineStatus(t('demoJoinStatus'));
+      const service = await ensureOnlineService();
+      const code = await service.createRoom();
+      onlineRoomCode.textContent = code;
+      onlineRoomCard.classList.remove('hidden');
+      setOnlineStatus(t('codeCreated'));
+    } catch (error) {
+      setOnlineStatus(onlineErrorMessage(error));
+    } finally {
+      createRoomBtn.disabled = false;
+    }
+  });
+  copyRoomCodeBtn.addEventListener('click', async ()=>{
+    const code = onlineRoomCode.textContent;
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setOnlineStatus(t('codeCopied'));
+    } catch (error) {
+      setOnlineStatus(t('codeCopyFailed'));
+    }
+  });
+  joinRoomCode.addEventListener('input', ()=>{
+    joinRoomCode.value = joinRoomCode.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0, 6);
+  });
+  joinRoomForm.addEventListener('submit', async (event)=>{
+    event.preventDefault();
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(joinRoomCode.value)) {
+      setOnlineStatus(t('invalidRoomCode'));
+      return;
+    }
+    try {
+      setOnlineStatus(t('demoJoinStatus'));
+      const service = await ensureOnlineService();
+      const code = await service.joinRoom(joinRoomCode.value);
+      onlineRoomCode.textContent = code;
+      onlineRoomCard.classList.remove('hidden');
+    } catch (error) {
+      setOnlineStatus(onlineErrorMessage(error));
+    }
+  });
+  randomMatchBtn.addEventListener('click', async ()=>{
+    randomMatchBtn.disabled = true;
+    try {
+      onlineSearchMode = true;
+      setOnlineStatus(t('randomUnavailable'));
+      const service = await ensureOnlineService();
+      const result = await service.findRandomMatch();
+      if (result.waiting) setOnlineStatus(t('searchingMatch'));
+    } catch (error) {
+      onlineSearchMode = false;
+      setOnlineStatus(onlineErrorMessage(error));
+    } finally {
+      randomMatchBtn.disabled = false;
+    }
+  });
+  closeOnlineBtn.addEventListener('click', ()=>{
+    if (onlineService) onlineService.leave();
+    clearOpponentDisconnectTimer();
+    onlineSearchMode = false;
+    onlineOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
   difficultyEasyBtn.addEventListener('click', ()=>{ startAiGame('easy'); });
   difficultyIntermediateBtn.addEventListener('click', ()=>{ startAiGame('intermediate'); });
   difficultyHardBtn.addEventListener('click', ()=>{ startAiGame('hard'); });
