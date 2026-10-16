@@ -9,11 +9,16 @@
 
   :root{
     --blue: #33c1ff;
+    --blue-rgb: 51,193,255;
     --blue-dark: #0a3d5c;
     --orange: #ff8a2b;
+    --orange-rgb: 255,138,43;
     --orange-dark: #5c2e0a;
     --bg: #050a14;
     --panel: #0b1220;
+    --board-bg: #091321;
+    --board-blue: rgba(51,193,255,0.18);
+    --board-orange: rgba(255,138,43,0.18);
   }
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html,body{
@@ -25,8 +30,8 @@
   #app{
     position:relative; width:640px; max-width:100vw; height:100vh; max-height:900px;
     background:
-      radial-gradient(circle at 20% 0%, rgba(51,193,255,0.08), transparent 45%),
-      radial-gradient(circle at 80% 0%, rgba(255,138,43,0.08), transparent 45%),
+      radial-gradient(circle at 20% 0%, rgba(var(--blue-rgb),0.08), transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(var(--orange-rgb),0.08), transparent 45%),
       var(--bg);
     display:flex; flex-direction:column; overflow:hidden;
   }
@@ -53,7 +58,7 @@
   #turnIndicator{
     display:none;
   }
-  #canvasWrap{ position:relative; flex:1; margin:0 10px 12px; border-radius:18px; overflow:hidden; }
+  #canvasWrap{ position:relative; flex:1; margin:0 10px 12px; border-radius:18px; overflow:hidden; background:var(--board-bg); }
   canvas{ display:block; width:100%; height:100%; touch-action:none; }
   #gameHud{
     position:absolute; inset:0; z-index:7;
@@ -125,22 +130,22 @@
   }
   #menuOverlay{
     position:absolute; inset:0; background:
-      radial-gradient(circle at 25% 20%, rgba(51,193,255,0.16), transparent 50%),
-      radial-gradient(circle at 75% 80%, rgba(255,138,43,0.16), transparent 50%),
+      radial-gradient(circle at 25% 20%, rgba(var(--blue-rgb),0.16), transparent 50%),
+      radial-gradient(circle at 75% 80%, rgba(var(--orange-rgb),0.16), transparent 50%),
       var(--bg);
     display:flex; align-items:center; justify-content:center; flex-direction:column; gap:26px;
     text-align:center; padding:30px; z-index:10;
   }
   #menuOverlay.hidden{ display:none; }
   @media (max-width:360px){
-    #coinDisplay{ left:102px; padding:0 7px; font-size:11px; }
+    #coinDisplay{ top:58px; left:14px; padding:0 6px; font-size:10px; }
     #achievementsBtn{ right:54px; }
     #menuOverlay{ gap:14px; padding-left:14px; padding-right:14px; }
     #menuSub{ margin:0 0 2px; }
     .modeBtn{ width:min(240px, 100%); padding:13px 16px; }
   }
   @media (max-width:300px){
-    #coinDisplay{ width:52px; justify-content:center; gap:3px; padding:0 4px; font-size:10px; }
+    #coinDisplay{ top:58px; left:14px; width:82px; justify-content:center; gap:3px; padding:0 4px; font-size:9px; }
   }
   @media (max-height:620px){
     #menuOverlay{ justify-content:flex-start; gap:12px; overflow-y:auto; padding-top:66px; padding-bottom:20px; }
@@ -148,10 +153,11 @@
     #menuSub{ margin:0 0 2px; }
     .modeBtn{ padding:11px 16px; flex-shrink:0; }
   }
+  @media (max-width:360px) and (max-height:620px){ #menuOverlay{ padding-top:110px; } }
   #difficultyOverlay{
     position:absolute; inset:0; background:
-      radial-gradient(circle at 25% 20%, rgba(51,193,255,0.12), transparent 55%),
-      radial-gradient(circle at 75% 80%, rgba(255,138,43,0.12), transparent 55%),
+      radial-gradient(circle at 25% 20%, rgba(var(--blue-rgb),0.12), transparent 55%),
+      radial-gradient(circle at 75% 80%, rgba(var(--orange-rgb),0.12), transparent 55%),
       var(--bg);
     display:flex; align-items:center; justify-content:center; flex-direction:column;
     gap:18px; text-align:center; padding:30px; z-index:12;
@@ -161,8 +167,8 @@
     position:absolute; inset:0; z-index:13;
     display:flex; align-items:center; justify-content:center;
     background:
-      radial-gradient(circle at 25% 20%, rgba(51,193,255,0.12), transparent 55%),
-      radial-gradient(circle at 75% 80%, rgba(255,138,43,0.12), transparent 55%),
+      radial-gradient(circle at 25% 20%, rgba(var(--blue-rgb),0.12), transparent 55%),
+      radial-gradient(circle at 75% 80%, rgba(var(--orange-rgb),0.12), transparent 55%),
       var(--bg);
     padding:24px;
   }
@@ -190,6 +196,26 @@
     background:rgba(3,6,12,0.86); padding:20px;
   }
   #storeOverlay.hidden, #traitInventoryOverlay.hidden{ display:none; }
+  #themeOverlay{ position:absolute; inset:0; z-index:16; display:flex; align-items:center; justify-content:center; background:rgba(3,6,12,0.88); padding:20px; }
+  #themeOverlay.hidden{ display:none; }
+  #themePanel{ width:min(440px,100%); max-height:100%; overflow-y:auto; padding:0 18px 18px; border:1px solid rgba(255,255,255,0.16); border-radius:16px; background:var(--panel); box-shadow:0 10px 30px rgba(0,0,0,0.65); }
+  #themeHeader{ position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:center; min-height:66px; margin:0 -18px 12px; padding:12px 54px; border-bottom:1px solid rgba(255,255,255,0.1); background:var(--panel); }
+  #themeHeader h1{ margin:0; font-family:'Orbitron',sans-serif; font-size:21px; text-align:center; }
+  #closeThemeBtn{ position:absolute; right:14px; top:50%; transform:translateY(-50%); width:36px; height:36px; padding:0; border:1px solid rgba(255,255,255,0.14); border-radius:50%; background:rgba(255,255,255,0.06); color:#eaf2ff; font-size:21px; line-height:1; }
+  .themeDescription{ margin:0 0 12px; color:#9fb3d1; font-size:12px; line-height:1.4; text-align:center; }
+  #themeItems{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .themeCard{ min-width:0; display:flex; flex-direction:column; align-items:center; gap:7px; padding:9px 7px; border-radius:12px; background:rgba(255,255,255,0.035); text-align:center; }
+  .themePreview{ position:relative; width:100%; height:70px; overflow:hidden; border-radius:8px; background:var(--preview-bg); }
+  .themePreview::before{ content:''; position:absolute; inset:0 0 50%; background:var(--preview-panel); }
+  .themePreview::after{ content:''; position:absolute; left:12%; right:12%; top:28%; height:7px; border-radius:8px; background:linear-gradient(90deg,var(--preview-blue) 0 48%,var(--preview-orange) 52%); box-shadow:0 19px 0 rgba(255,255,255,0.12); }
+  .themePreviewOrb{ position:absolute; z-index:1; left:50%; top:52%; width:24px; height:24px; transform:translate(-50%,-50%); border:3px solid rgba(255,255,255,0.8); border-radius:50%; background:radial-gradient(circle at 30% 25%,#fff,var(--preview-blue) 55%,var(--preview-panel)); }
+  .themeCard strong{ font-size:12px; }
+  .themeCard small{ min-height:27px; color:#9fb3d1; font-size:10px; line-height:1.3; }
+  .themeCard button{ width:100%; min-width:0; padding:7px 4px; border-radius:8px; font-size:11px; line-height:1.15; }
+  .themeCard button:disabled{ cursor:default; opacity:0.62; }
+  .themeActionLabel,.themeActionPrice{ display:block; }
+  .themeActionPrice{ margin-top:2px; }
+  @media(max-width:360px){ #themeOverlay{ padding:12px; } #themePanel{ padding-left:12px; padding-right:12px; } #themeItems{ gap:6px; } .themeCard{ padding:7px 5px; } .themePreview{ height:58px; } }
   #achievementsOverlay{
     position:absolute; inset:0; z-index:16; display:flex; align-items:center; justify-content:center;
     background:rgba(3,6,12,0.88); padding:20px;
@@ -279,6 +305,13 @@
   .shopBuyLabel,.shopBuyPrice{ display:block; }
   .shopBuyPrice{ margin-top:2px; }
   .shopProductCard button:disabled{ cursor:default; opacity:0.55; }
+  #shopItems .shopProductCard{ display:grid; grid-template-rows:56px 28px minmax(9em,auto) 16px 42px; justify-items:stretch; }
+  #shopItems .shopProductPreview{ justify-self:center; }
+  #shopItems .shopProductCard strong{ align-self:center; }
+  #shopItems .shopProductCard small{ min-height:0; }
+  #shopItems .shopProductCard small:first-of-type{ align-self:start; }
+  #shopItems .shopProductCard small:nth-of-type(2){ align-self:center; }
+  #shopItems .shopProductCard button{ min-height:42px; align-self:end; }
   #skinShopItems{ grid-template-columns:repeat(4,minmax(0,1fr)); }
   .skinStoreTabs{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; margin:0 0 12px; border-bottom:1px solid rgba(255,255,255,0.1); }
   .skinStoreTab{ padding:9px 6px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:#9fb3d1; font-size:12px; }
@@ -301,7 +334,7 @@
   .economyActions button{ padding:10px 18px; }
   #traitSelectionStatus{ margin:0 0 10px; color:#9fb3d1; text-align:center; font-size:13px; }
   #coinDisplay{
-    position:absolute; top:14px; left:102px; min-height:36px; display:flex; align-items:center; gap:6px;
+    position:absolute; top:14px; left:202px; min-height:36px; display:flex; align-items:center; gap:6px;
     padding:0 11px; border:1px solid rgba(255,214,107,0.38); border-radius:18px;
     background:rgba(11,18,32,0.9); color:#ffd66b; font-family:'Orbitron',sans-serif; font-size:13px;
   }
@@ -359,15 +392,24 @@
     display:flex; align-items:center; justify-content:center;
   }
   #achievementCount{ position:absolute; right:-5px; top:-5px; min-width:17px; padding:2px 4px; border-radius:10px; background:var(--orange); color:#04101c; font-size:9px; }
-  #storeBtn{
-    position:absolute; top:14px; left:14px; width:36px; height:36px; padding:0;
-    border-radius:50%; background:var(--panel); color:#ffd66b; border:1px solid rgba(255,214,107,0.38);
-    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  #storeBtn,#skinStoreBtn,#themeStoreBtn{
+    position:absolute; top:14px; width:58px; height:36px; padding:0 5px; border-radius:18px;
+    font-size:9px; line-height:1; display:flex; align-items:center; justify-content:center; gap:3px;
+    white-space:nowrap;
   }
-  #skinStoreBtn{
-    position:absolute; top:14px; left:58px; width:36px; height:36px; padding:0;
-    border-radius:50%; background:var(--panel); color:#c49bff; border:1px solid rgba(196,155,255,0.45);
-    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  #storeBtn{ left:14px; background:var(--panel); color:#ffd66b; border:1px solid rgba(255,214,107,0.38); }
+  #skinStoreBtn{ left:76px; background:var(--panel); color:#c49bff; border:1px solid rgba(196,155,255,0.45); }
+  #themeStoreBtn{ left:138px; background:var(--panel); color:#8ce7c1; border:1px solid rgba(140,231,193,0.45); }
+  .menuToolIcon{ width:15px; height:15px; flex:none; display:block; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .menuToolLabel{ font-size:9px; font-weight:600; }
+  @media(max-width:480px){ #coinDisplay{ top:58px; left:14px; padding:0 6px; font-size:10px; } }
+  @media(max-width:360px){ #coinDisplay{ top:58px; left:14px; padding:0 6px; font-size:10px; } #achievementsBtn{ right:54px; } }
+  @media(max-width:300px){
+    #coinDisplay{ width:82px; justify-content:center; gap:3px; padding:0 4px; font-size:9px; }
+    #storeBtn,#skinStoreBtn,#themeStoreBtn{ width:54px; }
+    #storeBtn{ left:10px; } #skinStoreBtn{ left:66px; } #themeStoreBtn{ left:122px; }
+    #themeStoreBtn{ width:58px; }
+    #achievementsBtn,#settingsBtn{ top:58px; }
   }
   #traitInventoryBtn{
     position:absolute; z-index:9; display:none; width:44px; height:44px; padding:0;
@@ -424,8 +466,18 @@
       <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
       <button id="achievementsBtn" title="Achievements" aria-label="Achievements">🏆<span id="achievementCount">0</span></button>
       <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
-      <button id="storeBtn" title="Special orb shop" aria-label="Special orb shop">✦</button>
-      <button id="skinStoreBtn" title="Skin shop" aria-label="Skin shop">🎨</button>
+      <button id="storeBtn" class="menuToolBtn" title="Special orb shop" aria-label="Special orb shop" data-i18n-aria-label="shop">
+        <svg class="menuToolIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="13" r="8"/><path d="m14.5 5.8 2.3-2.3 2.8 2.8-2.3 2.3M17.8 3.9l1.1-1.1m1.5.1 1.1.2"/></svg>
+        <span class="menuToolLabel" data-i18n="specialShopShort">Orbs</span>
+      </button>
+      <button id="skinStoreBtn" class="menuToolBtn" title="Skin shop" aria-label="Skin shop" data-i18n-aria-label="orbSkins">
+        <svg class="menuToolIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="7.2"/><path d="M3.8 8h12.4M5.8 13.8c2.2-2 6.2-2 8.4 0M10 2.8v14.4m4.9 2.1 5-5m-3.1-1.9 2 2 2.2-2.2-2-2z"/></svg>
+        <span class="menuToolLabel" data-i18n="skinShopShort">Skins</span>
+      </button>
+      <button id="themeStoreBtn" class="menuToolBtn" title="App themes" aria-label="App themes" data-i18n-aria-label="themesTitle">
+        <svg class="menuToolIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3.5 8h17M7 5.5h.1m3 0h.1"/><circle cx="8" cy="13" r="1.5"/><circle cx="12" cy="13" r="1.5"/><circle cx="16" cy="13" r="1.5"/><path d="M8 17h8"/></svg>
+        <span class="menuToolLabel" data-i18n="themeShopShort">Themes</span>
+      </button>
     </div>
     <div id="difficultyOverlay" class="hidden">
       <div id="difficultyPanel">
@@ -494,6 +546,17 @@
         </div>
       </div>
     </div>
+      <div id="themeOverlay" class="hidden">
+        <div id="themePanel" role="dialog" aria-modal="true" aria-labelledby="themeTitle">
+          <div id="themeHeader">
+            <h1 id="themeTitle" data-i18n="themesTitle">App themes</h1>
+            <button id="closeThemeBtn" type="button" data-i18n-aria-label="close" aria-label="Close">×</button>
+          </div>
+          <p class="economyBalance"><span data-i18n="coins">Coins</span>: <span id="themeCoinBalance">1000</span></p>
+          <p class="themeDescription" data-i18n="themesDescription">Change the look of the app and the game board.</p>
+          <div id="themeItems"></div>
+        </div>
+      </div>
     <div id="achievementsOverlay" class="hidden">
       <div id="achievementsPanel" role="dialog" aria-modal="true" aria-labelledby="achievementsTitle">
         <h1 id="achievementsTitle" class="economyTitle" data-i18n="achievementsTitle">Achievements</h1>
@@ -626,9 +689,15 @@
   const achievementToastRewardEl = document.getElementById('achievementToastReward');
   const storeBtn = document.getElementById('storeBtn');
   const skinStoreBtn = document.getElementById('skinStoreBtn');
+  const themeStoreBtn = document.getElementById('themeStoreBtn');
   const coinBalanceEl = document.getElementById('coinBalance');
   const storeCoinBalanceEl = document.getElementById('storeCoinBalance');
   const storeOverlay = document.getElementById('storeOverlay');
+  const themeOverlay = document.getElementById('themeOverlay');
+  const themeTitleEl = document.getElementById('themeTitle');
+  const themeCoinBalanceEl = document.getElementById('themeCoinBalance');
+  const themeItemsEl = document.getElementById('themeItems');
+  const closeThemeBtn = document.getElementById('closeThemeBtn');
   const storeTitleEl = document.getElementById('storeTitle');
   const specialShopViewEl = document.getElementById('specialShopView');
   const skinShopViewEl = document.getElementById('skinShopView');
@@ -671,6 +740,12 @@
       aiPlaying: 'AI is playing...', victory: 'Victory!', defeat: 'Defeat', draw: 'Draw',
       pvpWinner1: 'Player 1 (blue) wins', pvpWinner2: 'Player 2 (orange) wins',
       shop: 'Special orbs', coins: 'Coins', close: 'Close', buy: 'Buy', owned: 'Owned',
+      specialShopShort: 'Orbs', skinShopShort: 'Skins', themeShopShort: 'Themes',
+      themesTitle: 'App themes', themesDescription: 'Give the app and game board a new look.',
+      themeMood: 'A fresh color palette for the arena.', themeUse: 'Use theme', themeActive: 'Equipped',
+      themeClassic: 'Classic', themeNeon: 'Neon circuit', themeForest: 'Wildwood', themeSunset: 'Solar flare',
+      themeOcean: 'Abyss', themeArcade: 'Arcade glow', themeVolcanic: 'Magma core', themeCandy: 'Candy cloud',
+      themeRoyal: 'Royal amethyst',
       bombOrb: 'Bomb orb', spikedOrb: 'Spiked orb', ghostOrb: 'Ghost orb',
       specialInventory: 'Special inventory', selectOrbFirst: 'Select an orb from your inventory first.',
       applyTrait: 'Apply',
@@ -707,9 +782,10 @@
       youForfeit: 'You left the match. Your opponent wins.',
       matchComplete: 'Match complete.',
       matchCancelled: 'The room was closed before the match started.',
-      specialShopDesc: 'Power up your next launch with a special orb.',
-      bombOrbDesc: 'Explodes on impact and clears nearby orbs.', spikedOrbDesc: 'Cuts through the crowd with sharp spikes.',
-      ghostOrbDesc: 'Glides through other orbs to surprise your rival.',
+      specialShopDesc: 'Choose a special orb with a unique effect on impact.',
+      bombOrbDesc: 'Explodes on impact or when it stops, reducing the mass of nearby rival orbs.',
+      spikedOrbDesc: 'Attaches to any orb it hits, making them move together.',
+      ghostOrbDesc: 'Passes through all other orbs without colliding.',
       orbSkins: 'Orb skins', skinTabs: 'Skin sections', skinShopTab: 'Shop', skinInventoryTab: 'Inventory', skinShopDesc: 'Collect looks for every orb. Choose one look for all normal orbs and a separate look for each special type.',
       equipSkins: 'Equip skins', normalOrb: 'Normal', noSkin: 'Default orb', skinMass: 'Mass {mass}', specialBomb: 'Bomb orb',
       specialSpiked: 'Spiked orb', specialGhost: 'Ghost orb', skinOwned: 'Owned', skinEquipped: 'Equipped',
@@ -761,6 +837,12 @@
       aiPlaying: 'Die KI spielt...', victory: 'Sieg!', defeat: 'Niederlage', draw: 'Unentschieden',
       pvpWinner1: 'Spieler 1 (blau) gewinnt', pvpWinner2: 'Spieler 2 (orange) gewinnt',
       shop: 'Spezialkugeln', coins: 'Münzen', close: 'Schließen', buy: 'Kaufen', owned: 'Im Besitz',
+      specialShopShort: 'Orbs', skinShopShort: 'Skins', themeShopShort: 'Themen',
+      themesTitle: 'App-Designs', themesDescription: 'Gib der App und dem Spielfeld einen neuen Look.',
+      themeMood: 'Eine frische Farbpalette für die Arena.', themeUse: 'Design verwenden', themeActive: 'Ausgerüstet',
+      themeClassic: 'Klassisch', themeNeon: 'Neonkreislauf', themeForest: 'Wilder Wald', themeSunset: 'Sonnenflare',
+      themeOcean: 'Abgrund', themeArcade: 'Arcade-Leuchten', themeVolcanic: 'Magma-Kern', themeCandy: 'Zuckerwolke',
+      themeRoyal: 'Königlicher Amethyst',
       bombOrb: 'Bombenkugel', spikedOrb: 'Stachelkugel', ghostOrb: 'Geisterkugel',
       specialInventory: 'Spezialinventar', selectOrbFirst: 'Wähle zuerst eine Kugel aus deinem Vorrat.',
       applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten', achievementsTitle: 'Erfolge', achievementUnlocked: 'Erfolg freigeschaltet',
@@ -796,9 +878,10 @@
       youForfeit: 'Du hast das Spiel verlassen. Dein Gegner gewinnt.',
       matchComplete: 'Partie beendet.',
       matchCancelled: 'Der Raum wurde vor Spielbeginn geschlossen.',
-      specialShopDesc: 'Rüste deinen nächsten Wurf mit einer Spezialkugel auf.',
-      bombOrbDesc: 'Explodiert beim Aufprall und entfernt Kugeln in der Nähe.', spikedOrbDesc: 'Schneidet sich mit scharfen Stacheln durch die Menge.',
-      ghostOrbDesc: 'Gleitet durch andere Kugeln und überrascht den Gegner.',
+      specialShopDesc: 'Wähle eine Spezialkugel mit einzigartigem Effekt beim Aufprall.',
+      bombOrbDesc: 'Explodiert beim Aufprall oder wenn sie liegen bleibt und verringert die Masse naher gegnerischer Kugeln.',
+      spikedOrbDesc: 'Haftet an jeder Kugel, die sie berührt, sodass beide gemeinsam weiterrollen.',
+      ghostOrbDesc: 'Gleitet durch alle anderen Kugeln, ohne mit ihnen zusammenzustoßen.',
       orbSkins: 'Kugel-Skins', skinTabs: 'Skin-Bereiche', skinShopTab: 'Shop', skinInventoryTab: 'Inventar', skinShopDesc: 'Sammle Designs für alle Kugeln. Wähle ein Design für normale Kugeln und separat für jeden Spezialtyp.',
       equipSkins: 'Skins ausrüsten', normalOrb: 'Normal', noSkin: 'Standardkugel', skinMass: 'Masse {mass}', specialBomb: 'Bombenkugel',
       specialSpiked: 'Stachelkugel', specialGhost: 'Geisterkugel', skinOwned: 'Im Besitz', skinEquipped: 'Ausgerüstet',
@@ -850,6 +933,12 @@
       aiPlaying: 'L’IA joue...', victory: 'Victoire !', defeat: 'Défaite', draw: 'Égalité',
       pvpWinner1: 'Le joueur 1 (bleu) gagne', pvpWinner2: 'Le joueur 2 (orange) gagne',
       shop: 'Billes spéciales', coins: 'Pièces', close: 'Fermer', buy: 'Acheter', owned: 'Possédées',
+      specialShopShort: 'Orbes', skinShopShort: 'Skins', themeShopShort: 'Thèmes',
+      themesTitle: 'Thèmes de l’appli', themesDescription: 'Changez le style de l’appli et du plateau.',
+      themeMood: 'Une nouvelle palette pour l’arène.', themeUse: 'Utiliser', themeActive: 'Équipé',
+      themeClassic: 'Classique', themeNeon: 'Circuit néon', themeForest: 'Forêt sauvage', themeSunset: 'Éclat solaire',
+      themeOcean: 'Abysses', themeArcade: 'Lueur arcade', themeVolcanic: 'Cœur de magma', themeCandy: 'Nuage sucré',
+      themeRoyal: 'Améthyste royale',
       bombOrb: 'Bille bombe', spikedOrb: 'Bille à pointes', ghostOrb: 'Bille fantôme',
       specialInventory: 'Inventaire spécial', selectOrbFirst: 'Sélectionnez d’abord une bille dans votre inventaire.',
       applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées', achievementsTitle: 'Succès', achievementUnlocked: 'Succès débloqué',
@@ -885,9 +974,10 @@
       youForfeit: 'Vous avez quitté la partie. Votre adversaire gagne.',
       matchComplete: 'Partie terminée.',
       matchCancelled: 'La salle a été fermée avant le début de la partie.',
-      specialShopDesc: 'Améliorez votre prochain lancer avec une bille spéciale.',
-      bombOrbDesc: 'Explose à l’impact et élimine les billes proches.', spikedOrbDesc: 'Traverse le groupe grâce à ses pointes.',
-      ghostOrbDesc: 'Traverse les autres billes pour surprendre l’adversaire.',
+      specialShopDesc: 'Choisissez une bille spéciale aux effets uniques en cas d’impact.',
+      bombOrbDesc: 'Explose à l’impact ou lorsqu’elle s’immobilise et réduit la masse des billes adverses proches.',
+      spikedOrbDesc: 'S’attache à toute bille touchée : elles se déplacent ensuite ensemble.',
+      ghostOrbDesc: 'Traverse toutes les autres billes sans entrer en collision.',
       orbSkins: 'Apparences des billes', skinTabs: 'Sections des apparences', skinShopTab: 'Boutique', skinInventoryTab: 'Inventaire', skinShopDesc: 'Collectionnez des styles. Choisissez un style pour toutes les billes normales et un autre pour chaque type spécial.',
       equipSkins: 'Équiper les apparences', normalOrb: 'Normale', noSkin: 'Bille par défaut', skinMass: 'Masse {mass}', specialBomb: 'Bille bombe',
       specialSpiked: 'Bille à pointes', specialGhost: 'Bille fantôme', skinOwned: 'Possédée', skinEquipped: 'Équipée',
@@ -939,6 +1029,12 @@
       aiPlaying: 'La IA está jugando...', victory: '¡Victoria!', defeat: 'Derrota', draw: 'Empate',
       pvpWinner1: 'Gana el Jugador 1 (azul)', pvpWinner2: 'Gana el Jugador 2 (naranja)',
       shop: 'Orbes especiales', coins: 'Monedas', close: 'Cerrar', buy: 'Comprar', owned: 'En inventario',
+      specialShopShort: 'Orbes', skinShopShort: 'Skins', themeShopShort: 'Temas',
+      themesTitle: 'Temas de la aplicación', themesDescription: 'Cambia el aspecto de la aplicación y del tablero.',
+      themeMood: 'Una nueva paleta de color para la arena.', themeUse: 'Usar tema', themeActive: 'Equipado',
+      themeClassic: 'Clásico', themeNeon: 'Circuito neón', themeForest: 'Bosque salvaje', themeSunset: 'Destello solar',
+      themeOcean: 'Abismo', themeArcade: 'Brillo arcade', themeVolcanic: 'Núcleo de magma', themeCandy: 'Nube de caramelo',
+      themeRoyal: 'Amatista real',
       bombOrb: 'Orbe bomba', spikedOrb: 'Orbe con pinchos', ghostOrb: 'Orbe fantasma',
       specialInventory: 'Inventario especial', selectOrbFirst: 'Primero selecciona un orbe de tu inventario.',
       applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas', achievementsTitle: 'Logros', achievementUnlocked: 'Logro conseguido',
@@ -974,9 +1070,10 @@
       youForfeit: 'Has abandonado la partida. Gana tu rival.',
       matchComplete: 'Partida finalizada.',
       matchCancelled: 'La sala se cerró antes de empezar la partida.',
-      specialShopDesc: 'Potencia tu próximo lanzamiento con un orbe especial.',
-      bombOrbDesc: 'Explota al impactar y elimina los orbes cercanos.', spikedOrbDesc: 'Atraviesa el grupo con sus pinchos.',
-      ghostOrbDesc: 'Se desliza entre otros orbes para sorprender al rival.',
+      specialShopDesc: 'Elige un orbe especial con un efecto único al impactar.',
+      bombOrbDesc: 'Explota al impactar o al detenerse y reduce la masa de los orbes rivales cercanos.',
+      spikedOrbDesc: 'Se adhiere a cualquier orbe que toca y ambos se desplazan juntos.',
+      ghostOrbDesc: 'Atraviesa todos los demás orbes sin chocar con ellos.',
       orbSkins: 'Skins de orbes', skinTabs: 'Secciones de skins', skinShopTab: 'Tienda', skinInventoryTab: 'Inventario', skinShopDesc: 'Colecciona diseños. Elige uno para todos los orbes normales y otro para cada tipo especial.',
       equipSkins: 'Equipar skins', normalOrb: 'Normal', noSkin: 'Orbe predeterminado', skinMass: 'Masa {mass}', specialBomb: 'Orbe bomba',
       specialSpiked: 'Orbe con pinchos', specialGhost: 'Orbe fantasma', skinOwned: 'En propiedad', skinEquipped: 'Equipada',
@@ -1062,8 +1159,20 @@
     { id: 'constellation', label: 'skinConstellation', price: 500 },
     { id: 'vintageink', label: 'skinVintageInk', price: 400 }
   ];
+  const themeCatalog = [
+    { id: 'classic', label: 'themeClassic', price: 0, bg: '#050a14', panel: '#0b1220', blue: '#33c1ff', blueRgb: '51,193,255', blueDark: '#0a3d5c', orange: '#ff8a2b', orangeRgb: '255,138,43', orangeDark: '#5c2e0a', board: '#091321' },
+    { id: 'neon', label: 'themeNeon', price: 800, bg: '#10071d', panel: '#1b0d2b', blue: '#30f4ff', blueRgb: '48,244,255', blueDark: '#07566b', orange: '#ff4ac7', orangeRgb: '255,74,199', orangeDark: '#71194f', board: '#160b25' },
+    { id: 'forest', label: 'themeForest', price: 700, bg: '#07140e', panel: '#10251a', blue: '#8ce36a', blueRgb: '140,227,106', blueDark: '#315b2a', orange: '#f5b544', orangeRgb: '245,181,68', orangeDark: '#704b16', board: '#0b1c14' },
+    { id: 'sunset', label: 'themeSunset', price: 750, bg: '#1b0c17', panel: '#301522', blue: '#ffc85b', blueRgb: '255,200,91', blueDark: '#705126', orange: '#ff657a', orangeRgb: '255,101,122', orangeDark: '#702939', board: '#25101c' },
+    { id: 'ocean', label: 'themeOcean', price: 800, bg: '#061521', panel: '#0d2635', blue: '#48d9ff', blueRgb: '72,217,255', blueDark: '#14536a', orange: '#ffb15c', orangeRgb: '255,177,92', orangeDark: '#75461f', board: '#09202e' },
+    { id: 'arcade', label: 'themeArcade', price: 850, bg: '#100d22', panel: '#1c1738', blue: '#6be1ff', blueRgb: '107,225,255', blueDark: '#234f82', orange: '#ff5c59', orangeRgb: '255,92,89', orangeDark: '#7c282e', board: '#17132d' },
+    { id: 'volcanic', label: 'themeVolcanic', price: 850, bg: '#180907', panel: '#2b100d', blue: '#ffc34b', blueRgb: '255,195,75', blueDark: '#694116', orange: '#ff5b37', orangeRgb: '255,91,55', orangeDark: '#702015', board: '#210e0b' },
+    { id: 'candy', label: 'themeCandy', price: 900, bg: '#190b21', panel: '#2b1234', blue: '#f5a4ff', blueRgb: '245,164,255', blueDark: '#693a78', orange: '#7df4cf', orangeRgb: '125,244,207', orangeDark: '#27695b', board: '#21102a' },
+    { id: 'royal', label: 'themeRoyal', price: 950, bg: '#100b1d', panel: '#211638', blue: '#ba9cff', blueRgb: '186,156,255', blueDark: '#4c3977', orange: '#f4c96b', orangeRgb: '244,201,107', orangeDark: '#705622', board: '#171027' }
+  ];
   const SKIN_EQUIP_TARGETS = ['normal', 'bomb', 'spiked', 'ghost'];
   const STARTING_COINS = 1000;
+  const LOCAL_TEST_COINS = 50000;
   const MATCH_REWARD = 100;
   const achievementDefinitions = [
     { id: 'first_launch', title: 'firstLaunchTitle', description: 'firstLaunchDesc', stat: 'launches', thresholds: [1, 5, 15, 30, 50], reward: 25 },
@@ -1090,9 +1199,11 @@
 
   function defaultEconomy(){
     return {
-      coins: STARTING_COINS,
+      coins: window.location.protocol === 'file:' ? LOCAL_TEST_COINS : STARTING_COINS,
       stock: { bomb: 0, spiked: 0, ghost: 0 },
       ownedSkins: [],
+      ownedThemes: ['classic'],
+      equippedTheme: 'classic',
       equippedNormalSkin: '',
       equippedSpecialSkins: defaultEquippedSpecialSkins(),
       achievementLevels: {},
@@ -1122,6 +1233,12 @@
       const ownedSkins = Array.isArray(stored.ownedSkins)
         ? [...new Set(stored.ownedSkins.filter(id => skinCatalog.some(skin => skin.id === id)))]
         : [];
+      const ownedThemes = Array.isArray(stored.ownedThemes)
+        ? [...new Set(['classic', ...stored.ownedThemes.filter(id => themeCatalog.some(theme => theme.id === id))])]
+        : ['classic'];
+      const equippedTheme = typeof stored.equippedTheme === 'string' && ownedThemes.includes(stored.equippedTheme)
+        ? stored.equippedTheme
+        : 'classic';
       const validEquippedSkin = id => ownedSkins.includes(id) ? id : '';
       const savedMassSkins = stored.equippedMassSkins && typeof stored.equippedMassSkins === 'object'
         ? stored.equippedMassSkins
@@ -1137,6 +1254,8 @@
         coins: stored.coins,
         stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0])),
         ownedSkins,
+        ownedThemes,
+        equippedTheme,
         equippedNormalSkin: validEquippedSkin(savedNormalSkin),
         equippedSpecialSkins: Object.fromEntries(Object.keys(defaultEquippedSpecialSkins()).map(key => [key, validEquippedSkin(savedSpecialSkins[key])])),
         achievementLevels,
@@ -1149,6 +1268,7 @@
   }
 
   let economy = loadEconomy();
+  let activeTheme = themeCatalog.find(({ id }) => id === economy.equippedTheme) || themeCatalog[0];
   let activeSkinEquipTarget = 'normal';
   let achievementToastQueue = [];
   let achievementToastTimer = null;
@@ -1161,13 +1281,20 @@
     }
   }
 
+  if (window.location.protocol === 'file:' && economy.coins < LOCAL_TEST_COINS) {
+    economy.coins = LOCAL_TEST_COINS;
+    saveEconomy();
+  }
+
   function renderEconomy(){
     coinBalanceEl.textContent = economy.coins;
     storeCoinBalanceEl.textContent = economy.coins;
+    themeCoinBalanceEl.textContent = economy.coins;
     traitCountEl.textContent = Object.values(economy.stock).reduce((total, amount) => total + amount, 0);
     const pendingCount = achievementDefinitions.filter((item) => isAchievementPending(item)).length;
     achievementCountEl.textContent = pendingCount;
     achievementCountEl.style.display = pendingCount ? 'block' : 'none';
+    if (!themeOverlay.classList.contains('hidden')) renderThemeStore();
   }
 
   function renderAchievements(){
@@ -1287,6 +1414,44 @@
       return `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-skin-preview="${id}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><button type="button" data-buy-skin="${id}" ${owned || economy.coins < price ? 'disabled' : ''}>${owned ? t('skinOwned') : `<span class="shopBuyLabel">${t('buy')}</span><span class="shopBuyPrice">${price} ◈</span>`}</button></article>`;
     }).join('');
     renderSkinEquipControls();
+  }
+
+  function applyTheme(themeId){
+    activeTheme = themeCatalog.find(({ id }) => id === themeId) || themeCatalog[0];
+    const rootStyle = document.documentElement.style;
+    rootStyle.setProperty('--bg', activeTheme.bg);
+    rootStyle.setProperty('--panel', activeTheme.panel);
+    rootStyle.setProperty('--blue', activeTheme.blue);
+    rootStyle.setProperty('--blue-rgb', activeTheme.blueRgb);
+    rootStyle.setProperty('--blue-dark', activeTheme.blueDark);
+    rootStyle.setProperty('--orange', activeTheme.orange);
+    rootStyle.setProperty('--orange-rgb', activeTheme.orangeRgb);
+    rootStyle.setProperty('--orange-dark', activeTheme.orangeDark);
+    rootStyle.setProperty('--board-bg', activeTheme.board);
+    rootStyle.setProperty('--board-blue', `rgba(${activeTheme.blueRgb},0.18)`);
+    rootStyle.setProperty('--board-orange', `rgba(${activeTheme.orangeRgb},0.18)`);
+    document.documentElement.dataset.appTheme = activeTheme.id;
+    if (Number.isFinite(W) && Number.isFinite(H)) drawBoard();
+  }
+
+  function renderThemeStore(){
+    themeCoinBalanceEl.textContent = economy.coins;
+    themeItemsEl.innerHTML = themeCatalog.map(theme => {
+      const owned = economy.ownedThemes.includes(theme.id);
+      const equipped = economy.equippedTheme === theme.id;
+      const label = equipped ? t('themeActive') : owned ? t('themeUse') : t('buy');
+      const buttonContent = owned
+        ? label
+        : `<span class="themeActionLabel">${t('buy')}</span><span class="themeActionPrice">${theme.price} ◈</span>`;
+      const disabled = equipped || (!owned && economy.coins < theme.price);
+      return `<article class="themeCard"><div class="themePreview" style="--preview-bg:${theme.bg};--preview-panel:${theme.panel};--preview-blue:${theme.blue};--preview-orange:${theme.orange}" aria-hidden="true"><span class="themePreviewOrb"></span></div><strong>${t(theme.label)}</strong><small>${t('themeMood')}</small><button type="button" data-theme-action="${theme.id}" aria-pressed="${equipped}" ${disabled ? 'disabled' : ''}>${buttonContent}</button></article>`;
+    }).join('');
+  }
+
+  function openThemeStore(){
+    menuOverlay.classList.add('hidden');
+    renderThemeStore();
+    themeOverlay.classList.remove('hidden');
   }
 
   function setSkinStoreTab(tab){
@@ -1442,6 +1607,9 @@
     document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
       element.placeholder = t(element.dataset.i18nPlaceholder);
     });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
+      element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel));
+    });
     howto.title = t('howToPlay');
     exitGame.title = t('exit');
     exitGame.setAttribute('aria-label', t('exit'));
@@ -1453,11 +1621,15 @@
     storeBtn.setAttribute('aria-label', t('shop'));
     skinStoreBtn.title = t('orbSkins');
     skinStoreBtn.setAttribute('aria-label', t('orbSkins'));
+    themeStoreBtn.title = t('themesTitle');
+    themeStoreBtn.setAttribute('aria-label', t('themesTitle'));
+    closeThemeBtn.title = t('close');
     closeStoreBtn.title = t('close');
     closeStoreBtn.setAttribute('aria-label', t('close'));
     skinStoreTabsEl.setAttribute('aria-label', t('skinTabs'));
     traitInventoryBtn.title = t('specialInventory');
     traitInventoryBtn.setAttribute('aria-label', t('specialInventory'));
+    renderThemeStore();
     languageSelect.value = settings.language;
     turnEl.textContent = turnLabel();
     helpText.textContent = buildHelpText();
@@ -2031,6 +2203,7 @@
     exitConfirmOverlay.classList.add('hidden');
     settingsOverlay.classList.add('hidden');
     storeOverlay.classList.add('hidden');
+    themeOverlay.classList.add('hidden');
     traitInventoryOverlay.classList.add('hidden');
     overlay.classList.add('hidden');
     difficultyOverlay.classList.add('hidden');
@@ -2499,7 +2672,9 @@
 
   function drawBoard(){
     ctx.clearRect(0,0,W,H);
-    const bands = ['rgba(255,255,255,0.15)', 'rgba(51,193,255,0.18)', 'rgba(255,138,43,0.18)', 'rgba(255,255,255,0.15)'];
+    ctx.fillStyle = activeTheme.board;
+    ctx.fillRect(0, 0, W, H);
+    const bands = ['rgba(255,255,255,0.035)', `rgba(${activeTheme.blueRgb},0.18)`, `rgba(${activeTheme.orangeRgb},0.18)`, 'rgba(255,255,255,0.035)'];
     bands.forEach((color, index) => {
       ctx.fillStyle = color;
       ctx.fillRect(0, index*bandHeight(), W, bandHeight());
@@ -3104,7 +3279,9 @@
   }
 
   function drawOrb(o){
-    const color = o.team==='player' ? {c:'#33c1ff', d:'#083047'} : {c:'#ff8a2b', d:'#4a1f04'};
+    const color = o.team==='player'
+      ? { c: activeTheme.blue, d: activeTheme.blueDark }
+      : { c: activeTheme.orange, d: activeTheme.orangeDark };
     const isScoring = o === dragOrb || Math.floor(o.y / bandHeight()) === scoringBand(o.team);
     ctx.save();
     ctx.globalAlpha = isScoring ? 1 : 0.24;
@@ -3465,6 +3642,30 @@
   });
   storeBtn.addEventListener('click', ()=> openStore('specials'));
   skinStoreBtn.addEventListener('click', ()=> openStore('skins'));
+  themeStoreBtn.addEventListener('click', openThemeStore);
+  closeThemeBtn.addEventListener('click', ()=>{
+    themeOverlay.classList.add('hidden');
+    menuOverlay.classList.remove('hidden');
+  });
+  themeItemsEl.addEventListener('click', event => {
+    const button = event.target.closest('[data-theme-action]');
+    if (!button) return;
+    const theme = themeCatalog.find(({ id }) => id === button.dataset.themeAction);
+    if (!theme) return;
+    const owned = economy.ownedThemes.includes(theme.id);
+    if (owned) {
+      economy.equippedTheme = theme.id;
+    } else {
+      if (economy.coins < theme.price) return;
+      economy.coins -= theme.price;
+      economy.ownedThemes.push(theme.id);
+      economy.equippedTheme = theme.id;
+    }
+    applyTheme(theme.id);
+    saveEconomy();
+    renderEconomy();
+    renderThemeStore();
+  });
   closeStoreBtn.addEventListener('click', ()=>{
     storeOverlay.classList.add('hidden');
     menuOverlay.classList.remove('hidden');
@@ -3570,6 +3771,7 @@
     howto.style.display = 'flex';
   });
 
+  applyTheme(economy.equippedTheme);
   applyLanguage();
   syncSettingsControls();
   selectDifficultyButton(difficulty);
