@@ -269,17 +269,34 @@
   .shopItem button:disabled, .traitItem button:disabled{ cursor:default; opacity:0.45; }
   .storeView.hidden{ display:none; }
   .storeSectionDescription{ margin:0 0 12px; color:#9fb3d1; font-size:12px; line-height:1.4; text-align:center; }
-  .shopProductGrid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
-  .shopProductCard{ min-width:0; display:flex; flex-direction:column; align-items:center; gap:7px; padding:12px 9px; border:1px solid rgba(255,255,255,0.09); border-radius:13px; background:rgba(255,255,255,0.035); text-align:center; }
-  .shopProductPreview{ width:88px; height:88px; border-radius:50%; background:radial-gradient(circle at 32% 25%, rgba(255,255,255,0.12), rgba(0,0,0,0.22)); }
-  .shopProductCard strong{ display:block; font-size:13px; }
-  .shopProductCard small{ min-height:28px; color:#9fb3d1; font-size:11px; line-height:1.3; }
-  .shopProductCard button{ width:100%; min-width:0; padding:8px 5px; border-radius:8px; font-size:12px; }
+  .shopProductGrid{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:7px; }
+  .shopProductCard{ min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 5px; border:0; border-radius:10px; background:transparent; text-align:center; transition:background 140ms ease; }
+  .shopProductCard:hover{ background:rgba(255,255,255,0.045); }
+  .shopProductPreview{ width:56px; height:56px; border-radius:50%; background:radial-gradient(circle at 32% 25%, rgba(255,255,255,0.12), rgba(0,0,0,0.22)); }
+  .shopProductCard strong{ display:block; min-height:26px; font-size:11px; line-height:1.2; }
+  .shopProductCard small{ min-height:16px; color:#9fb3d1; font-size:9px; line-height:1.2; }
+  .shopProductCard button{ width:100%; min-width:0; padding:6px 3px; border-radius:7px; font-size:10px; line-height:1.15; }
+  .shopBuyLabel,.shopBuyPrice{ display:block; }
+  .shopBuyPrice{ margin-top:2px; }
   .shopProductCard button:disabled{ cursor:default; opacity:0.55; }
+  #skinShopItems{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .skinStoreTabs{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; margin:0 0 12px; border-bottom:1px solid rgba(255,255,255,0.1); }
+  .skinStoreTab{ padding:9px 6px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:#9fb3d1; font-size:12px; }
+  .skinStoreTab.active{ border-bottom-color:var(--blue); color:#fff; }
+  .skinStorePanel.hidden{ display:none; }
   #skinShopView{ margin-top:0; }
-  .skinEquipRow{ display:grid; grid-template-columns:minmax(0,1fr) minmax(130px,1fr); align-items:center; gap:10px; padding:7px 0; }
-  .skinEquipRow label{ font-size:13px; }
-  .skinEquipRow select{ min-width:0; width:100%; padding:8px; border:1px solid rgba(255,255,255,0.16); border-radius:8px; background:#111d31; color:#eaf2ff; font:500 12px 'Rubik',sans-serif; }
+  .skinEquipTargets{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin:8px 0; }
+  .skinEquipTarget{ min-width:0; padding:7px 3px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:#b8c9df; font-size:10px; line-height:1.2; transition:transform 140ms ease,color 140ms ease,border-color 140ms ease; }
+  .skinEquipTarget.active{ border-bottom-color:var(--blue); color:#fff; }
+  .skinEquipPicker{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+  .skinEquipChoice{ position:relative; min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 3px; border:0; border-radius:9px; background:transparent; color:#eaf2ff; font-size:9px; line-height:1.15; transition:transform 140ms ease,background 140ms ease; }
+  .skinEquipChoice:hover,.skinEquipTarget:hover{ transform:translateY(-2px); }
+  .skinEquipChoice.active{ background:rgba(255,214,107,0.07); }
+  .skinEquipChoice.active::after{ content:'✓'; position:absolute; top:2px; right:5px; color:#ffd66b; font-weight:700; }
+  .skinEquipPreview{ width:34px; height:34px; border-radius:50%; }
+  .skinEquipChoice.active .skinEquipPreview{ box-shadow:0 0 0 2px #ffd66b,0 0 12px rgba(255,214,107,0.35); }
+  .skinEquipEmpty{ grid-column:1/-1; padding:10px; color:#9fb3d1; font-size:11px; text-align:center; }
+  @media(max-width:360px){ .shopProductGrid{ gap:5px; } #skinShopItems{ grid-template-columns:repeat(3,minmax(0,1fr)); } .shopProductPreview{ width:48px; height:48px; } .shopProductCard{ padding:6px 3px; } .skinEquipPicker{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
   .economyActions{ display:flex; justify-content:flex-end; margin-top:16px; }
   .economyActions button{ padding:10px 18px; }
   #traitSelectionStatus{ margin:0 0 10px; color:#9fb3d1; text-align:center; font-size:13px; }
@@ -462,10 +479,18 @@
           <div id="shopItems" class="shopProductGrid"></div>
         </div>
         <div id="skinShopView" class="storeView hidden">
-          <p class="storeSectionDescription" data-i18n="skinShopDesc">Collect looks for every orb. Equip them by mass or special type.</p>
-          <div id="skinShopItems" class="shopProductGrid"></div>
-          <h2 class="storeSectionTitle" data-i18n="equipSkins">Equip skins</h2>
-          <div id="skinEquipControls"></div>
+          <div class="skinStoreTabs" role="tablist" aria-label="Skin sections">
+            <button id="skinShopTab" class="skinStoreTab active" type="button" role="tab" aria-selected="true" aria-controls="skinShopPanel" tabindex="0" data-skin-tab="shop" data-i18n="skinShopTab">Shop</button>
+            <button id="skinInventoryTab" class="skinStoreTab" type="button" role="tab" aria-selected="false" aria-controls="skinInventoryPanel" tabindex="-1" data-skin-tab="inventory" data-i18n="skinInventoryTab">Inventory</button>
+          </div>
+          <section id="skinShopPanel" class="skinStorePanel" role="tabpanel" aria-labelledby="skinShopTab">
+            <p class="storeSectionDescription" data-i18n="skinShopDesc">Collect looks for every orb.</p>
+            <div id="skinShopItems" class="shopProductGrid"></div>
+          </section>
+          <section id="skinInventoryPanel" class="skinStorePanel hidden" role="tabpanel" aria-labelledby="skinInventoryTab" hidden>
+            <h2 class="storeSectionTitle" data-i18n="equipSkins">Equip skins</h2>
+            <div id="skinEquipControls"></div>
+          </section>
         </div>
       </div>
     </div>
@@ -607,6 +632,9 @@
   const storeTitleEl = document.getElementById('storeTitle');
   const specialShopViewEl = document.getElementById('specialShopView');
   const skinShopViewEl = document.getElementById('skinShopView');
+  const skinStoreTabsEl = skinShopViewEl.querySelector('.skinStoreTabs');
+  const skinShopPanelEl = document.getElementById('skinShopPanel');
+  const skinInventoryPanelEl = document.getElementById('skinInventoryPanel');
   const shopItemsEl = document.getElementById('shopItems');
   const skinShopItemsEl = document.getElementById('skinShopItems');
   const skinEquipControlsEl = document.getElementById('skinEquipControls');
@@ -682,14 +710,22 @@
       specialShopDesc: 'Power up your next launch with a special orb.',
       bombOrbDesc: 'Explodes on impact and clears nearby orbs.', spikedOrbDesc: 'Cuts through the crowd with sharp spikes.',
       ghostOrbDesc: 'Glides through other orbs to surprise your rival.',
-      orbSkins: 'Orb skins', skinShopDesc: 'Collect looks for every orb. Equip them by mass or special type.',
-      equipSkins: 'Equip skins', noSkin: 'Default orb', skinMass: 'Mass {mass}', specialBomb: 'Bomb orb',
+      orbSkins: 'Orb skins', skinTabs: 'Skin sections', skinShopTab: 'Shop', skinInventoryTab: 'Inventory', skinShopDesc: 'Collect looks for every orb. Choose one look for all normal orbs and a separate look for each special type.',
+      equipSkins: 'Equip skins', normalOrb: 'Normal', noSkin: 'Default orb', skinMass: 'Mass {mass}', specialBomb: 'Bomb orb',
       specialSpiked: 'Spiked orb', specialGhost: 'Ghost orb', skinOwned: 'Owned', skinEquipped: 'Equipped',
       skinPrice: 'Price', skinSpain: 'Spain', skinMexico: 'Mexico', skinArgentina: 'Argentina',
       skinUnitedStates: 'United States', skinFrance: 'France', skinGermany: 'Germany', skinItaly: 'Italy',
       skinBrazil: 'Brazil', skinJapan: 'Japan', skinUnitedKingdom: 'United Kingdom',
       skinGalaxy: 'Galaxy', skinLava: 'Lava core', skinSlime: 'Slime', skinAurora: 'Aurora',
       skinPixel: 'Pixel pop', skinGold: 'Molten gold',
+      skinOcean: 'Deep ocean', skinCandy: 'Candy swirl', skinToxic: 'Toxic', skinElectric: 'Voltage',
+      skinIce: 'Ice crystal', skinTiger: 'Tiger stripes',
+      skinSunset: 'Sunset', skinCamo: 'Camo', skinCarbon: 'Carbon fiber', skinPrism: 'Prism',
+      skinHoney: 'Honeycomb', skinComet: 'Comet', skinPixelCamo: 'Digital woodland', skinArid: 'Desert dune',
+      skinArcticCamo: 'Arctic shards', skinObsidian: 'Gilded obsidian', skinStarDoodle: 'Star doodle',
+      skinPuffball: 'Puffball pal', skinWyrmling: 'Little wyrm', skinRedTiger: 'Crimson tiger',
+      skinAutumn: 'Autumn leaves', skinUrban: 'Urban interference', skinConstellation: 'Constellation',
+      skinVintageInk: 'Vintage ink',
       firebaseConfigMissing: 'Firebase is not configured. Check firebase-config.js.',
       roomCreateFailed: 'Could not create a room code. Please try again.',
       roomNotFound: 'No room has that code. Check that you entered the current code.',
@@ -763,14 +799,22 @@
       specialShopDesc: 'Rüste deinen nächsten Wurf mit einer Spezialkugel auf.',
       bombOrbDesc: 'Explodiert beim Aufprall und entfernt Kugeln in der Nähe.', spikedOrbDesc: 'Schneidet sich mit scharfen Stacheln durch die Menge.',
       ghostOrbDesc: 'Gleitet durch andere Kugeln und überrascht den Gegner.',
-      orbSkins: 'Kugel-Skins', skinShopDesc: 'Sammle Designs für alle Kugeln. Rüste sie nach Masse oder Spezialtyp aus.',
-      equipSkins: 'Skins ausrüsten', noSkin: 'Standardkugel', skinMass: 'Masse {mass}', specialBomb: 'Bombenkugel',
+      orbSkins: 'Kugel-Skins', skinTabs: 'Skin-Bereiche', skinShopTab: 'Shop', skinInventoryTab: 'Inventar', skinShopDesc: 'Sammle Designs für alle Kugeln. Wähle ein Design für normale Kugeln und separat für jeden Spezialtyp.',
+      equipSkins: 'Skins ausrüsten', normalOrb: 'Normal', noSkin: 'Standardkugel', skinMass: 'Masse {mass}', specialBomb: 'Bombenkugel',
       specialSpiked: 'Stachelkugel', specialGhost: 'Geisterkugel', skinOwned: 'Im Besitz', skinEquipped: 'Ausgerüstet',
       skinPrice: 'Preis', skinSpain: 'Spanien', skinMexico: 'Mexiko', skinArgentina: 'Argentinien',
       skinUnitedStates: 'Vereinigte Staaten', skinFrance: 'Frankreich', skinGermany: 'Deutschland', skinItaly: 'Italien',
       skinBrazil: 'Brasilien', skinJapan: 'Japan', skinUnitedKingdom: 'Vereinigtes Königreich',
       skinGalaxy: 'Galaxie', skinLava: 'Lava-Kern', skinSlime: 'Schleim', skinAurora: 'Polarlicht',
       skinPixel: 'Pixel-Pop', skinGold: 'Flüssiges Gold',
+      skinOcean: 'Tiefsee', skinCandy: 'Zuckerwirbel', skinToxic: 'Giftig', skinElectric: 'Hochspannung',
+      skinIce: 'Eiskristall', skinTiger: 'Tigerstreifen',
+      skinSunset: 'Sonnenuntergang', skinCamo: 'Tarnmuster', skinCarbon: 'Carbon', skinPrism: 'Prisma',
+      skinHoney: 'Wabenmuster', skinComet: 'Komet', skinPixelCamo: 'Digitalwald', skinArid: 'Wüstendüne',
+      skinArcticCamo: 'Arktissplitter', skinObsidian: 'Vergoldeter Obsidian', skinStarDoodle: 'Sterngekritzel',
+      skinPuffball: 'Flauschfreund', skinWyrmling: 'Kleiner Lindwurm', skinRedTiger: 'Purpur-Tiger',
+      skinAutumn: 'Herbstlaub', skinUrban: 'Stadtstörung', skinConstellation: 'Sternbild',
+      skinVintageInk: 'Vintage-Tusche',
       firebaseConfigMissing: 'Firebase ist nicht konfiguriert. Prüfe firebase-config.js.',
       roomCreateFailed: 'Der Raumcode konnte nicht erstellt werden. Bitte versuche es erneut.',
       roomNotFound: 'Es gibt keinen Raum mit diesem Code. Prüfe, ob du den aktuellen Code eingegeben hast.',
@@ -844,14 +888,22 @@
       specialShopDesc: 'Améliorez votre prochain lancer avec une bille spéciale.',
       bombOrbDesc: 'Explose à l’impact et élimine les billes proches.', spikedOrbDesc: 'Traverse le groupe grâce à ses pointes.',
       ghostOrbDesc: 'Traverse les autres billes pour surprendre l’adversaire.',
-      orbSkins: 'Apparences des billes', skinShopDesc: 'Collectionnez des styles pour toutes les billes. Équipez-les par masse ou type spécial.',
-      equipSkins: 'Équiper les apparences', noSkin: 'Bille par défaut', skinMass: 'Masse {mass}', specialBomb: 'Bille bombe',
+      orbSkins: 'Apparences des billes', skinTabs: 'Sections des apparences', skinShopTab: 'Boutique', skinInventoryTab: 'Inventaire', skinShopDesc: 'Collectionnez des styles. Choisissez un style pour toutes les billes normales et un autre pour chaque type spécial.',
+      equipSkins: 'Équiper les apparences', normalOrb: 'Normale', noSkin: 'Bille par défaut', skinMass: 'Masse {mass}', specialBomb: 'Bille bombe',
       specialSpiked: 'Bille à pointes', specialGhost: 'Bille fantôme', skinOwned: 'Possédée', skinEquipped: 'Équipée',
       skinPrice: 'Prix', skinSpain: 'Espagne', skinMexico: 'Mexique', skinArgentina: 'Argentine',
       skinUnitedStates: 'États-Unis', skinFrance: 'France', skinGermany: 'Allemagne', skinItaly: 'Italie',
       skinBrazil: 'Brésil', skinJapan: 'Japon', skinUnitedKingdom: 'Royaume-Uni',
       skinGalaxy: 'Galaxie', skinLava: 'Cœur de lave', skinSlime: 'Gelée', skinAurora: 'Aurore',
       skinPixel: 'Pixel pop', skinGold: 'Or fondu',
+      skinOcean: 'Océan profond', skinCandy: 'Tourbillon sucré', skinToxic: 'Toxique', skinElectric: 'Haute tension',
+      skinIce: 'Cristal de glace', skinTiger: 'Rayures de tigre',
+      skinSunset: 'Coucher de soleil', skinCamo: 'Camouflage', skinCarbon: 'Fibre de carbone', skinPrism: 'Prisme',
+      skinHoney: 'Rayons de miel', skinComet: 'Comète', skinPixelCamo: 'Forêt numérique', skinArid: 'Dune du désert',
+      skinArcticCamo: 'Éclats arctiques', skinObsidian: 'Obsidienne dorée', skinStarDoodle: 'Gribouillis étoilé',
+      skinPuffball: 'Petit nuage', skinWyrmling: 'Petit wyrm', skinRedTiger: 'Tigre cramoisi',
+      skinAutumn: 'Feuilles d’automne', skinUrban: 'Interférence urbaine', skinConstellation: 'Constellation',
+      skinVintageInk: 'Encre rétro',
       firebaseConfigMissing: 'Firebase n’est pas configuré. Vérifiez firebase-config.js.',
       roomCreateFailed: 'Impossible de créer un code de salle. Veuillez réessayer.',
       roomNotFound: 'Aucune salle ne correspond à ce code. Vérifiez que vous avez saisi le code actuel.',
@@ -925,14 +977,22 @@
       specialShopDesc: 'Potencia tu próximo lanzamiento con un orbe especial.',
       bombOrbDesc: 'Explota al impactar y elimina los orbes cercanos.', spikedOrbDesc: 'Atraviesa el grupo con sus pinchos.',
       ghostOrbDesc: 'Se desliza entre otros orbes para sorprender al rival.',
-      orbSkins: 'Skins de orbes', skinShopDesc: 'Colecciona diseños para todos los orbes. Equípalos por masa o tipo especial.',
-      equipSkins: 'Equipar skins', noSkin: 'Orbe predeterminado', skinMass: 'Masa {mass}', specialBomb: 'Orbe bomba',
+      orbSkins: 'Skins de orbes', skinTabs: 'Secciones de skins', skinShopTab: 'Tienda', skinInventoryTab: 'Inventario', skinShopDesc: 'Colecciona diseños. Elige uno para todos los orbes normales y otro para cada tipo especial.',
+      equipSkins: 'Equipar skins', normalOrb: 'Normal', noSkin: 'Orbe predeterminado', skinMass: 'Masa {mass}', specialBomb: 'Orbe bomba',
       specialSpiked: 'Orbe con pinchos', specialGhost: 'Orbe fantasma', skinOwned: 'En propiedad', skinEquipped: 'Equipada',
       skinPrice: 'Precio', skinSpain: 'España', skinMexico: 'México', skinArgentina: 'Argentina',
       skinUnitedStates: 'Estados Unidos', skinFrance: 'Francia', skinGermany: 'Alemania', skinItaly: 'Italia',
       skinBrazil: 'Brasil', skinJapan: 'Japón', skinUnitedKingdom: 'Reino Unido',
       skinGalaxy: 'Galaxia', skinLava: 'Núcleo de lava', skinSlime: 'Baba', skinAurora: 'Aurora',
       skinPixel: 'Estilo píxel', skinGold: 'Oro fundido',
+      skinOcean: 'Océano profundo', skinCandy: 'Remolino dulce', skinToxic: 'Tóxica', skinElectric: 'Voltaje',
+      skinIce: 'Cristal de hielo', skinTiger: 'Rayas de tigre',
+      skinSunset: 'Atardecer', skinCamo: 'Camuflaje', skinCarbon: 'Fibra de carbono', skinPrism: 'Prisma',
+      skinHoney: 'Panal', skinComet: 'Cometa', skinPixelCamo: 'Bosque digital', skinArid: 'Duna desértica',
+      skinArcticCamo: 'Fragmentos árticos', skinObsidian: 'Obsidiana dorada', skinStarDoodle: 'Garabato estelar',
+      skinPuffball: 'Bola mullida', skinWyrmling: 'Pequeño draco', skinRedTiger: 'Tigre carmesí',
+      skinAutumn: 'Hojas de otoño', skinUrban: 'Interferencia urbana', skinConstellation: 'Constelación',
+      skinVintageInk: 'Tinta retro',
       firebaseConfigMissing: 'Firebase no está configurado. Revisa firebase-config.js.',
       roomCreateFailed: 'No se pudo crear el código de sala. Inténtalo de nuevo.',
       roomNotFound: 'No hay ninguna sala con ese código. Comprueba que sea el código actual.',
@@ -976,9 +1036,33 @@
     { id: 'slime', label: 'skinSlime', flag: '🟢', price: 350 },
     { id: 'aurora', label: 'skinAurora', flag: '🌌', price: 400 },
     { id: 'pixel', label: 'skinPixel', flag: '👾', price: 350 },
-    { id: 'gold', label: 'skinGold', flag: '🪙', price: 500 }
+    { id: 'gold', label: 'skinGold', flag: '🪙', price: 500 },
+    { id: 'ocean', label: 'skinOcean', price: 400 },
+    { id: 'candy', label: 'skinCandy', price: 350 },
+    { id: 'toxic', label: 'skinToxic', price: 450 },
+    { id: 'electric', label: 'skinElectric', price: 500 },
+    { id: 'ice', label: 'skinIce', price: 450 },
+    { id: 'tiger', label: 'skinTiger', price: 400 },
+    { id: 'sunset', label: 'skinSunset', price: 400 },
+    { id: 'camo', label: 'skinCamo', price: 350 },
+    { id: 'carbon', label: 'skinCarbon', price: 450 },
+    { id: 'prism', label: 'skinPrism', price: 500 },
+    { id: 'honey', label: 'skinHoney', price: 400 },
+    { id: 'comet', label: 'skinComet', price: 450 },
+    { id: 'pixelcamo', label: 'skinPixelCamo', price: 450 },
+    { id: 'arid', label: 'skinArid', price: 400 },
+    { id: 'arcticcamo', label: 'skinArcticCamo', price: 450 },
+    { id: 'obsidian', label: 'skinObsidian', price: 500 },
+    { id: 'stardoodle', label: 'skinStarDoodle', price: 400 },
+    { id: 'puffball', label: 'skinPuffball', price: 450 },
+    { id: 'wyrmling', label: 'skinWyrmling', price: 500 },
+    { id: 'redtiger', label: 'skinRedTiger', price: 500 },
+    { id: 'autumn', label: 'skinAutumn', price: 450 },
+    { id: 'urban', label: 'skinUrban', price: 450 },
+    { id: 'constellation', label: 'skinConstellation', price: 500 },
+    { id: 'vintageink', label: 'skinVintageInk', price: 400 }
   ];
-  const SKIN_MASS_LEVELS = [1, 2, 3, 4, 5];
+  const SKIN_EQUIP_TARGETS = ['normal', 'bomb', 'spiked', 'ghost'];
   const STARTING_COINS = 1000;
   const MATCH_REWARD = 100;
   const achievementDefinitions = [
@@ -1000,10 +1084,6 @@
     return { launches: 0, bombUses: 0, spikedUses: 0, ghostUses: 0, matches: 0, wins: 0, winStreak: 0, hardWins: 0, pvpWins: 0, bestScore: 0, doubleBombs: 0 };
   }
 
-  function defaultEquippedMassSkins(){
-    return Object.fromEntries(SKIN_MASS_LEVELS.map(mass => [String(mass), '']));
-  }
-
   function defaultEquippedSpecialSkins(){
     return { bomb: '', spiked: '', ghost: '' };
   }
@@ -1013,7 +1093,7 @@
       coins: STARTING_COINS,
       stock: { bomb: 0, spiked: 0, ghost: 0 },
       ownedSkins: [],
-      equippedMassSkins: defaultEquippedMassSkins(),
+      equippedNormalSkin: '',
       equippedSpecialSkins: defaultEquippedSpecialSkins(),
       achievementLevels: {},
       notifiedAchievementLevels: {},
@@ -1049,14 +1129,15 @@
       const savedSpecialSkins = stored.equippedSpecialSkins && typeof stored.equippedSpecialSkins === 'object'
         ? stored.equippedSpecialSkins
         : {};
+      const legacyNormalSkin = Object.values(savedMassSkins).find(id => ownedSkins.includes(id)) || '';
+      const savedNormalSkin = typeof stored.equippedNormalSkin === 'string'
+        ? stored.equippedNormalSkin
+        : legacyNormalSkin;
       return {
         coins: stored.coins,
         stock: Object.fromEntries(shopCatalog.map(({ key }) => [key, Number.isSafeInteger(stored.stock?.[key]) && stored.stock[key] > 0 ? stored.stock[key] : 0])),
         ownedSkins,
-        equippedMassSkins: Object.fromEntries(SKIN_MASS_LEVELS.map(value => {
-          const mass = String(value);
-          return [mass, validEquippedSkin(savedMassSkins[mass])];
-        })),
+        equippedNormalSkin: validEquippedSkin(savedNormalSkin),
         equippedSpecialSkins: Object.fromEntries(Object.keys(defaultEquippedSpecialSkins()).map(key => [key, validEquippedSkin(savedSpecialSkins[key])])),
         achievementLevels,
         notifiedAchievementLevels: Object.fromEntries(achievementDefinitions.map(({ id }) => [id, Number.isSafeInteger(notifiedAchievementLevels[id]) && notifiedAchievementLevels[id] > 0 ? notifiedAchievementLevels[id] : 0])),
@@ -1068,6 +1149,7 @@
   }
 
   let economy = loadEconomy();
+  let activeSkinEquipTarget = 'normal';
   let achievementToastQueue = [];
   let achievementToastTimer = null;
 
@@ -1198,14 +1280,27 @@
 
   function renderShop(){
     shopItemsEl.innerHTML = shopCatalog.map(({ key, label, description, price }) =>
-      `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-special-preview="${key}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><small>${t(description)}</small><small>${t('owned')}: ${economy.stock[key]}</small><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}>${t('buy')} · ${price} ◈</button></article>`
+      `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-special-preview="${key}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><small>${t(description)}</small><small>${t('owned')}: ${economy.stock[key]}</small><button type="button" data-buy-trait="${key}" ${economy.coins < price ? 'disabled' : ''}><span class="shopBuyLabel">${t('buy')}</span><span class="shopBuyPrice">${price} ◈</span></button></article>`
     ).join('');
     skinShopItemsEl.innerHTML = skinCatalog.map(({ id, label, price }) => {
       const owned = economy.ownedSkins.includes(id);
-      return `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-skin-preview="${id}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><small>${owned ? t('skinOwned') : `${t('skinPrice')}: ${price} ◈`}</small><button type="button" data-buy-skin="${id}" ${owned || economy.coins < price ? 'disabled' : ''}>${owned ? t('skinOwned') : `${t('buy')} · ${price} ◈`}</button></article>`;
+      return `<article class="shopProductCard"><canvas class="shopProductPreview" width="176" height="176" data-skin-preview="${id}" role="img" aria-label="${t(label)}"></canvas><strong>${t(label)}</strong><button type="button" data-buy-skin="${id}" ${owned || economy.coins < price ? 'disabled' : ''}>${owned ? t('skinOwned') : `<span class="shopBuyLabel">${t('buy')}</span><span class="shopBuyPrice">${price} ◈</span>`}</button></article>`;
     }).join('');
-    renderShopPreviews();
     renderSkinEquipControls();
+  }
+
+  function setSkinStoreTab(tab){
+    if (tab !== 'shop' && tab !== 'inventory') return;
+    skinStoreTabsEl.querySelectorAll('[data-skin-tab]').forEach(button => {
+      const selected = button.dataset.skinTab === tab;
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-selected', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    skinShopPanelEl.classList.toggle('hidden', tab !== 'shop');
+    skinShopPanelEl.hidden = tab !== 'shop';
+    skinInventoryPanelEl.classList.toggle('hidden', tab !== 'inventory');
+    skinInventoryPanelEl.hidden = tab !== 'inventory';
   }
 
   function openStore(category){
@@ -1213,6 +1308,7 @@
     specialShopViewEl.classList.toggle('hidden', showSkins);
     skinShopViewEl.classList.toggle('hidden', !showSkins);
     storeTitleEl.textContent = t(showSkins ? 'orbSkins' : 'shop');
+    if (showSkins) setSkinStoreTab('shop');
     renderShop();
     menuOverlay.classList.add('hidden');
     storeOverlay.classList.remove('hidden');
@@ -1224,6 +1320,9 @@
     });
     skinShopItemsEl.querySelectorAll('[data-skin-preview]').forEach(preview => {
       drawShopOrbPreview(preview, preview.dataset.skinPreview, null);
+    });
+    skinEquipControlsEl.querySelectorAll('[data-equip-preview]').forEach(preview => {
+      drawShopOrbPreview(preview, preview.dataset.equipPreview || null, null);
     });
   }
 
@@ -1286,28 +1385,26 @@
 
   function renderSkinEquipControls(){
     const ownedSkins = skinCatalog.filter(({ id }) => economy.ownedSkins.includes(id));
-    const renderSelect = (target, equippedId, label) => {
-      const options = [
-        `<option value="">${t('noSkin')}</option>`,
-        ...ownedSkins.map(({ id, label: skinLabel, flag }) =>
-          `<option value="${id}" ${equippedId === id ? 'selected' : ''}>${flag || '●'} ${t(skinLabel)}</option>`
-        )
-      ];
-      const isMass = target.startsWith('mass');
-      const value = isMass ? target.slice(4) : target.slice(7).toLowerCase();
-      return `<div class="skinEquipRow"><label for="${target}">${label}</label><select id="${target}" data-${isMass ? 'equip-mass' : 'equip-special'}="${value}">${options.join('')}</select></div>`;
+    const targetLabels = {
+      normal: 'normalOrb',
+      bomb: 'specialBomb',
+      spiked: 'specialSpiked',
+      ghost: 'specialGhost'
     };
-    const massRows = SKIN_MASS_LEVELS.map(value => {
-      const mass = String(value);
-      const label = t('skinMass').replace('{mass}', mass);
-      return renderSelect(`mass${mass}`, economy.equippedMassSkins[mass], label);
-    });
-    const specialRows = [
-      renderSelect('specialBomb', economy.equippedSpecialSkins.bomb, t('specialBomb')),
-      renderSelect('specialSpiked', economy.equippedSpecialSkins.spiked, t('specialSpiked')),
-      renderSelect('specialGhost', economy.equippedSpecialSkins.ghost, t('specialGhost'))
-    ];
-    skinEquipControlsEl.innerHTML = [...massRows, ...specialRows].join('');
+    const equippedSkin = target => target === 'normal'
+      ? economy.equippedNormalSkin
+      : economy.equippedSpecialSkins[target];
+    const targetButtons = SKIN_EQUIP_TARGETS.map(target =>
+      `<button type="button" class="skinEquipTarget ${activeSkinEquipTarget === target ? 'active' : ''}" data-equip-target="${target}" aria-pressed="${activeSkinEquipTarget === target}">${t(targetLabels[target])}</button>`
+    ).join('');
+    const choices = [
+      `<button type="button" class="skinEquipChoice ${!equippedSkin(activeSkinEquipTarget) ? 'active' : ''}" data-equip-skin=""><canvas class="skinEquipPreview" width="88" height="88" data-equip-preview="" aria-hidden="true"></canvas><span>${t('noSkin')}</span></button>`,
+      ...ownedSkins.map(({ id, label }) =>
+        `<button type="button" class="skinEquipChoice ${equippedSkin(activeSkinEquipTarget) === id ? 'active' : ''}" data-equip-skin="${id}"><canvas class="skinEquipPreview" width="88" height="88" data-equip-preview="${id}" aria-hidden="true"></canvas><span>${t(label)}</span></button>`
+      )
+    ].join('');
+    skinEquipControlsEl.innerHTML = `<div class="skinEquipTargets" role="group" aria-label="${t('equipSkins')}">${targetButtons}</div><div class="skinEquipPicker">${choices}</div>`;
+    renderShopPreviews();
   }
 
   function renderTraitInventory(){
@@ -1358,6 +1455,7 @@
     skinStoreBtn.setAttribute('aria-label', t('orbSkins'));
     closeStoreBtn.title = t('close');
     closeStoreBtn.setAttribute('aria-label', t('close'));
+    skinStoreTabsEl.setAttribute('aria-label', t('skinTabs'));
     traitInventoryBtn.title = t('specialInventory');
     traitInventoryBtn.setAttribute('aria-label', t('specialInventory'));
     languageSelect.value = settings.language;
@@ -2432,7 +2530,7 @@
   function equippedSkinForOrb(orb){
     const specialType = orb.bomb ? 'bomb' : orb.spiked ? 'spiked' : orb.ghost ? 'ghost' : null;
     const skinId = (specialType && economy.equippedSpecialSkins[specialType])
-      || economy.equippedMassSkins[String(orb.value)];
+      || economy.equippedNormalSkin;
     return skinCatalog.find(({ id }) => id === skinId) || null;
   }
 
@@ -2597,6 +2695,405 @@
         }
         ctx.fillStyle = 'rgba(255,255,230,0.8)';
         ctx.beginPath(); ctx.ellipse(x - size * 0.3, y - size * 0.45, size * 0.25, size * 0.1, -0.5, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      case 'ocean': {
+        const oceanGradient = ctx.createLinearGradient(left, top, left + width, top + height);
+        oceanGradient.addColorStop(0, '#073b68');
+        oceanGradient.addColorStop(0.5, '#087eaa');
+        oceanGradient.addColorStop(1, '#031c3d');
+        ctx.fillStyle = oceanGradient; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = 'rgba(61,221,226,0.68)';
+        for (let index = 0; index < 3; index += 1) {
+          const waveY = y - size * 0.35 + index * size * 0.45;
+          ctx.beginPath(); ctx.moveTo(left, waveY);
+          ctx.bezierCurveTo(x - size * 0.55, waveY - size * 0.34, x + size * 0.15, waveY + size * 0.34, left + width, waveY - size * 0.08);
+          ctx.lineTo(left + width, waveY + size * 0.12);
+          ctx.bezierCurveTo(x + size * 0.15, waveY + size * 0.54, x - size * 0.55, waveY - size * 0.14, left, waveY + size * 0.2);
+          ctx.closePath(); ctx.fill();
+        }
+        ctx.fillStyle = 'rgba(220,255,255,0.82)';
+        [[-0.42,-0.48,0.055],[0.34,-0.58,0.035],[0.48,0.05,0.045],[-0.2,0.36,0.03]].forEach(([dx,dy,r]) => {
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, size * r, 0, Math.PI * 2); ctx.fill();
+        });
+        break;
+      }
+      case 'candy':
+        ctx.fillStyle = '#ff74ae'; ctx.fillRect(left, top, width, height);
+        ctx.save();
+        ctx.translate(x, y); ctx.rotate(-0.58);
+        ctx.fillStyle = '#fff0f6';
+        for (let index = -3; index <= 3; index += 1) {
+          ctx.fillRect(size * index * 0.55 - size * 0.13, -size * 1.6, size * 0.26, size * 3.2);
+        }
+        ctx.restore();
+        ctx.fillStyle = '#fff7fb';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.28, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ed4b96';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.18, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'toxic':
+        ctx.fillStyle = '#173d22'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#a3ee28';
+        ctx.beginPath(); ctx.arc(x, y + size * 0.03, size * 0.68, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#173d22';
+        ctx.beginPath(); ctx.arc(x, y - size * 0.02, size * 0.53, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#a3ee28';
+        ctx.beginPath(); ctx.arc(x, y - size * 0.05, size * 0.39, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#173d22';
+        ctx.beginPath(); ctx.arc(x - size * 0.15, y - size * 0.12, size * 0.055, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + size * 0.15, y - size * 0.12, size * 0.055, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#173d22'; ctx.lineWidth = Math.max(1, size * 0.07);
+        ctx.beginPath(); ctx.moveTo(x - size * 0.18, y + size * 0.12); ctx.lineTo(x + size * 0.18, y + size * 0.12); ctx.stroke();
+        ctx.fillStyle = '#d6ff72';
+        [[-0.67,-0.55],[0.68,-0.28],[-0.55,0.56],[0.58,0.56]].forEach(([dx,dy]) => {
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, size * 0.07, 0, Math.PI * 2); ctx.fill();
+        });
+        break;
+      case 'electric':
+        ctx.fillStyle = '#111044'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = 'rgba(115,74,255,0.5)';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.72, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#42efff'; ctx.lineWidth = Math.max(1.5, size * 0.09); ctx.lineJoin = 'round';
+        [[-0.05,-0.85,-0.28,-0.18,0.08,-0.18,-0.2,0.76],
+          [0.68,-0.55,0.35,-0.08,0.62,-0.08,0.22,0.48],
+          [-0.72,0.2,-0.4,-0.02,-0.52,-0.02,-0.25,-0.48]].forEach(([x1,y1,x2,y2,x3,y3,x4,y4]) => {
+          ctx.beginPath(); ctx.moveTo(x + size * x1, y + size * y1); ctx.lineTo(x + size * x2, y + size * y2);
+          ctx.lineTo(x + size * x3, y + size * y3); ctx.lineTo(x + size * x4, y + size * y4); ctx.stroke();
+        });
+        break;
+      case 'ice':
+        ctx.fillStyle = '#b9f6ff'; ctx.fillRect(left, top, width, height);
+        polygon([[x,top],[left + width * 0.32,top + height * 0.18],[left + width * 0.5,y],[left + width * 0.24,top + height * 0.62]]);
+        ctx.fillStyle = '#54c9ec';
+        polygon([[x,top],[left + width * 0.68,top + height * 0.18],[left + width * 0.5,y],[left + width * 0.24,top + height * 0.62]]);
+        ctx.fillStyle = '#eaffff';
+        polygon([[left + width * 0.24,top + height * 0.62],[left + width * 0.5,y],[left + width * 0.42,top + height],[left + width * 0.08,top + height * 0.82]]);
+        ctx.fillStyle = '#72ddf5';
+        polygon([[left + width * 0.5,y],[left + width * 0.92,top + height * 0.82],[left + width * 0.58,top + height],[left + width * 0.42,top + height]]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = Math.max(1, size * 0.035);
+        ctx.beginPath(); ctx.moveTo(x,top); ctx.lineTo(left + width * 0.5,y); ctx.lineTo(left + width * 0.42,top + height); ctx.stroke();
+        break;
+      case 'tiger':
+        ctx.fillStyle = '#ff9d22'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#251414';
+        [[-0.6,-1.1,-0.35],[-0.08,-1.1,0.17],[0.48,-1.1,0.78],[-0.48,0.05,-0.15],[0.12,0.05,0.45],[0.68,0.05,1.05]].forEach(([x1,y1,x2]) => {
+          ctx.beginPath(); ctx.moveTo(left + size * x1, top + size * y1); ctx.lineTo(left + size * x2, top + size * (y1 + 0.62));
+          ctx.lineTo(left + size * (x2 - 0.16), top + size * (y1 + 0.88)); ctx.lineTo(left + size * (x1 - 0.12), top + size * (y1 + 0.24)); ctx.closePath(); ctx.fill();
+        });
+        ctx.fillStyle = '#fff0cf';
+        ctx.beginPath(); ctx.ellipse(x, y + size * 0.43, size * 0.36, size * 0.17, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#251414';
+        ctx.beginPath(); ctx.arc(x - size * 0.18, y - size * 0.12, size * 0.045, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + size * 0.18, y - size * 0.12, size * 0.045, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'sunset': {
+        const sunset = ctx.createLinearGradient(left, top, left + width * 0.3, top + height);
+        sunset.addColorStop(0, '#4c338f');
+        sunset.addColorStop(0.48, '#ff6f91');
+        sunset.addColorStop(1, '#ffbd59');
+        ctx.fillStyle = sunset; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#ffe7a3';
+        ctx.beginPath(); ctx.arc(x, y - size * 0.04, size * 0.34, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(91,48,113,0.7)';
+        for (let index = 0; index < 4; index += 1) {
+          const lineY = y + size * (0.22 + index * 0.16);
+          ctx.fillRect(left, lineY, width, Math.max(1, size * 0.035));
+        }
+        break;
+      }
+      case 'camo':
+        ctx.fillStyle = '#687b3b'; ctx.fillRect(left, top, width, height);
+        ['#273f32','#a0a66a','#455c37','#d0b56c','#354b42'].forEach((color,index) => {
+          ctx.fillStyle = color;
+          for(let row=0;row<4;row+=1){
+            for(let column=0;column<4;column+=1){
+              if((row*7+column*3+index*5)%4===0){
+                ctx.beginPath();
+                ctx.ellipse(left+width*(column+0.3+(index%2)*0.18)/4,top+height*(row+0.4)/4,size*(0.15+(index%3)*0.035),size*0.11,(row-column)*0.5,0,Math.PI*2);
+                ctx.fill();
+              }
+            }
+          }
+        });
+        break;
+      case 'carbon':
+        ctx.fillStyle = '#181d24'; ctx.fillRect(left, top, width, height);
+        ctx.strokeStyle = '#69727c'; ctx.lineWidth = Math.max(1,size*0.055);
+        for(let index=-5;index<8;index+=1){
+          const offset=index*size*0.42;
+          ctx.beginPath(); ctx.moveTo(left+offset,top); ctx.lineTo(left+offset+height,top+height); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(left+offset+size*0.18,top); ctx.lineTo(left+offset+height+size*0.18,top+height); ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = Math.max(1,size*0.025);
+        for(let index=-5;index<8;index+=1){
+          const offset=index*size*0.42;
+          ctx.beginPath(); ctx.moveTo(left+offset,top+height); ctx.lineTo(left+offset+height,top); ctx.stroke();
+        }
+        break;
+      case 'prism': {
+        const prism = ctx.createLinearGradient(left,top,left+width,top+height);
+        prism.addColorStop(0,'#ff526f'); prism.addColorStop(0.2,'#ffbf4a'); prism.addColorStop(0.4,'#55e49a');
+        prism.addColorStop(0.6,'#51d7ff'); prism.addColorStop(0.8,'#8175ff'); prism.addColorStop(1,'#f05dce');
+        ctx.fillStyle=prism; ctx.fillRect(left,top,width,height);
+        ctx.fillStyle='rgba(255,255,255,0.48)';
+        polygon([[x,top+size*0.12],[left+size*0.82,y],[x,top+size*1.88],[left+size*1.18,y]]);
+        ctx.fillStyle='rgba(255,255,255,0.66)';
+        polygon([[x,top+size*0.12],[left+size*0.82,y],[x,y],[x,y-size*0.55]]);
+        ctx.fillStyle='rgba(16,25,65,0.22)';
+        polygon([[x,y],[left+size*1.18,y],[x,top+size*1.88]]);
+        break;
+      }
+      case 'honey':
+        ctx.fillStyle='#a85b12'; ctx.fillRect(left,top,width,height);
+        ctx.lineWidth=Math.max(1,size*0.04);
+        for(let row=-2;row<4;row+=1){
+          for(let column=-2;column<4;column+=1){
+            const hx=x+column*size*0.52+(row%2)*size*0.26;
+            const hy=y+row*size*0.46;
+            ctx.beginPath();
+            for(let point=0;point<6;point+=1){
+              const angle=(Math.PI/3)*point-Math.PI/6;
+              const px=hx+Math.cos(angle)*size*0.29,py=hy+Math.sin(angle)*size*0.29;
+              if(point===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+            }
+            ctx.closePath();ctx.fillStyle=(row+column)%2===0?'#ffca45':'#f4a91d';ctx.fill();
+            ctx.strokeStyle='#ffe18a';ctx.stroke();
+          }
+        }
+        break;
+      case 'comet': {
+        ctx.fillStyle='#091635';ctx.fillRect(left,top,width,height);
+        const tail=ctx.createLinearGradient(x-size,y+size*0.6,x+size*0.5,y-size*0.45);
+        tail.addColorStop(0,'rgba(54,117,255,0)');tail.addColorStop(0.55,'rgba(87,220,255,0.65)');tail.addColorStop(1,'rgba(255,255,255,0.9)');
+        ctx.strokeStyle=tail;ctx.lineWidth=size*0.5;ctx.lineCap='round';
+        ctx.beginPath();ctx.moveTo(x-size*0.76,y+size*0.64);ctx.quadraticCurveTo(x-size*0.12,y+size*0.22,x+size*0.48,y-size*0.42);ctx.stroke();
+        ctx.fillStyle='#ffffff';ctx.shadowColor='#8ceeff';ctx.shadowBlur=size*0.35;
+        ctx.beginPath();ctx.arc(x+size*0.42,y-size*0.38,size*0.19,0,Math.PI*2);ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.fillStyle='#a6c5ff';
+        [[-0.5,-0.6],[0.6,0.3],[-0.1,-0.7],[-0.65,0.1]].forEach(([dx,dy])=>{ctx.beginPath();ctx.arc(x+size*dx,y+size*dy,size*0.035,0,Math.PI*2);ctx.fill();});
+        break;
+      }
+      case 'pixelcamo': {
+        const colors = ['#26382c', '#6f7d3c', '#b6a66a', '#414b42', '#8c9252'];
+        ctx.fillStyle = '#4e6038'; ctx.fillRect(left, top, width, height);
+        const cell = size * 0.25;
+        for (let row = -1; row < 9; row += 1) {
+          for (let column = -1; column < 9; column += 1) {
+            const colorIndex = (row * 11 + column * 7 + row * column * 3 + 40) % colors.length;
+            if ((row * 3 + column * 5 + 20) % 7 < 5) {
+              ctx.fillStyle = colors[colorIndex];
+              ctx.fillRect(left + column * cell, top + row * cell, cell * 0.92, cell * 0.92);
+            }
+          }
+        }
+        break;
+      }
+      case 'arid': {
+        ctx.fillStyle = '#b99a64'; ctx.fillRect(left, top, width, height);
+        const colors = ['#755f46', '#d7c18b', '#8c744e', '#e2d1a4'];
+        for (let row = -1; row < 5; row += 1) {
+          for (let column = -1; column < 5; column += 1) {
+            if ((row * 5 + column * 3 + 20) % 4 === 0) continue;
+            const px = left + column * size * 0.5 + (row % 2) * size * 0.22;
+            const py = top + row * size * 0.48;
+            ctx.fillStyle = colors[(row * 3 + column * 2 + 20) % colors.length];
+            ctx.beginPath();
+            ctx.moveTo(px, py + size * 0.05);
+            ctx.lineTo(px + size * 0.18, py - size * 0.13);
+            ctx.lineTo(px + size * 0.42, py - size * 0.04);
+            ctx.lineTo(px + size * 0.48, py + size * 0.16);
+            ctx.lineTo(px + size * 0.27, py + size * 0.27);
+            ctx.lineTo(px + size * 0.04, py + size * 0.2);
+            ctx.closePath(); ctx.fill();
+          }
+        }
+        break;
+      }
+      case 'arcticcamo': {
+        ctx.fillStyle = '#a9c7d0'; ctx.fillRect(left, top, width, height);
+        const colors = ['#edf4ef', '#648396', '#344e61', '#c1d8dc'];
+        for (let row = -1; row < 5; row += 1) {
+          for (let column = -1; column < 5; column += 1) {
+            const px = left + column * size * 0.5 + (row % 2) * size * 0.24;
+            const py = top + row * size * 0.48;
+            ctx.fillStyle = colors[(row * 3 + column * 5 + 20) % colors.length];
+            polygon([[px, py], [px + size * 0.2, py - size * 0.22], [px + size * 0.5, py - size * 0.08], [px + size * 0.37, py + size * 0.05], [px + size * 0.44, py + size * 0.25], [px + size * 0.12, py + size * 0.16]]);
+          }
+        }
+        break;
+      }
+      case 'obsidian': {
+        const dark = ctx.createLinearGradient(left, top, left + width, top + height);
+        dark.addColorStop(0, '#10131a'); dark.addColorStop(0.55, '#30343d'); dark.addColorStop(1, '#090b10');
+        ctx.fillStyle = dark; ctx.fillRect(left, top, width, height);
+        for (let row = -1; row < 4; row += 1) {
+          for (let column = -1; column < 4; column += 1) {
+            const px = left + column * size * 0.62 + (row % 2) * size * 0.31;
+            const py = top + row * size * 0.62;
+            ctx.fillStyle = (row + column) % 2 === 0 ? 'rgba(230,181,66,0.8)' : 'rgba(255,224,133,0.55)';
+            polygon([[px, py], [px + size * 0.28, py + size * 0.12], [px + size * 0.07, py + size * 0.48], [px - size * 0.1, py + size * 0.38]]);
+          }
+        }
+        break;
+      }
+      case 'stardoodle': {
+        const sky = ctx.createLinearGradient(left, top, left + width, top + height);
+        sky.addColorStop(0, '#42246f'); sky.addColorStop(1, '#e44d91');
+        ctx.fillStyle = sky; ctx.fillRect(left, top, width, height);
+        [[-0.5,-0.48,0.18], [0.48,-0.34,0.13], [-0.32,0.48,0.14], [0.52,0.42,0.2], [0.02,-0.72,0.1]].forEach(([dx,dy,r], index) => {
+          const sx = x + size * dx, sy = y + size * dy, outer = size * r;
+          ctx.fillStyle = index % 2 ? '#fff0a6' : '#ffffff';
+          ctx.beginPath();
+          for (let point = 0; point < 10; point += 1) {
+            const angle = -Math.PI / 2 + point * Math.PI / 5;
+            const pointRadius = point % 2 === 0 ? outer : outer * 0.42;
+            const px = sx + Math.cos(angle) * pointRadius, py = sy + Math.sin(angle) * pointRadius;
+            if (point === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath(); ctx.fill();
+        });
+        ctx.strokeStyle = 'rgba(255,255,255,0.72)'; ctx.lineWidth = Math.max(1, size * 0.035);
+        ctx.beginPath(); ctx.arc(x, y, size * 0.54, -0.2, Math.PI * 0.85); ctx.stroke();
+        break;
+      }
+      case 'puffball': {
+        const puff = ctx.createLinearGradient(left, top, left + width, top + height);
+        puff.addColorStop(0, '#ffb2dc'); puff.addColorStop(1, '#a86eff');
+        ctx.fillStyle = puff; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        [[-0.52,-0.35,0.19], [0.42,-0.55,0.14], [-0.46,0.35,0.13], [0.53,0.42,0.2], [0.08,-0.76,0.11]].forEach(([dx,dy,r]) => {
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, size * r, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.fillStyle = '#4c315f';
+        ctx.beginPath(); ctx.arc(x - size * 0.2, y - size * 0.03, size * 0.055, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + size * 0.2, y - size * 0.03, size * 0.055, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#4c315f'; ctx.lineWidth = Math.max(1, size * 0.045);
+        ctx.beginPath(); ctx.arc(x, y + size * 0.05, size * 0.15, 0.15, Math.PI - 0.15); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,118,167,0.8)';
+        ctx.beginPath(); ctx.arc(x - size * 0.34, y + size * 0.18, size * 0.08, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + size * 0.34, y + size * 0.18, size * 0.08, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      case 'wyrmling': {
+        const scales = ctx.createLinearGradient(left, top, left + width, top + height);
+        scales.addColorStop(0, '#8ad85b'); scales.addColorStop(1, '#147a6a');
+        ctx.fillStyle = scales; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = 'rgba(15,85,69,0.62)';
+        for (let row = -2; row < 4; row += 1) {
+          for (let column = -2; column < 4; column += 1) {
+            const sx = x + column * size * 0.48 + (row % 2) * size * 0.24;
+            const sy = y + row * size * 0.43;
+            ctx.beginPath(); ctx.arc(sx, sy, size * 0.2, 0.08, Math.PI - 0.08); ctx.fill();
+          }
+        }
+        ctx.fillStyle = '#f6cf67';
+        polygon([[x - size * 0.43, y - size * 0.3], [x - size * 0.39, y - size * 0.7], [x - size * 0.12, y - size * 0.38]]);
+        polygon([[x + size * 0.43, y - size * 0.3], [x + size * 0.39, y - size * 0.7], [x + size * 0.12, y - size * 0.38]]);
+        ctx.fillStyle = '#173f39';
+        ctx.beginPath(); ctx.ellipse(x - size * 0.2, y - size * 0.08, size * 0.06, size * 0.09, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x + size * 0.2, y - size * 0.08, size * 0.06, size * 0.09, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#173f39'; ctx.lineWidth = Math.max(1, size * 0.035);
+        ctx.beginPath(); ctx.arc(x, y + size * 0.1, size * 0.12, 0.2, Math.PI - 0.2); ctx.stroke();
+        break;
+      }
+      case 'redtiger':
+        ctx.fillStyle = '#b10f24'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#210d18';
+        [[-0.55,-1.05,-0.32],[-0.02,-1.12,0.2],[0.48,-1.02,0.8],[-0.82,-0.18,-0.48],[-0.28,-0.15,0.05],[0.28,-0.16,0.62],[0.74,-0.08,1.08],[-0.62,0.68,-0.3],[-0.05,0.62,0.3],[0.52,0.68,0.86]].forEach(([x1,y1,x2], index) => {
+          const slant = index % 2 ? 0.42 : 0.62;
+          ctx.beginPath();
+          ctx.moveTo(left + size * x1, top + size * y1);
+          ctx.lineTo(left + size * x2, top + size * (y1 + slant));
+          ctx.lineTo(left + size * (x2 - 0.14), top + size * (y1 + slant + 0.18));
+          ctx.lineTo(left + size * (x1 - 0.12), top + size * (y1 + 0.16));
+          ctx.closePath(); ctx.fill();
+        });
+        ctx.fillStyle = 'rgba(255,107,93,0.72)';
+        ctx.beginPath(); ctx.arc(x, y, size * 0.14, 0, Math.PI * 2); ctx.fill();
+        break;
+      case 'autumn': {
+        const fall = ctx.createLinearGradient(left, top, left + width, top + height);
+        fall.addColorStop(0, '#542b32'); fall.addColorStop(0.5, '#bd542d'); fall.addColorStop(1, '#e3a846');
+        ctx.fillStyle = fall; ctx.fillRect(left, top, width, height);
+        const leaves = [
+          [-0.5,-0.5,0.15,'#f2bd54'], [0.36,-0.58,0.18,'#c83d2e'], [-0.18,0.08,0.2,'#e77a32'],
+          [0.56,0.18,0.14,'#f4d06f'], [-0.58,0.52,0.16,'#a93e2d'], [0.12,0.62,0.18,'#df8c37']
+        ];
+        leaves.forEach(([dx,dy,leafSize,color], index) => {
+          const lx = x + size * dx, ly = y + size * dy, r = size * leafSize;
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.moveTo(lx, ly + r);
+          ctx.quadraticCurveTo(lx - r * 1.3, ly - r * 0.3, lx - r * 0.2, ly - r);
+          ctx.quadraticCurveTo(lx + r * 0.4, ly - r * 0.45, lx + r, ly - r * 0.65);
+          ctx.quadraticCurveTo(lx + r * 0.75, ly + r * 0.2, lx, ly + r);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(75,35,24,0.72)'; ctx.lineWidth = Math.max(1, size * 0.025);
+          ctx.beginPath(); ctx.moveTo(lx, ly + r); ctx.lineTo(lx + r * 0.35, ly - r * 0.42); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(lx + r * 0.16, ly + r * 0.3); ctx.lineTo(lx - r * 0.42, ly - r * 0.12); ctx.stroke();
+        });
+        break;
+      }
+      case 'urban': {
+        ctx.fillStyle = '#292c3a'; ctx.fillRect(left, top, width, height);
+        const colors = ['#626779', '#c5c8ce', '#454b5a', '#df4b59', '#38b7ad'];
+        for (let row = -1; row < 8; row += 1) {
+          for (let column = -1; column < 8; column += 1) {
+            if ((row * 5 + column * 3 + 20) % 4 === 0) continue;
+            const cell = size * 0.28;
+            ctx.fillStyle = colors[(row * 7 + column * 3 + 20) % colors.length];
+            ctx.fillRect(left + column * cell + (row % 2) * cell * 0.3, top + row * cell, cell * 0.82, cell * 0.82);
+          }
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = Math.max(1, size * 0.035);
+        ctx.beginPath(); ctx.moveTo(left, y - size * 0.18); ctx.lineTo(x - size * 0.2, y - size * 0.18); ctx.lineTo(x + size * 0.12, y + size * 0.1); ctx.lineTo(left + width, y + size * 0.1); ctx.stroke();
+        break;
+      }
+      case 'constellation': {
+        const night = ctx.createLinearGradient(left, top, left + width, top + height);
+        night.addColorStop(0, '#081631'); night.addColorStop(1, '#25205a');
+        ctx.fillStyle = night; ctx.fillRect(left, top, width, height);
+        const stars = [[-0.52,-0.42],[-0.08,-0.62],[0.42,-0.48],[0.58,0.08],[0.12,0.32],[-0.38,0.48],[-0.6,0.04],[0.38,0.68]];
+        ctx.strokeStyle = 'rgba(123,204,255,0.62)'; ctx.lineWidth = Math.max(1, size * 0.025);
+        [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[4,7]].forEach(([from,to]) => {
+          ctx.beginPath(); ctx.moveTo(x + size * stars[from][0], y + size * stars[from][1]); ctx.lineTo(x + size * stars[to][0], y + size * stars[to][1]); ctx.stroke();
+        });
+        stars.forEach(([dx,dy], index) => {
+          ctx.fillStyle = index % 3 === 0 ? '#fff1ad' : '#e6f6ff';
+          ctx.beginPath(); ctx.arc(x + size * dx, y + size * dy, size * (index % 3 === 0 ? 0.055 : 0.035), 0, Math.PI * 2); ctx.fill();
+        });
+        break;
+      }
+      case 'vintageink': {
+        ctx.fillStyle = '#eee4c9'; ctx.fillRect(left, top, width, height);
+        ctx.fillStyle = '#292824';
+        for (let index = 0; index < 5; index += 1) {
+          const py = top + size * (index * 0.45 - 0.9);
+          ctx.fillRect(left + size * 0.16, py, size * 0.12, size * 0.2);
+          ctx.fillRect(left + size * 1.72, py, size * 0.12, size * 0.2);
+        }
+        for (let row = 0; row < 9; row += 1) {
+          for (let column = 0; column < 9; column += 1) {
+            if ((row * 5 + column * 3 + 20) % 4 === 0) {
+              const dot = size * (0.018 + ((row + column) % 3) * 0.008);
+              ctx.beginPath();
+              ctx.arc(left + size * (column * 0.23 - 0.92), top + size * (row * 0.23 - 0.92), dot, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+        ctx.strokeStyle = '#292824'; ctx.lineWidth = Math.max(1, size * 0.045);
+        ctx.beginPath(); ctx.moveTo(x - size * 0.45, y + size * 0.2); ctx.quadraticCurveTo(x - size * 0.05, y - size * 0.65, x + size * 0.44, y - size * 0.06); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x - size * 0.32, y + size * 0.5); ctx.quadraticCurveTo(x + size * 0.05, y + size * 0.78, x + size * 0.52, y + size * 0.34); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x - size * 0.18, y - size * 0.22, size * 0.12, 0, Math.PI * 1.7); ctx.stroke();
+        ctx.fillStyle = '#292824';
+        [[-0.48,-0.45],[0.45,-0.58],[0.5,0.55],[-0.43,0.62]].forEach(([dx,dy]) => {
+          const sx = x + size * dx, sy = y + size * dy, r = size * 0.075;
+          ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(sx - r * 1.8, sy); ctx.lineTo(sx + r * 1.8, sy); ctx.moveTo(sx, sy - r * 1.8); ctx.lineTo(sx, sy + r * 1.8); ctx.stroke();
+        });
         break;
       }
       default:
@@ -2834,6 +3331,23 @@
     renderShop();
   });
 
+  skinStoreTabsEl.addEventListener('click', event => {
+    const tab = event.target.closest('[data-skin-tab]');
+    if (tab) setSkinStoreTab(tab.dataset.skinTab);
+  });
+  skinStoreTabsEl.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const tabs = [...skinStoreTabsEl.querySelectorAll('[data-skin-tab]')];
+    const currentIndex = tabs.indexOf(event.target.closest('[data-skin-tab]'));
+    if (currentIndex < 0) return;
+    event.preventDefault();
+    const nextIndex = event.key === 'Home' ? 0
+      : event.key === 'End' ? tabs.length - 1
+      : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    tabs[nextIndex].focus();
+    setSkinStoreTab(tabs[nextIndex].dataset.skinTab);
+  });
+
   skinShopItemsEl.addEventListener('click', (event) => {
     const button = event.target.closest('[data-buy-skin]');
     if (!button) return;
@@ -2846,22 +3360,24 @@
     renderShop();
   });
 
-  skinEquipControlsEl.addEventListener('change', (event) => {
-    const select = event.target.closest('select');
-    if (!select) return;
-    const skinId = select.value;
-    if (skinId && !economy.ownedSkins.includes(skinId)) {
+  skinEquipControlsEl.addEventListener('click', (event) => {
+    const targetButton = event.target.closest('[data-equip-target]');
+    if (targetButton && SKIN_EQUIP_TARGETS.includes(targetButton.dataset.equipTarget)) {
+      activeSkinEquipTarget = targetButton.dataset.equipTarget;
       renderSkinEquipControls();
       return;
     }
-    if (select.dataset.equipMass) {
-      economy.equippedMassSkins[select.dataset.equipMass] = skinId;
-    } else if (select.dataset.equipSpecial) {
-      economy.equippedSpecialSkins[select.dataset.equipSpecial] = skinId;
+    const skinButton = event.target.closest('[data-equip-skin]');
+    if (!skinButton) return;
+    const skinId = skinButton.dataset.equipSkin;
+    if (skinId && !economy.ownedSkins.includes(skinId)) return;
+    if (activeSkinEquipTarget === 'normal') {
+      economy.equippedNormalSkin = skinId;
     } else {
-      return;
+      economy.equippedSpecialSkins[activeSkinEquipTarget] = skinId;
     }
     saveEconomy();
+    renderSkinEquipControls();
   });
 
   traitItemsEl.addEventListener('click', (event) => {
