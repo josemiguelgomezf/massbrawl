@@ -1942,9 +1942,9 @@
   }
 
   function applyOnlineGameState(state){
-    if (!state || !['player', 'ai'].includes(state.turn) ||
-        !Array.isArray(state.orbs) || !state.inventory ||
-        !Array.isArray(state.inventory.player) || !Array.isArray(state.inventory.ai)) return;
+    if (!state || !['player', 'ai'].includes(state.turn)) return;
+    // Firebase no guarda arrays vacíos: tablero o inventario sin elementos llegan como undefined.
+    state = { ...state, orbs: state.orbs || [], inventory: { player: state.inventory?.player || [], ai: state.inventory?.ai || [] } };
 
     const isFiniteNumber = Number.isFinite;
     const sourceWidth = Number.isFinite(state.board?.width) && state.board.width > 0 ? state.board.width : W;
@@ -2123,9 +2123,11 @@
         if (role === 'blue') publishOnlineGameState();
       },
       onGameState(state){
+        // Un snapshot tardío no debe reabrir una partida terminada ni borrar el orbe que se está arrastrando.
+        if (gameOver || (dragOrb && isOnlineTeamLocal(turn))) return;
         if (Number.isSafeInteger(state.revision) && state.revision <= onlineStateRevision) return;
         // Keep the local motion prediction; intermediate snapshots reset orb positions and cause visible jumps.
-        if (mode === 'online' && busy && state.busy && !isOnlineTeamLocal(turn)) return;
+        if (mode === 'online' && busy && state.busy && state.turn === turn && !isOnlineTeamLocal(turn)) return;
         applyOnlineGameState(state);
       },
       onError(error){

@@ -307,9 +307,8 @@ export async function connectFirebaseOnline(config, handlers){
     const finalResult = resultTransaction.snapshot.val();
     if (!finalResult) return null;
 
-    await databaseSdk.runTransaction(currentRoomRef, current => {
-      if (!current || current.status !== 'playing') return;
-      return { ...current, status: 'finished', result: finalResult };
+    await databaseSdk.runTransaction(databaseSdk.ref(database, `rooms/${currentCode}/status`), current => {
+      return current === 'playing' ? 'finished' : undefined;
     });
     return finalResult;
   }
@@ -336,9 +335,8 @@ export async function connectFirebaseOnline(config, handlers){
     const finalResult = resultTransaction.snapshot.val();
     if (!finalResult) throw new Error(getMessage(handlers, 'matchResultSaveFailed'));
 
-    await databaseSdk.runTransaction(currentRoomRef, current => {
-      if (!current || current.status !== 'playing') return;
-      return { ...current, status: 'finished', result: finalResult };
+    await databaseSdk.runTransaction(databaseSdk.ref(database, `rooms/${currentCode}/status`), current => {
+      return current === 'playing' ? 'finished' : undefined;
     });
     return finalResult;
   }
@@ -356,9 +354,8 @@ export async function connectFirebaseOnline(config, handlers){
         if (room?.status === 'playing') {
           await finishForfeit('forfeit');
         } else if (room?.status === 'waiting') {
-          await databaseSdk.runTransaction(leavingRef, current => {
-            if (!current || current.status !== 'waiting') return;
-            return { ...current, status: 'cancelled' };
+          await databaseSdk.runTransaction(databaseSdk.ref(database, `rooms/${leavingCode}/status`), current => {
+            return current === 'waiting' ? 'cancelled' : undefined;
           });
         }
       }
