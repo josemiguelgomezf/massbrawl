@@ -14,14 +14,28 @@
         },
         "result": {
           ".write": "auth != null && root.child('rooms').child($room).child('status').val() == 'playing' && !data.exists() && ((newData.child('winner').val() == 'orange' && newData.child('reason').val() == 'forfeit' && root.child('rooms').child($room).child('players/blue').val() == auth.uid) || (newData.child('winner').val() == 'blue' && newData.child('reason').val() == 'forfeit' && root.child('rooms').child($room).child('players/orange').val() == auth.uid) || (newData.child('winner').val() == 'blue' && newData.child('reason').val() == 'disconnect' && root.child('rooms').child($room).child('players/blue').val() == auth.uid && root.child('rooms').child($room).child('presence/orange').child(root.child('rooms').child($room).child('players/orange').val()).val() == false) || (newData.child('winner').val() == 'orange' && newData.child('reason').val() == 'disconnect' && root.child('rooms').child($room).child('players/orange').val() == auth.uid && root.child('rooms').child($room).child('presence/blue').child(root.child('rooms').child($room).child('players/blue').val()).val() == false) || ((newData.child('winner').val() == 'blue' || newData.child('winner').val() == 'draw') && newData.child('reason').val() == 'completed' && root.child('rooms').child($room).child('players/blue').val() == auth.uid && root.child('rooms').child($room).child('game/turn').val() == 'player') || ((newData.child('winner').val() == 'orange' || newData.child('winner').val() == 'draw') && newData.child('reason').val() == 'completed' && root.child('rooms').child($room).child('players/orange').val() == auth.uid && root.child('rooms').child($room).child('game/turn').val() == 'ai'))",
-          ".validate": "newData.hasChildren(['winner', 'reason', 'at']) && (newData.child('winner').val() == 'blue' || newData.child('winner').val() == 'orange' || newData.child('winner').val() == 'draw') && (newData.child('reason').val() == 'forfeit' || newData.child('reason').val() == 'disconnect' || newData.child('reason').val() == 'completed') && newData.child('at').isNumber()"
+          ".validate": "(root.child('rooms').child($room).child('status').val() == 'playing' && !data.exists() && ((newData.child('winner').val() == 'orange' && newData.child('reason').val() == 'forfeit' && root.child('rooms').child($room).child('players/blue').val() == auth.uid) || (newData.child('winner').val() == 'blue' && newData.child('reason').val() == 'forfeit' && root.child('rooms').child($room).child('players/orange').val() == auth.uid) || (newData.child('winner').val() == 'blue' && newData.child('reason').val() == 'disconnect' && root.child('rooms').child($room).child('players/blue').val() == auth.uid && root.child('rooms').child($room).child('presence/orange').child(root.child('rooms').child($room).child('players/orange').val()).val() == false) || (newData.child('winner').val() == 'orange' && newData.child('reason').val() == 'disconnect' && root.child('rooms').child($room).child('players/orange').val() == auth.uid && root.child('rooms').child($room).child('presence/blue').child(root.child('rooms').child($room).child('players/blue').val()).val() == false) || ((newData.child('winner').val() == 'blue' || newData.child('winner').val() == 'draw') && newData.child('reason').val() == 'completed' && root.child('rooms').child($room).child('players/blue').val() == auth.uid && root.child('rooms').child($room).child('game/turn').val() == 'player') || ((newData.child('winner').val() == 'orange' || newData.child('winner').val() == 'draw') && newData.child('reason').val() == 'completed' && root.child('rooms').child($room).child('players/orange').val() == auth.uid && root.child('rooms').child($room).child('game/turn').val() == 'ai'))) && (newData.hasChildren(['winner', 'reason', 'at']) && (newData.child('winner').val() == 'blue' || newData.child('winner').val() == 'orange' || newData.child('winner').val() == 'draw') && (newData.child('reason').val() == 'forfeit' || newData.child('reason').val() == 'disconnect' || newData.child('reason').val() == 'completed') && newData.child('at').isNumber())"
+        },
+        "status": {
+          ".validate": "newData.val() == 'waiting' || newData.val() == 'playing' || newData.val() == 'finished' || newData.val() == 'cancelled'"
+        },
+        "players": {
+          "blue": {
+            ".validate": "!data.exists() || newData.val() == data.val()"
+          },
+          "orange": {
+            ".validate": "!data.exists() || newData.val() == data.val()"
+          }
+        },
+        "game": {
+          ".validate": "!newData.exists() || ((newData.child('turn').val() == 'player' || newData.child('turn').val() == 'ai') && newData.child('orbs').numChildren() <= 200 && newData.child('inventory/player').numChildren() <= 200 && newData.child('inventory/ai').numChildren() <= 200)"
         }
       }
     },
     "matchmaking": {
       "waiting": {
         ".read": "auth != null",
-        ".write": "auth != null && (newData.child('uid').val() == auth.uid || data.child('uid').val() == auth.uid)"
+        ".write": "auth != null && ((newData.child('uid').val() == auth.uid && (!data.exists() || data.child('uid').val() == auth.uid || data.child('createdAt').val() < now - 180000)) || data.child('uid').val() == auth.uid)"
       }
     }
   }

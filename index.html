@@ -1675,6 +1675,9 @@
   const POWER = 0.045;
   const MAX_MASS = 5;
   const INVENTORY_SIZE = 5;
+  const MAX_ONLINE_ORBS = 200;
+  const PHYSICS_STEP_SECONDS = 1 / 60;
+  const MAX_FRAME_SECONDS = 0.1;
   const TURN_SECONDS = 60;
   const BOMB_PROBABILITY = 0.01;
   const SPIKE_PROBABILITY = 0.01;
@@ -1692,6 +1695,7 @@
   let playerTimeLeft = TURN_SECONDS;
   let aiTimeLeft = TURN_SECONDS;
   let lastTs = null;
+  let physicsAccumulator = 0;
   let gameOver = false;
   let started = false;
   let mode = 'ai'; // 'ai' | 'pvp'
@@ -1943,6 +1947,8 @@
 
   function applyOnlineGameState(state){
     if (!state || !['player', 'ai'].includes(state.turn)) return;
+    // Un cliente modificado podría mandar miles de orbes y congelar las colisiones (O(n²)).
+    if ((state.orbs?.length || 0) > MAX_ONLINE_ORBS) return;
     // Firebase no guarda arrays vacíos: tablero o inventario sin elementos llegan como undefined.
     state = { ...state, orbs: state.orbs || [], inventory: { player: state.inventory?.player || [], ai: state.inventory?.ai || [] } };
 
@@ -2086,6 +2092,8 @@
       onMatchResult(result){
         if (!started || mode !== 'online' || !result || !['blue', 'orange', 'draw'].includes(result.winner)) return;
         clearOpponentDisconnectTimer();
+        // El cliente que no cerró la partida también cobra la recompensa (solo si terminó por puntos).
+        if (!gameOver && result.reason === 'completed') grantMatchRewards(computeScores());
         gameOver = true;
         busy = false;
         clearTimeout(finalDelayTimer);
@@ -2184,7 +2192,6 @@
     updateTurnUI();
     updateTimerDisplay();
     lastTs = null;
-    requestAnimationFrame(loop);
   }
 
   function backToMenu(){
@@ -2634,17 +2641,32 @@
     }
   }
 
+  function grantMatchRewards(scores){
+    economy.coins += MATCH_REWARD;
+    saveEconomy();
+    renderEconomy();
+    renderShop();
+    recordMatchResult(scores);
+  }
+
+  // Si el resultado no llega a Firebase, el rival se queda esperando: se reintenta antes de rendirse.
+  function saveOnlineResult(winner, attempt = 0){
+    onlineService.finishMatch(winner).catch(error => {
+      if (attempt < 3 && mode === 'online' && onlineService) {
+        setTimeout(() => saveOnlineResult(winner, attempt + 1), 1500);
+      } else {
+        setOnlineStatus(onlineErrorMessage(error));
+      }
+    });
+  }
+
   function endGame(){
     if (gameOver) return;
     gameOver = true;
     traitInventoryBtn.classList.remove('player-turn', 'ai-turn');
     clearTimeout(aiTimer); aiTimer = null;
-    economy.coins += MATCH_REWARD;
-    saveEconomy();
-    renderEconomy();
-    renderShop();
     const s = computeScores();
-    recordMatchResult(s);
+    grantMatchRewards(s);
     let title;
 
     if (mode === 'online') {
@@ -2652,11 +2674,7 @@
       const rivalScore = onlineRole === 'orange' ? s.player : s.ai;
       title = localScore > rivalScore ? t('victory') : localScore < rivalScore ? t('defeat') : t('draw');
       const winner = localScore > rivalScore ? onlineRole : localScore < rivalScore ? (onlineRole === 'blue' ? 'orange' : 'blue') : 'draw';
-      if (onlineService) {
-        onlineService.finishMatch(winner).catch(error => {
-          setOnlineStatus(onlineErrorMessage(error));
-        });
-      }
+      if (onlineService) saveOnlineResult(winner);
     } else if (mode === 'pvp') {
       if (s.player > s.ai) title = t('pvpWinner1');
       else if (s.ai > s.player) title = t('pvpWinner2');
@@ -3390,11 +3408,17 @@
   function loop(ts){
     if (started && !gameOver){
       if (lastTs === null) lastTs = ts;
-      const dt = (ts-lastTs)/1000; lastTs = ts;
+      // Sin límite, volver de segundo plano restaría todo el tiempo ausente del turno.
+      const dt = Math.min((ts-lastTs)/1000, MAX_FRAME_SECONDS); lastTs = ts;
 
       if (busy) {
-        physicsStep();
-        detonateBombs();
+        // Paso fijo: la velocidad del juego no depende de los Hz de la pantalla.
+        physicsAccumulator += dt;
+        while (physicsAccumulator >= PHYSICS_STEP_SECONDS) {
+          physicsStep();
+          detonateBombs();
+          physicsAccumulator -= PHYSICS_STEP_SECONDS;
+        }
         if (mode === 'online' && isOnlineTeamLocal(turn)) {
           onlineSyncElapsed += dt;
           if (onlineSyncElapsed >= 0.12) {
