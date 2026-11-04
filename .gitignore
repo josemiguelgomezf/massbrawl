@@ -29,3 +29,8 @@ venv/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Firma de Android (no subir)
+keystore.properties
+*.jks
+MassBrawl-DeployGooglePlay.zip

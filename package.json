@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/josemiguelgomezf/massbrawl#readme",
   "dependencies": {
+    "@capacitor-community/admob": "^8.2.1",
     "@capacitor/android": "^8.5.1",
     "@capacitor/cli": "^8.5.1",
     "@capacitor/core": "^8.5.1"

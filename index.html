@@ -27,8 +27,9 @@
     overflow:hidden; touch-action:none;
     display:flex; align-items:center; justify-content:center;
   }
+  body{ padding-bottom:var(--ad-h,0px); }
   #app{
-    position:relative; width:640px; max-width:100vw; height:100vh; max-height:900px;
+    position:relative; width:640px; max-width:100vw; height:calc(100vh - var(--ad-h,0px)); max-height:900px;
     background:
       radial-gradient(circle at 20% 0%, rgba(var(--blue-rgb),0.08), transparent 45%),
       radial-gradient(circle at 80% 0%, rgba(var(--orange-rgb),0.08), transparent 45%),
@@ -631,6 +632,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
+<script src="ads.js"></script>
 <script>
 (function(){
   const canvas = document.getElementById('game');
@@ -1668,7 +1670,8 @@
     canvas.width = W * DPR; canvas.height = H * DPR;
     ctx.setTransform(DPR,0,0,DPR,0,0);
   }
-  window.addEventListener('resize', resize);
+  // El banner cambia la altura del tablero sin que cambie la ventana.
+  new ResizeObserver(resize).observe(wrap);
 
   const FRICTION = 0.985;
   const MIN_SPEED = 0.04;
