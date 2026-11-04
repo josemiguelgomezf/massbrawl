@@ -17,3 +17,13 @@ Para probarlo, abre el juego en dos sesiones del navegador o en dispositivos dis
 Las reglas requieren un usuario autenticado y limitan la escritura de salas a sus participantes (con una excepción para que un segundo participante se una a una sala esperando). La app detecta desconexiones mediante Realtime Database: espera hasta 60 segundos a que el rival vuelva; salir voluntariamente durante una partida cuenta como abandono. El tablero se sincroniza durante los movimientos. No es un sistema antitrampas con simulación autoritativa en servidor; para partidas competitivas o recompensas con valor, valida las jugadas y los resultados mediante Cloud Functions.
 
 Las monedas, los artículos de la tienda, los logros y las skins compradas/equipadas se guardan localmente en cada dispositivo; no se transfieren al jugar online ni al cambiar de dispositivo.
+
+## Pruebas de regresión
+
+Con Node.js 20+ y las dependencias instaladas (`npm ci`):
+
+- `npm test`: sincronización de inventarios vacíos, estados inválidos, cambios de turno durante movimientos, reintentos por partida, recompensas y paso fijo de física.
+- `npm run test:rules`: necesita Java 21+ y el puerto 9000 libre. Arranca Realtime Database Emulator con el proyecto ficticio `demo-massbrawl-review` y ejecuta el servicio online real con dos identidades de prueba. Comprueba salas, turnos, resultados, abandono, desconexión, búsqueda aleatoria y compatibilidad con el cierre de sala del cliente anterior. No utiliza ni despliega recursos de producción.
+- `npm run build:web`: genera los archivos web para Capacitor.
+
+Las pruebas automatizadas no sustituyen una partida completa en dos dispositivos Android, incluyendo segundo plano/reconexión y una pantalla de 120 Hz. Las reglas deben publicarse por separado siguiendo la configuración anterior; un merge de la PR no las despliega.

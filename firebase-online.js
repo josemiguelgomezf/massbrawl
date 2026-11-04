@@ -303,7 +303,7 @@ export async function connectFirebaseOnline(config, handlers){
     const resultTransaction = await databaseSdk.runTransaction(resultRef, current => {
       if (current !== null) return;
       return { winner, reason, at: Date.now() };
-    });
+    }, { applyLocally: false });
     const finalResult = resultTransaction.snapshot.val();
     if (!finalResult) return null;
 
@@ -323,7 +323,7 @@ export async function connectFirebaseOnline(config, handlers){
     const roomSnapshot = await databaseSdk.get(currentRoomRef);
     const room = roomSnapshot.val();
     const expectedTurn = currentRole === 'blue' ? 'player' : 'ai';
-    if (!room || room.status !== 'playing' || room.game?.turn !== expectedTurn) {
+    if (!room?.result && (!room || room.status !== 'playing' || room.game?.turn !== expectedTurn)) {
       throw new Error(getMessage(handlers, 'matchResultNotConfirmed'));
     }
 
@@ -331,7 +331,7 @@ export async function connectFirebaseOnline(config, handlers){
     const resultTransaction = await databaseSdk.runTransaction(resultRef, current => {
       if (current !== null) return;
       return { winner, reason: 'completed', at: Date.now() };
-    });
+    }, { applyLocally: false });
     const finalResult = resultTransaction.snapshot.val();
     if (!finalResult) throw new Error(getMessage(handlers, 'matchResultSaveFailed'));
 

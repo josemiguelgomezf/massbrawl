@@ -1386,11 +1386,13 @@
     checkAchievementProgress();
   }
 
-  function recordMatchResult(scores){
+  function recordMatchResult(scores, confirmedWinner){
     const stats = economy.stats;
     const localScore = mode === 'online' && onlineRole === 'orange' ? scores.ai : scores.player;
     const rivalScore = mode === 'online' && onlineRole === 'orange' ? scores.player : scores.ai;
-    const won = mode === 'pvp' ? scores.player !== scores.ai : localScore > rivalScore;
+    const won = mode === 'online' && confirmedWinner !== undefined
+      ? confirmedWinner === onlineRole
+      : mode === 'pvp' ? scores.player !== scores.ai : localScore > rivalScore;
     stats.matches += 1;
     stats.bestScore = Math.max(stats.bestScore, scores.player, scores.ai);
     if (won) {
@@ -1696,6 +1698,8 @@
   let aiTimeLeft = TURN_SECONDS;
   let lastTs = null;
   let physicsAccumulator = 0;
+  let matchGeneration = 0;
+  let matchRewardsGranted = false;
   let gameOver = false;
   let started = false;
   let mode = 'ai'; // 'ai' | 'pvp'
@@ -1947,10 +1951,14 @@
 
   function applyOnlineGameState(state){
     if (!state || !['player', 'ai'].includes(state.turn)) return;
-    // Un cliente modificado podría mandar miles de orbes y congelar las colisiones (O(n²)).
-    if ((state.orbs?.length || 0) > MAX_ONLINE_ORBS) return;
-    // Firebase no guarda arrays vacíos: tablero o inventario sin elementos llegan como undefined.
-    state = { ...state, orbs: state.orbs || [], inventory: { player: state.inventory?.player || [], ai: state.inventory?.ai || [] } };
+    // Firebase omits empty arrays. Reject malformed non-empty collections before mutating the game.
+    const collection = value => value == null ? [] : Array.isArray(value) ? value : null;
+    const incomingOrbs = collection(state.orbs);
+    const playerItems = collection(state.inventory?.player);
+    const aiItems = collection(state.inventory?.ai);
+    if (!incomingOrbs || !playerItems || !aiItems || incomingOrbs.length > MAX_ONLINE_ORBS ||
+        playerItems.length > MAX_ONLINE_ORBS || aiItems.length > MAX_ONLINE_ORBS) return;
+    state = { ...state, orbs: incomingOrbs, inventory: { player: playerItems, ai: aiItems } };
 
     const isFiniteNumber = Number.isFinite;
     const sourceWidth = Number.isFinite(state.board?.width) && state.board.width > 0 ? state.board.width : W;
@@ -1987,7 +1995,9 @@
         const anchor = orbsById.get(data.anchor);
         if (members.length < 2 || !anchor || !members.includes(anchor)) continue;
         const offsets = new Map();
-        for (const [id, x, y] of data.offsets || []) {
+        for (const offset of Array.isArray(data.offsets) ? data.offsets : []) {
+          if (!Array.isArray(offset)) continue;
+          const [id, x, y] = offset;
           if (orbsById.has(id) && isFiniteNumber(x) && isFiniteNumber(y)) {
             offsets.set(orbsById.get(id), { x: x * scaleX, y: y * scaleY });
           }
@@ -2023,6 +2033,7 @@
     turn = state.turn;
     onlineStateRevision = Number.isSafeInteger(state.revision) ? state.revision : onlineStateRevision;
     busy = Boolean(state.busy);
+    physicsAccumulator = 0;
     dragOrb = null;
     dragStart = null;
     dragCurrent = null;
@@ -2093,7 +2104,7 @@
         if (!started || mode !== 'online' || !result || !['blue', 'orange', 'draw'].includes(result.winner)) return;
         clearOpponentDisconnectTimer();
         // El cliente que no cerró la partida también cobra la recompensa (solo si terminó por puntos).
-        if (!gameOver && result.reason === 'completed') grantMatchRewards(computeScores());
+        if (result.reason === 'completed') grantMatchRewards(computeScores(), result.winner);
         gameOver = true;
         busy = false;
         clearTimeout(finalDelayTimer);
@@ -2132,7 +2143,7 @@
       },
       onGameState(state){
         // Un snapshot tardío no debe reabrir una partida terminada ni borrar el orbe que se está arrastrando.
-        if (gameOver || (dragOrb && isOnlineTeamLocal(turn))) return;
+        if (!state || !started || mode !== 'online' || gameOver || (dragOrb && isOnlineTeamLocal(turn))) return;
         if (Number.isSafeInteger(state.revision) && state.revision <= onlineStateRevision) return;
         // Keep the local motion prediction; intermediate snapshots reset orb positions and cause visible jumps.
         if (mode === 'online' && busy && state.busy && state.turn === turn && !isOnlineTeamLocal(turn)) return;
@@ -2168,6 +2179,10 @@
   }
 
   function newGame(){
+    matchGeneration += 1;
+    matchRewardsGranted = false;
+    physicsAccumulator = 0;
+    dragOrb = null; dragStart = null; dragCurrent = null;
     resize();
     orbs = [];
     inventory = sharedInventoryForBothPlayers();
@@ -2195,6 +2210,7 @@
   }
 
   function backToMenu(){
+    matchGeneration += 1;
     if (onlineService && mode === 'online') onlineService.leave();
     clearOpponentDisconnectTimer();
     onlineRole = null;
@@ -2245,6 +2261,12 @@
     if (!dragOrb) return;
     dragCurrent = pointerPos(e);
     e.preventDefault();
+  }
+  function cancelExpiredDrag(){
+    if (!dragOrb) return;
+    inventory[dragOrb.team].push({ value: dragOrb.value, bomb: dragOrb.bomb, spiked: dragOrb.spiked, ghost: dragOrb.ghost });
+    dragOrb = null; dragStart = null; dragCurrent = null;
+    renderInventory();
   }
   function onUp(e){
     if (!dragOrb) return;
@@ -2641,19 +2663,24 @@
     }
   }
 
-  function grantMatchRewards(scores){
+  function grantMatchRewards(scores, confirmedWinner){
+    if (matchRewardsGranted) return;
+    matchRewardsGranted = true;
     economy.coins += MATCH_REWARD;
     saveEconomy();
     renderEconomy();
     renderShop();
-    recordMatchResult(scores);
+    recordMatchResult(scores, confirmedWinner);
   }
 
   // Si el resultado no llega a Firebase, el rival se queda esperando: se reintenta antes de rendirse.
-  function saveOnlineResult(winner, attempt = 0){
-    onlineService.finishMatch(winner).catch(error => {
-      if (attempt < 3 && mode === 'online' && onlineService) {
-        setTimeout(() => saveOnlineResult(winner, attempt + 1), 1500);
+  function saveOnlineResult(winner, attempt = 0, generation = matchGeneration){
+    if (generation !== matchGeneration || !started || mode !== 'online' || !onlineService) return;
+    const service = onlineService;
+    service.finishMatch(winner).catch(error => {
+      if (generation !== matchGeneration || mode !== 'online' || onlineService !== service) return;
+      if (attempt < 3) {
+        setTimeout(() => saveOnlineResult(winner, attempt + 1, generation), 1500);
       } else {
         setOnlineStatus(onlineErrorMessage(error));
       }
@@ -2666,7 +2693,7 @@
     traitInventoryBtn.classList.remove('player-turn', 'ai-turn');
     clearTimeout(aiTimer); aiTimer = null;
     const s = computeScores();
-    grantMatchRewards(s);
+    if (mode !== 'online') grantMatchRewards(s);
     let title;
 
     if (mode === 'online') {
@@ -2686,7 +2713,9 @@
     }
 
     overlayTitle.textContent = title;
-    overlaySub.textContent = `${s.player} — ${s.ai} · +${MATCH_REWARD} ${t('rewardCoins')}`;
+    overlaySub.textContent = mode === 'online'
+      ? `${s.player} — ${s.ai}`
+      : `${s.player} — ${s.ai} · +${MATCH_REWARD} ${t('rewardCoins')}`;
     overlay.classList.remove('hidden');
   }
 
@@ -3443,7 +3472,8 @@
         updateExplosions(dt);
         if (turn === 'player') {
           if (mode !== 'online' || isOnlineTeamLocal(turn)) playerTimeLeft = Math.max(0, playerTimeLeft - dt);
-          if (playerTimeLeft === 0 && (mode !== 'online' || isOnlineTeamLocal('player'))) {
+          if (playerTimeLeft === 0 && !busy && (mode !== 'online' || isOnlineTeamLocal('player'))) {
+            cancelExpiredDrag();
             if (canPlay('ai')) {
               turn = 'ai';
               turnEl.textContent = turnLabel();
@@ -3457,7 +3487,8 @@
           }
         } else {
           if (mode !== 'online' || isOnlineTeamLocal(turn)) aiTimeLeft = Math.max(0, aiTimeLeft - dt);
-          if (aiTimeLeft === 0 && (mode !== 'online' || isOnlineTeamLocal('ai'))) {
+          if (aiTimeLeft === 0 && !busy && (mode !== 'online' || isOnlineTeamLocal('ai'))) {
+            cancelExpiredDrag();
             if (canPlay('player')) {
               turn = 'player';
               turnEl.textContent = turnLabel();
