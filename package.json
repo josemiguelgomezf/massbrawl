@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build:web": "node scripts/build-web.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test tests/game.test.cjs",
+    "test:rules": "firebase emulators:exec --only database --project demo-massbrawl-review \"node --test tests/firebase.test.cjs\""
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,10 @@
     "@capacitor/android": "^8.5.1",
     "@capacitor/cli": "^8.5.1",
     "@capacitor/core": "^8.5.1"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "4.0.1",
+    "firebase": "11.10.0",
+    "firebase-tools": "^15.34.2"
   }
 }
