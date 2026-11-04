@@ -4,4 +4,5 @@
     <string name="title_activity_main">Mass Brawl</string>
     <string name="package_name">com.mjgames.massbrawl</string>
     <string name="custom_url_scheme">com.mjgames.massbrawl</string>
+    <string name="admob_app_id">ca-app-pub-9144651039798828~3972706383</string>
 </resources>
