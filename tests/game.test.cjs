@@ -48,7 +48,7 @@ test('result retries stop after returning to menu or starting another match',asy
   c.matchGeneration++;callbacks[0]();await new Promise(setImmediate);assert.equal(calls,1);
 });
 test('confirmed online winner determines stats even with stale local scores',()=>{
-  const c=context({mode:'online',onlineRole:'orange',economy:{stats:{matches:0,bestScore:0,wins:0,winStreak:0}},saveEconomy(){},checkAchievementProgress(){}},['recordMatchResult']);
+  const c=context({window:{},mode:'online',onlineRole:'orange',economy:{stats:{matches:0,bestScore:0,wins:0,winStreak:0}},saveEconomy(){},checkAchievementProgress(){}},['recordMatchResult']);
   c.recordMatchResult({player:10,ai:0},'orange');assert.equal(c.economy.stats.wins,1);
 });
 test('match rewards are granted once despite duplicate result events',()=>{
@@ -82,4 +82,105 @@ test('a busy remote prediction accepts a snapshot that hands off the turn',()=>{
   vm.runInContext('function onGameState(state){'+html.slice(start+'      onGameState(state){'.length,end)+'\n}',c);
   c.onGameState({turn:'player',busy:true,revision:3,inventory:{player:[{value:1}]}});
   assert.equal(c.turn,'player');assert.equal(c.onlineStateRevision,3);
+});
+// Google Play Games
+const allAchievementIds=[...html.matchAll(/\{ id: '(\w+)', title:/g)].map(m=>m[1]);
+function playGames({authenticated=true,stored=null,unlock=async()=>{},signIn=async()=>({authenticated:true})}={}){
+  const calls={unlock:[],score:[],signIn:0,achievementsUi:0,leaderboardUi:[]};const store={};const listeners=[];
+  if(stored)store.massBrawlPlayGamesSynced=stored;
+  const plugin={isAuthenticated:async()=>({authenticated:calls.session??authenticated}),
+    signIn:async()=>{calls.signIn++;return signIn();},
+    unlockAchievement:o=>{calls.unlock.push(o.id);return unlock(o);},
+    submitScore:async o=>{calls.score.push(o);},
+    showAchievements:async()=>{calls.achievementsUi++;},
+    showLeaderboard:async o=>{calls.leaderboardUi.push(o.leaderboardId);}};
+  const window={Capacitor:{isNativePlatform:()=>true,Plugins:{PlayGames:plugin}}};
+  const ctx=vm.createContext({window,console:{warn(){}},document:{hidden:false,addEventListener:(_,fn)=>listeners.push(fn)},
+    localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=v;}}});
+  vm.runInContext(fs.readFileSync('play-games.js','utf8'),ctx);
+  return {api:window.MassBrawlPlayGames,calls,store,resume:()=>listeners.forEach(fn=>fn())};
+}
+const settle=async()=>{for(let i=0;i<5;i++)await new Promise(setImmediate);};
+function achievementContext(stats,extra={}){
+  const sent=[];const ctx=context({window:{MassBrawlPlayGames:{syncAchievements:ids=>sent.push(...ids)}},economy:{stats,...extra},
+    achievementDefinitions:[{id:'first_win',stat:'wins',thresholds:[1,3]},{id:'score_ten',stat:'bestScore',thresholds:[10,15]},{id:'all_specials',stat:'specialSets',thresholds:[1,2]}]},
+    ['achievementMetric','syncPlayGamesAchievements']);
+  ctx.syncPlayGamesAchievements();return sent;
+}
+test('Play Games unlock rule is metric >= first threshold',()=>{
+  assert.deepEqual(achievementContext({wins:0,bestScore:9,bombUses:1,spikedUses:1,ghostUses:0}),[]);
+  assert.deepEqual(achievementContext({wins:1,bestScore:10,bombUses:1,spikedUses:1,ghostUses:1}),['first_win','score_ten','all_specials']);
+});
+test('Play Games unlock ignores claimed and notified levels',()=>{
+  assert.deepEqual(achievementContext({wins:1},{achievementLevels:{},notifiedAchievementLevels:{}}),['first_win']);
+  assert.deepEqual(achievementContext({wins:50},{achievementLevels:{first_win:5},notifiedAchievementLevels:{first_win:5}}),['first_win']);
+});
+test('checkAchievementProgress syncs with Play Games and grants nothing',()=>{
+  let synced=0;const economy={coins:7,stats:{wins:1},achievementLevels:{},notifiedAchievementLevels:{}};
+  const c=context({economy,achievementDefinitions:[],achievementToastQueue:[],saveEconomy(){},renderEconomy(){},renderAchievements(){},syncPlayGamesAchievements(){synced++;}},['checkAchievementProgress']);
+  c.checkAchievementProgress();assert.equal(synced,1);assert.equal(economy.coins,7);
+});
+test('all 12 achievements map to a Play id and existing progress syncs on sign-in',async()=>{
+  assert.equal(allAchievementIds.length,12);
+  const p=playGames();p.api.syncAchievements(allAchievementIds);await settle();
+  assert.equal(new Set(p.calls.unlock).size,12);assert.ok(p.calls.unlock.every(id=>id.startsWith('CgkIs5nC3IEEEAIQ')));
+  assert.equal(JSON.parse(p.store.massBrawlPlayGamesSynced).length,12);
+});
+test('already synced achievements are not sent again, also after restart',async()=>{
+  const p=playGames({stored:'["first_win"]'});p.api.syncAchievements(['first_win','hard_win']);await settle();
+  p.api.syncAchievements(['first_win','hard_win']);await settle();
+  assert.deepEqual(p.calls.unlock,['CgkIs5nC3IEEEAIQBw']);
+});
+test('overlapping syncs send an achievement only once',async()=>{
+  const p=playGames();await settle();p.api.syncAchievements(['first_win']);p.api.syncAchievements(['first_win']);await settle();
+  assert.equal(p.calls.unlock.length,1);
+});
+test('failed unlock is not marked and retries on the next sync',async()=>{
+  let fail=true;const p=playGames({unlock:async()=>{if(fail)throw Error('offline');}});
+  p.api.syncAchievements(['first_win']);await settle();
+  assert.equal(p.calls.unlock.length,1);assert.equal(p.store.massBrawlPlayGamesSynced,undefined);
+  fail=false;p.api.syncAchievements(['first_win']);await settle();
+  assert.equal(p.calls.unlock.length,2);assert.equal(p.store.massBrawlPlayGamesSynced,'["first_win"]');
+});
+test('without a session nothing is sent, and it syncs when returning with one',async()=>{
+  const p=playGames({authenticated:false});p.api.syncAchievements(['first_win']);p.api.submitScore(5);await settle();
+  assert.equal(p.calls.unlock.length,0);assert.equal(p.calls.score.length,0);assert.equal(p.calls.signIn,0);
+  p.calls.session=true;p.resume();await settle();assert.equal(p.calls.unlock.length,1);
+});
+test('corrupt synced storage is ignored',async()=>{
+  const p=playGames({stored:'{oops'});p.api.syncAchievements(['first_win']);await settle();assert.equal(p.calls.unlock.length,1);
+});
+test('zero scores are not submitted',async()=>{
+  const p=playGames();await settle();p.api.submitScore(0);p.api.submitScore(12);await settle();
+  assert.deepEqual(p.calls.score.map(o=>[o.leaderboardId,o.score]),[['CgkIs5nC3IEEEAIQDQ',12]]);
+});
+function scoreSent(values,scores){
+  const sent=[];const c=context({window:{MassBrawlPlayGames:{submitScore:s=>sent.push(s)}},economy:{stats:{matches:0,bestScore:0,wins:0,winStreak:0}},saveEconomy(){},checkAchievementProgress(){},...values},['recordMatchResult']);
+  c.recordMatchResult(scores);return{sent,stats:c.economy.stats};
+}
+test('leaderboard receives localScore, never the rival score from bestScore',()=>{
+  const ai=scoreSent({mode:'ai',difficulty:'easy'},{player:4,ai:9});assert.deepEqual(ai.sent,[4]);assert.equal(ai.stats.bestScore,9);
+  assert.deepEqual(scoreSent({mode:'online',onlineRole:'orange'},{player:9,ai:4}).sent,[4]);
+  assert.deepEqual(scoreSent({mode:'online',onlineRole:'blue'},{player:9,ai:4}).sent,[9]);
+});
+test('leaderboard is not submitted in pvp',()=>{
+  assert.deepEqual(scoreSent({mode:'pvp'},{player:9,ai:4}).sent,[]);
+});
+test('native screens: signed in opens directly, otherwise signIn first',async()=>{
+  const p=playGames();assert.equal(await p.api.showAchievements(),true);assert.equal(p.calls.signIn,0);assert.equal(p.calls.achievementsUi,1);
+  const q=playGames({authenticated:false});assert.equal(await q.api.showLeaderboard(),true);assert.equal(q.calls.signIn,1);assert.deepEqual(q.calls.leaderboardUi,['CgkIs5nC3IEEEAIQDQ']);
+});
+test('cancelled or failed signIn reports failure and does not open the screen',async()=>{
+  const p=playGames({authenticated:false,signIn:async()=>({authenticated:false})});assert.equal(await p.api.showAchievements(),false);assert.equal(p.calls.achievementsUi,0);
+  const q=playGames({authenticated:false,signIn:async()=>{throw Error('no');}});assert.equal(await q.api.showAchievements(),false);
+});
+test('outside the native app the bridge does nothing',()=>{
+  for(const Capacitor of [undefined,{isNativePlatform:()=>false,Plugins:{}}]){
+    const window={Capacitor};vm.runInNewContext(fs.readFileSync('play-games.js','utf8'),{window});
+    assert.equal(window.MassBrawlPlayGames,undefined);
+  }
+});
+test('web build includes play-games.js and index.html loads it',()=>{
+  assert.ok(fs.readFileSync('scripts/build-web.js','utf8').includes("'play-games.js'"));
+  assert.ok(html.includes('<script src="play-games.js"></script>'));
 });

@@ -3,7 +3,7 @@ const path = require('path');
 
 const projectRoot = path.resolve(__dirname, '..');
 const webDirectory = path.join(projectRoot, 'www');
-const webFiles = ['index.html', 'firebase-config.js', 'firebase-online.js', 'ads.js'];
+const webFiles = ['index.html', 'firebase-config.js', 'firebase-online.js', 'ads.js', 'play-games.js'];
 
 fs.mkdirSync(webDirectory, { recursive: true });
 for (const file of webFiles) {
