@@ -392,6 +392,13 @@
     border:1px solid rgba(255,214,107,0.38); font-size:18px; line-height:1;
     display:flex; align-items:center; justify-content:center;
   }
+  .playGamesBtn{
+    position:absolute; top:58px; width:36px; height:36px; padding:0; display:none;
+    border-radius:50%; background:var(--panel); align-items:center; justify-content:center;
+  }
+  .playGamesBtn.available{ display:flex; }
+  #playGamesAchievementsBtn{ right:58px; color:#ffd66b; border:1px solid rgba(255,214,107,0.38); }
+  #playGamesLeaderboardBtn{ right:14px; color:#8ce7c1; border:1px solid rgba(140,231,193,0.45); }
   #achievementCount{ position:absolute; right:-5px; top:-5px; min-width:17px; padding:2px 4px; border-radius:10px; background:var(--orange); color:#04101c; font-size:9px; }
   #storeBtn,#skinStoreBtn,#themeStoreBtn{
     position:absolute; top:14px; width:58px; height:36px; padding:0 5px; border-radius:18px;
@@ -411,6 +418,7 @@
     #storeBtn{ left:10px; } #skinStoreBtn{ left:66px; } #themeStoreBtn{ left:122px; }
     #themeStoreBtn{ width:58px; }
     #achievementsBtn,#settingsBtn{ top:58px; }
+    .playGamesBtn{ top:102px; }
   }
   #traitInventoryBtn{
     position:absolute; z-index:9; display:none; width:44px; height:44px; padding:0;
@@ -466,6 +474,8 @@
       </button>
       <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
       <button id="achievementsBtn" title="Achievements" aria-label="Achievements">🏆<span id="achievementCount">0</span></button>
+      <button id="playGamesAchievementsBtn" class="playGamesBtn" data-i18n-aria-label="playGamesAchievements"><svg class="menuToolIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="11" rx="5.5"/><path d="M7.5 10.5v4M5.5 12.5h4M15.5 11h.1M18 14h.1"/></svg></button>
+      <button id="playGamesLeaderboardBtn" class="playGamesBtn" data-i18n-aria-label="playGamesLeaderboard"><svg class="menuToolIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-6h5v6M9.5 20V9h5v11M15 20v-8h5v8M3 20h18"/></svg></button>
       <div id="coinDisplay" aria-label="Coins"><span>◈</span><span id="coinBalance">1000</span></div>
       <button id="storeBtn" class="menuToolBtn" title="Special orb shop" aria-label="Special orb shop" data-i18n-aria-label="shop">
         <svg class="menuToolIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="13" r="8"/><path d="m14.5 5.8 2.3-2.3 2.8 2.8-2.3 2.3M17.8 3.9l1.1-1.1m1.5.1 1.1.2"/></svg>
@@ -633,6 +643,7 @@
 
 <script src="firebase-config.js"></script>
 <script src="ads.js"></script>
+<script src="play-games.js"></script>
 <script>
 (function(){
   const canvas = document.getElementById('game');
@@ -682,6 +693,8 @@
   const onlineNotice = document.getElementById('onlineNotice');
   const settingsBtn = document.getElementById('settingsBtn');
   const achievementsBtn = document.getElementById('achievementsBtn');
+  const playGamesAchievementsBtn = document.getElementById('playGamesAchievementsBtn');
+  const playGamesLeaderboardBtn = document.getElementById('playGamesLeaderboardBtn');
   const achievementCountEl = document.getElementById('achievementCount');
   const achievementsOverlay = document.getElementById('achievementsOverlay');
   const achievementListEl = document.getElementById('achievementList');
@@ -751,7 +764,7 @@
       bombOrb: 'Bomb orb', spikedOrb: 'Spiked orb', ghostOrb: 'Ghost orb',
       specialInventory: 'Special inventory', selectOrbFirst: 'Select an orb from your inventory first.',
       applyTrait: 'Apply',
-      rewardCoins: 'coins earned', achievementsTitle: 'Achievements', achievementUnlocked: 'Achievement unlocked',
+      rewardCoins: 'coins earned', achievementsTitle: 'Achievements', playGamesAchievements: 'Google Play Games achievements', playGamesLeaderboard: 'Google Play Games leaderboard', playGamesUnavailable: 'Could not connect to Google Play Games', achievementUnlocked: 'Achievement unlocked',
       achievementLocked: 'Locked', achievementEarned: 'Unlocked', achievementPending: 'Ready to claim', achievementClaimed: 'Claimed', achievementInProgress: 'In progress', achievementLevel: 'Level', achievementComplete: 'Complete', claimReward: 'Claim', pendingRewards: 'pending rewards',
       firstLaunchTitle: 'Orb Marksman', firstLaunchDesc: 'Launch {target} orbs in total.',
       bombLaunchTitle: 'Bombardier', bombLaunchDesc: 'Launch {target} bomb orbs.',
@@ -847,7 +860,7 @@
       themeRoyal: 'Königlicher Amethyst',
       bombOrb: 'Bombenkugel', spikedOrb: 'Stachelkugel', ghostOrb: 'Geisterkugel',
       specialInventory: 'Spezialinventar', selectOrbFirst: 'Wähle zuerst eine Kugel aus deinem Vorrat.',
-      applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten', achievementsTitle: 'Erfolge', achievementUnlocked: 'Erfolg freigeschaltet',
+      applyTrait: 'Anwenden', rewardCoins: 'Münzen erhalten', achievementsTitle: 'Erfolge', playGamesAchievements: 'Google Play Games-Erfolge', playGamesLeaderboard: 'Google Play Games-Bestenliste', playGamesUnavailable: 'Verbindung zu Google Play Games nicht möglich', achievementUnlocked: 'Erfolg freigeschaltet',
       achievementLocked: 'Gesperrt', achievementEarned: 'Freigeschaltet', achievementPending: 'Abholbereit', achievementClaimed: 'Abgeholt', achievementInProgress: 'In Arbeit', achievementLevel: 'Stufe', achievementComplete: 'Abgeschlossen', claimReward: 'Abholen', pendingRewards: 'offene Belohnungen',
       firstLaunchTitle: 'Kugelschütze', firstLaunchDesc: 'Schieße insgesamt {target} Kugeln ab.',
       bombLaunchTitle: 'Sprengmeister', bombLaunchDesc: 'Schieße {target} Bombenkugeln ab.',
@@ -943,7 +956,7 @@
       themeRoyal: 'Améthyste royale',
       bombOrb: 'Bille bombe', spikedOrb: 'Bille à pointes', ghostOrb: 'Bille fantôme',
       specialInventory: 'Inventaire spécial', selectOrbFirst: 'Sélectionnez d’abord une bille dans votre inventaire.',
-      applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées', achievementsTitle: 'Succès', achievementUnlocked: 'Succès débloqué',
+      applyTrait: 'Appliquer', rewardCoins: 'pièces gagnées', achievementsTitle: 'Succès', playGamesAchievements: 'Succès Google Play Games', playGamesLeaderboard: 'Classement Google Play Games', playGamesUnavailable: 'Connexion à Google Play Games impossible', achievementUnlocked: 'Succès débloqué',
       achievementLocked: 'Verrouillé', achievementEarned: 'Débloqué', achievementPending: 'À récupérer', achievementClaimed: 'Récupéré', achievementInProgress: 'En cours', achievementLevel: 'Niveau', achievementComplete: 'Terminé', claimReward: 'Récupérer', pendingRewards: 'récompenses à récupérer',
       firstLaunchTitle: 'Tireur de billes', firstLaunchDesc: 'Lancez {target} billes au total.',
       bombLaunchTitle: 'Démolisseur', bombLaunchDesc: 'Lancez {target} billes bombes.',
@@ -1039,7 +1052,7 @@
       themeRoyal: 'Amatista real',
       bombOrb: 'Orbe bomba', spikedOrb: 'Orbe con pinchos', ghostOrb: 'Orbe fantasma',
       specialInventory: 'Inventario especial', selectOrbFirst: 'Primero selecciona un orbe de tu inventario.',
-      applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas', achievementsTitle: 'Logros', achievementUnlocked: 'Logro conseguido',
+      applyTrait: 'Aplicar', rewardCoins: 'monedas obtenidas', achievementsTitle: 'Logros', playGamesAchievements: 'Logros de Google Play Games', playGamesLeaderboard: 'Clasificación de Google Play Games', playGamesUnavailable: 'No se pudo conectar con Google Play Games', achievementUnlocked: 'Logro conseguido',
       achievementLocked: 'Bloqueado', achievementEarned: 'Conseguido', achievementPending: 'Pendiente de cobro', achievementClaimed: 'Cobrado', achievementInProgress: 'En progreso', achievementLevel: 'Nivel', achievementComplete: 'Completado', claimReward: 'Cobrar', pendingRewards: 'recompensas pendientes',
       firstLaunchTitle: 'Lanzador de orbes', firstLaunchDesc: 'Lanza {target} orbes en total.',
       bombLaunchTitle: 'Bombardero', bombLaunchDesc: 'Lanza {target} orbes bomba.',
@@ -1325,7 +1338,7 @@
       return;
     }
     achievementToastTitleEl.textContent = t(item.title);
-    achievementToastRewardEl.textContent = `${t('achievementLevel')} ${item.level} · ${t('achievementPending')} · +${item.reward} ${t('coins')}`;
+    achievementToastRewardEl.textContent = item.reward ? `${t('achievementLevel')} ${item.level} · ${t('achievementPending')} · +${item.reward} ${t('coins')}` : '';
     achievementToastEl.classList.add('visible');
     achievementToastTimer = setTimeout(() => {
       achievementToastEl.classList.remove('visible');
@@ -1376,6 +1389,12 @@
     renderEconomy();
     renderAchievements();
     if (achievementToastQueue.length && !achievementToastTimer) showNextAchievementToast();
+    syncPlayGamesAchievements();
+  }
+
+  // Play solo tiene el primer nivel. No depende de lo reclamado: el progreso cuenta aunque falte la recompensa.
+  function syncPlayGamesAchievements(){
+    window.MassBrawlPlayGames?.syncAchievements(achievementDefinitions.filter((item) => achievementMetric(item) >= item.thresholds[0]).map((item) => item.id));
   }
 
   function recordOrbLaunch(orb){
@@ -1407,6 +1426,8 @@
     }
     saveEconomy();
     checkAchievementProgress();
+    // En pvp no se sabe qué jugador es el dueño de la cuenta; stats.bestScore incluye al rival.
+    if (mode === 'ai' || mode === 'online') window.MassBrawlPlayGames?.submitScore(localScore);
   }
 
   function renderShop(){
@@ -1621,6 +1642,8 @@
     settingsBtn.setAttribute('aria-label', t('settings'));
     achievementsBtn.title = t('achievementsTitle');
     achievementsBtn.setAttribute('aria-label', t('achievementsTitle'));
+    playGamesAchievementsBtn.title = t('playGamesAchievements');
+    playGamesLeaderboardBtn.title = t('playGamesLeaderboard');
     storeBtn.title = t('shop');
     storeBtn.setAttribute('aria-label', t('shop'));
     skinStoreBtn.title = t('orbSkins');
@@ -3650,6 +3673,19 @@
     menuOverlay.classList.remove('hidden');
   });
 
+  async function openPlayGamesScreen(show){
+    if (await show()) return;
+    achievementToastQueue.push({ title: 'playGamesUnavailable' });
+    if (!achievementToastTimer) showNextAchievementToast();
+  }
+
+  if (window.MassBrawlPlayGames) {
+    playGamesAchievementsBtn.classList.add('available');
+    playGamesLeaderboardBtn.classList.add('available');
+    playGamesAchievementsBtn.addEventListener('click', ()=>openPlayGamesScreen(window.MassBrawlPlayGames.showAchievements));
+    playGamesLeaderboardBtn.addEventListener('click', ()=>openPlayGamesScreen(window.MassBrawlPlayGames.showLeaderboard));
+  }
+
   function selectDifficultyButton(selected){
     const key = selected && difficultyProfiles[selected] ? selected : null;
     difficultyEasyBtn.classList.toggle('active', key === 'easy');
@@ -3837,6 +3873,8 @@
   selectDifficultyButton(difficulty);
   renderEconomy();
   renderShop();
+  // El progreso anterior a Play Games se sube en cuanto haya sesión.
+  syncPlayGamesAchievements();
 
   // Muestra el tablero vacío detrás del menú antes de elegir modo
   resize();
